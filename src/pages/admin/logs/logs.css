@@ -1,0 +1,84 @@
+.logs-table {
+  min-width: 900px;
+}
+
+.logs-small {
+  font-size: 13px;
+}
+
+/* Enquanto troca de página/filtro, a tabela atual fica esmaecida */
+.logs-table.loading {
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.logs-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.logs-detail-desc {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.logs-value {
+  font-size: 13px;
+  word-break: break-word;
+  max-width: 260px;
+}
+
+/* Aba Pages: tabela de acessos por tela (clicável) */
+.pages-row {
+  cursor: pointer;
+}
+
+.pages-row:hover,
+.pages-row:focus-visible {
+  background: var(--bg-muted);
+  outline: none;
+}
+
+.pages-row-active,
+.pages-row-active:hover {
+  background: var(--accent-soft, var(--bg-muted));
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.pages-row-empty {
+  color: var(--text-subtle);
+}
+
+.pages-bar-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.pages-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--divider);
+  overflow: hidden;
+}
+
+.pages-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.pages-bar-value {
+  min-width: 32px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.page-logs .card {
+  gap: 12px;
+}

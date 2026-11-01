@@ -1,0 +1,273 @@
+.app-menu {
+  grid-area: menu;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  /* Durante a animação, o conteúdo é cortado em vez de quebrar linha */
+  overflow-x: hidden;
+  box-sizing: border-box;
+  padding: 24px 16px 32px;
+  transition: padding var(--menu-duration) var(--menu-easing);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  background: var(--menu-bg);
+  color: #ffffff;
+}
+
+/* Topo: logo + botão de recolher */
+.app-menu-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.app-menu-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 8px;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.app-menu-brand:hover {
+  color: #ffffff;
+}
+
+.app-menu-brand {
+  min-width: 0;
+}
+
+/* Logotipo: a moldura corta a imagem. Aberto mostra tudo (160px);
+   recolhido mostra só o símbolo "I" (109.7 de 739.88 do desenho = 24px). */
+.app-menu-logo-clip {
+  display: block;
+  width: 160px;
+  overflow: hidden;
+  transition: width var(--menu-duration) var(--menu-easing);
+}
+
+.app-menu-logo {
+  display: block;
+  width: 160px;
+  max-width: none;
+  height: auto;
+}
+
+.app-menu.collapsed .app-menu-logo-clip {
+  width: 24px;
+}
+
+.app-menu-tagline {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--menu-sub);
+}
+
+.app-menu-toggle {
+  flex: 0 0 32px;
+  height: 32px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--menu-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--menu-text);
+  cursor: pointer;
+}
+
+.app-menu-toggle:hover {
+  border-color: var(--menu-text);
+}
+
+/* Grupos e itens */
+.app-menu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.app-menu-title {
+  padding: 0 14px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--menu-label);
+}
+
+.app-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--menu-text);
+}
+
+.app-menu-link:hover {
+  background: var(--menu-hover);
+  color: #ffffff;
+}
+
+.app-menu-link.active {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.app-menu-label {
+  flex: 1;
+  white-space: nowrap;
+  animation: app-menu-fade-in var(--menu-duration) ease;
+}
+
+.app-menu-tagline,
+.app-menu-title,
+.app-menu-footer {
+  white-space: nowrap;
+  animation: app-menu-fade-in var(--menu-duration) ease;
+}
+
+@keyframes app-menu-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-menu {
+    transition: none;
+  }
+
+  .app-menu-label,
+  .app-menu-tagline,
+  .app-menu-title,
+  .app-menu-footer {
+    animation: none;
+  }
+
+  .app-menu-logo-clip {
+    transition: none;
+  }
+}
+
+.app-menu-badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.app-menu-link.active .app-menu-badge {
+  background: var(--ink);
+  color: var(--accent);
+}
+
+/* Sair: empurrado para o fim do menu */
+.app-menu-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-menu.collapsed .app-menu-bottom {
+  align-items: center;
+}
+
+.app-menu-footer {
+  padding: 16px 14px 0;
+  border-top: 1px solid var(--menu-border);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--menu-label);
+}
+
+/* ---------- Menu recolhido ---------- */
+.app-menu.collapsed {
+  padding: 24px 0 32px;
+  align-items: center;
+  gap: 20px;
+}
+
+.app-menu.collapsed .app-menu-top {
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.app-menu.collapsed .app-menu-brand {
+  height: 44px;
+  justify-content: center;
+  padding: 0;
+}
+
+.app-menu.collapsed .app-menu-toggle {
+  flex: none;
+  width: 44px;
+  margin-top: 0;
+}
+
+.app-menu.collapsed .app-menu-group {
+  align-items: center;
+  gap: 4px;
+}
+
+.app-menu.collapsed .app-menu-divider {
+  width: 32px;
+  height: 1px;
+  margin: 0 0 16px;
+  background: var(--menu-border);
+}
+
+.app-menu.collapsed .app-menu-link {
+  position: relative;
+  width: 48px;
+  padding: 0;
+  justify-content: center;
+}
+
+.app-menu.collapsed .app-menu-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 2px solid var(--menu-bg);
+  font-size: 10px;
+}
+
+.app-menu.collapsed .app-menu-link.active .app-menu-badge {
+  border-color: var(--accent);
+}
+
+/* "Sair" é um botão (chama a API), com a mesma aparência dos links */
+button.app-menu-link {
+  width: 100%;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}

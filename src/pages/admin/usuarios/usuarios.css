@@ -1,0 +1,112 @@
+.usuarios-perfis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.usuarios-perfil {
+  padding: 16px 18px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.usuarios-perfil-nome {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.usuarios-perfil-desc {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.usuarios-table {
+  min-width: 880px;
+}
+
+.usuarios-table td {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.usuarios-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.usuarios-email {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Formulário (modal) */
+.usuario-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.usuario-form-error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.usuario-form-hint {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+/* Bloco "Acesso" na edição (reenviar convite / link de nova senha) */
+.usuario-form-access {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--bg-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Ações da linha */
+.usuarios-actions {
+  display: inline-flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Vincular lojas (modal) */
+.vincular-lojas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vincular-lojas-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.vincular-lojas-list {
+  margin: 0;
+  padding: 0 12px;
+  list-style: none;
+  max-height: min(50vh, 360px);
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.vincular-lojas-list li + li {
+  border-top: 1px solid var(--border);
+}
+
+.vincular-lojas-list li.muted {
+  padding: 12px 0;
+}

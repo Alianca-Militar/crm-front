@@ -1,0 +1,21 @@
+.campanhas-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.campanhas-table {
+  min-width: 900px;
+}
+
+.campanhas-tipo {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.campanhas-results-link {
+  font-weight: 600;
+  white-space: nowrap;
+}

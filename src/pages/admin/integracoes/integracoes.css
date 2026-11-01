@@ -1,0 +1,74 @@
+.integracoes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+  gap: 16px;
+}
+
+.integracoes-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.integracoes-card.error {
+  border-color: var(--nok-border);
+}
+
+.integracoes-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.integracoes-id {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.integracoes-sigla {
+  flex: 0 0 44px;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  color: var(--accent);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.integracoes-nome {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.integracoes-tipo {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.integracoes-desc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4a433d;
+}
+
+.integracoes-foot {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}

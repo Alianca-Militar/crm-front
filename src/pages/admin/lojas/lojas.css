@@ -1,0 +1,130 @@
+.lojas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
+  gap: 16px;
+}
+
+.lojas-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lojas-card-head {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.lojas-card-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lojas-sigla {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.lojas-nome {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 28px;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.dl.lojas-dl {
+  padding: 20px 24px;
+  grid-template-columns: 130px minmax(0, 1fr);
+}
+
+.lojas-actions {
+  margin-top: auto;
+  padding: 0 24px 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.lojas-team-link {
+  height: 40px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lojas-empty {
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.lojas-empty p {
+  margin: 0;
+  color: var(--text-subtle);
+}
+
+/* Formulário (modal) */
+.loja-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loja-form-error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.loja-form-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+/* Números de WhatsApp (modal) */
+.numeros {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: min(560px, 100%);
+}
+
+.numeros-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.numeros-meta {
+  font-size: 13px;
+}
+
+.numeros-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.numeros-hint {
+  margin: 0;
+  font-size: 13px;
+}

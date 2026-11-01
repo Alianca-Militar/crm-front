@@ -1,0 +1,200 @@
+.home-date {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Gráfico de receita */
+.home-chart-card {
+  flex: 2 1 520px;
+  gap: 20px;
+}
+
+.home-series-0 {
+  background: var(--ink);
+}
+
+.home-series-1 {
+  background: var(--accent);
+}
+
+.home-series-2 {
+  background: var(--text-muted);
+}
+
+.home-chart {
+  height: 220px;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.home-bar {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.home-bar > :first-child {
+  border-radius: 3px 3px 0 0;
+}
+
+.home-empty {
+  padding: 24px 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.home-chart-labels {
+  display: flex;
+  gap: 14px;
+  margin-top: -12px;
+  padding: 0 4px;
+}
+
+.home-chart-labels > div {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Lojas */
+.home-stores {
+  flex: 1 1 280px;
+}
+
+.home-store {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.home-store:not(:last-of-type) {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--menu-border);
+}
+
+.home-store-name,
+.home-store-info {
+  font-size: 14px;
+  color: #c9c1ba;
+}
+
+.home-store-info {
+  font-size: 13px;
+}
+
+.home-store-value {
+  font-size: 32px;
+}
+
+.home-stores-link {
+  margin-top: auto;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.home-stores-link:hover {
+  color: #ff8a45;
+}
+
+/* Listas */
+.home-lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.home-list {
+  gap: 4px;
+}
+
+.home-list-head {
+  padding-bottom: 8px;
+}
+
+.home-campaign {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 0;
+  border-top: 1px solid var(--divider);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.home-campaign:hover {
+  color: var(--ink);
+}
+
+.home-campaign:hover .home-campaign-name {
+  color: var(--link);
+}
+
+.home-campaign-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.home-campaign-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.home-campaign-channel,
+.home-campaign-info {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.home-chat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--divider);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.home-chat:hover {
+  color: var(--ink);
+}
+
+.home-chat:hover .home-chat-name {
+  color: var(--link);
+}
+
+.home-chat-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.home-chat-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.home-chat-msg {
+  font-size: 14px;
+  color: var(--text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-chat-when {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}

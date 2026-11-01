@@ -1,0 +1,219 @@
+/* A tela de conversas ocupa toda a área de conteúdo, sem o respiro padrão. */
+.page-conversas {
+  margin: -32px;
+  min-height: calc(100vh - 72px);
+  display: flex;
+  flex-wrap: wrap;
+  background: var(--bg);
+}
+
+@media (max-width: 900px) {
+  .page-conversas {
+    margin: -16px;
+  }
+}
+
+/* Lista */
+.conversas-list {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+
+.conversas-list-head {
+  padding: 20px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.conversas-title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 28px;
+  text-transform: uppercase;
+}
+
+.conversas-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.conversas-filter {
+  height: 32px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.conversas-filter.on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.conversas-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  border: 0;
+  border-top: 1px solid var(--divider);
+  background: var(--bg);
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.conversas-item:hover {
+  background: var(--bg-muted);
+}
+
+.conversas-item.selected {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.conversas-item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.conversas-item-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.conversas-item-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.conversas-item-when,
+.conversas-item-store {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.conversas-item-last {
+  font-size: 14px;
+  color: var(--text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Conversa aberta */
+.conversas-chat {
+  flex: 2 1 420px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-muted);
+}
+
+.conversas-chat-head {
+  padding: 16px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.conversas-chat-who {
+  display: flex;
+  flex-direction: column;
+}
+
+.conversas-chat-name {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.conversas-chat-meta {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.conversas-messages {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.conversas-msg {
+  display: flex;
+}
+
+.conversas-msg.out {
+  justify-content: flex-end;
+}
+
+.conversas-bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.45;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.conversas-msg.out .conversas-bubble {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.conversas-time {
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.75;
+  text-align: right;
+}
+
+.conversas-composer {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.conversas-composer input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  padding: 0 14px;
+  font-size: 15px;
+}
+
+.conversas-templates {
+  height: 48px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn.conversas-send {
+  text-transform: none;
+  letter-spacing: 0;
+}

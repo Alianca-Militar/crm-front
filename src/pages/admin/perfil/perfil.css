@@ -1,0 +1,118 @@
+.page-head.perfil-head {
+  align-items: center;
+}
+
+.perfil-id {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.perfil-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  color: var(--accent);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 30px;
+}
+
+.perfil-id-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-title.perfil-name {
+  font-size: 36px;
+}
+
+.perfil-role {
+  font-size: 15px;
+  color: var(--text-subtle);
+}
+
+.perfil-half {
+  flex: 1 1 320px;
+}
+
+.perfil-senha {
+  gap: 14px;
+}
+
+.perfil-avisos {
+  gap: 6px;
+}
+
+.perfil-sessoes {
+  gap: 4px;
+}
+
+.perfil-sessao {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--divider);
+  font-size: 14px;
+}
+
+.perfil-sessao-atual {
+  font-weight: 600;
+  color: var(--ok-title);
+}
+
+/* Foto: avatar com os botões Trocar / Remover embaixo */
+.perfil-photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.perfil-photo-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.perfil-photo-remove {
+  color: var(--danger);
+}
+
+.perfil-id {
+  align-items: flex-start;
+}
+
+.perfil-id-text {
+  padding-top: 8px;
+}
+
+.perfil-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.perfil-avisos .perfil-card-head,
+.perfil-sessoes .perfil-card-head {
+  margin-bottom: 8px;
+}
+
+.perfil-hint {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.perfil-error {
+  font-size: 13px;
+  color: var(--danger);
+}

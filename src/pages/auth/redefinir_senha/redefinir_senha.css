@@ -1,0 +1,35 @@
+/* O visual base vem de .auth-* em index.css (compartilhado com o login). */
+
+.auth-pitch h1.redefinir-title {
+  font-size: 52px;
+}
+
+.redefinir-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.redefinir-rules {
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--bg-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.redefinir-rules-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.redefinir-rules-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-subtle);
+}

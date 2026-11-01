@@ -1,0 +1,47 @@
+.clientes-table {
+  min-width: 960px;
+}
+
+.clientes-table td {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.clientes-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.clientes-person:hover {
+  color: var(--ink);
+}
+
+.clientes-person:hover .clientes-person-name {
+  color: var(--link);
+}
+
+.clientes-person-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.clientes-person-name {
+  font-weight: 600;
+}
+
+.clientes-person-rank {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.clientes-cpf {
+  font-size: 13px;
+}
+
+.clientes-buyers {
+  align-self: flex-end;
+  min-height: 40px;
+}

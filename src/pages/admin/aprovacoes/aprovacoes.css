@@ -1,0 +1,53 @@
+.aprov-list {
+  display: grid;
+  gap: 16px;
+}
+
+.aprov-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px 24px;
+}
+
+.aprov-main {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.aprov-meta {
+  font-size: 13px;
+}
+
+.aprov-notes {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.aprov-notes p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.aprov-notes-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.aprov-preview {
+  align-self: start;
+}
+
+.aprov-actions {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+@media (max-width: 760px) {
+  .aprov-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

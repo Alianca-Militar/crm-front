@@ -1,0 +1,125 @@
+/* Escolha do relatório */
+.relatorios-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.relatorios-option {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.relatorios-option:hover {
+  border-color: var(--border-strong);
+}
+
+.relatorios-option.on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.relatorios-option-name {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.relatorios-option-desc {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* Vendas por produto */
+.relatorios-produtos {
+  flex: 3 1 520px;
+  padding: 24px 0 8px;
+  gap: 12px;
+}
+
+.relatorios-produtos-title {
+  padding: 0 24px;
+}
+
+.relatorios-scroll {
+  overflow-x: auto;
+}
+
+.relatorios-table {
+  min-width: 620px;
+}
+
+.relatorios-table th:first-child,
+.relatorios-table td:first-child {
+  padding-left: 24px;
+}
+
+.relatorios-table th:last-child,
+.relatorios-table td:last-child {
+  padding-right: 24px;
+}
+
+.relatorios-total {
+  font-weight: 700;
+}
+
+/* NPS */
+.relatorios-nps {
+  flex: 2 1 320px;
+}
+
+.relatorios-nps-nums {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.relatorios-nps-label {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.relatorios-nps-value {
+  font-size: 44px;
+}
+
+.relatorios-nps-bar {
+  display: flex;
+  height: 28px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.promotores {
+  background: var(--ok-icon);
+}
+
+.neutros {
+  background: var(--border-strong);
+}
+
+.detratores {
+  background: var(--danger);
+}
+
+.relatorios-nps-lojas {
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.relatorios-nps-loja {
+  display: flex;
+  justify-content: space-between;
+}

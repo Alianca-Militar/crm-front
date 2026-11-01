@@ -1,0 +1,177 @@
+.resultados-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.resultados-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.page-title.resultados-title {
+  font-size: 36px;
+}
+
+.resultados-kpis {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.kpi-value.resultados-kpi-value {
+  font-size: 36px;
+}
+
+/* Funil */
+.resultados-funil {
+  flex: 3 1 480px;
+  gap: 14px;
+}
+
+.resultados-funil-row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) 110px;
+  gap: 12px;
+  align-items: center;
+}
+
+.resultados-funil-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.resultados-funil-track {
+  height: 28px;
+  border-radius: 4px;
+  background: var(--bg-muted);
+  overflow: hidden;
+}
+
+.resultados-funil-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--ink);
+}
+
+.resultados-funil-bar.last {
+  background: var(--accent);
+}
+
+.resultados-funil-num {
+  font-size: 14px;
+  text-align: right;
+}
+
+.resultados-funil-pct {
+  color: var(--text-muted);
+}
+
+/* Interesse por cidade */
+.resultados-cidades {
+  flex: 2 1 320px;
+}
+
+.resultados-cidades-sub {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-subtle);
+}
+
+.resultados-cidade {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.resultados-cidade-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.resultados-cidade-top .strong {
+  font-weight: 600;
+}
+
+.resultados-cidade-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--divider);
+  overflow: hidden;
+}
+
+.resultados-cidade-track > span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+}
+
+/* Por loja */
+.resultados-lojas {
+  flex: 1 1 320px;
+}
+
+.resultados-loja {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resultados-loja:not(:last-of-type) {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--menu-border);
+}
+
+.resultados-loja-right {
+  text-align: right;
+}
+
+.resultados-loja-label {
+  font-size: 14px;
+  color: #c9c1ba;
+}
+
+.resultados-loja-value {
+  font-size: 28px;
+}
+
+.resultados-loja-value.accent {
+  color: var(--accent);
+}
+
+/* Últimos resgates */
+.resultados-resgates {
+  flex: 2 1 480px;
+  padding: 24px 0 8px;
+  gap: 8px;
+}
+
+.resultados-resgates-title {
+  padding: 0 24px;
+}
+
+.resultados-resgates-scroll {
+  overflow-x: auto;
+}
+
+.resultados-resgates-table {
+  min-width: 560px;
+}
+
+.resultados-resgates-table th:first-child,
+.resultados-resgates-table td:first-child {
+  padding-left: 24px;
+}
+
+.resultados-resgates-table th:last-child,
+.resultados-resgates-table td:last-child {
+  padding-right: 24px;
+}
+
+@media (max-width: 600px) {
+  .resultados-funil-row {
+    grid-template-columns: 110px minmax(0, 1fr) 90px;
+  }
+}

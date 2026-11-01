@@ -1,0 +1,12 @@
+/* O visual base vem de .auth-* em index.css (compartilhado com redefinir senha). */
+
+.login-password-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.login-forgot {
+  font-size: 14px;
+  font-weight: 600;
+}

@@ -1,0 +1,50 @@
+.app-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'menu header'
+    'menu content';
+  background: var(--bg-muted);
+  /* Abre/fecha o menu animando a largura da coluna */
+  transition: grid-template-columns var(--menu-duration) var(--menu-easing);
+}
+
+.app-layout.menu-collapsed {
+  grid-template-columns: 80px minmax(0, 1fr);
+}
+
+.app-content {
+  grid-area: content;
+  min-width: 0;
+  padding: 32px;
+}
+
+/* Telas estreitas: o menu fica sempre recolhido */
+@media (max-width: 900px) {
+  .app-layout,
+  .app-layout.menu-collapsed {
+    grid-template-columns: 80px minmax(0, 1fr);
+  }
+
+  .app-content {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-layout {
+    transition: none;
+  }
+}
+
+/* Enquanto confere a sessão (ou se a API não responder) */
+.app-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  color: var(--text-subtle);
+  background: var(--bg-muted);
+}

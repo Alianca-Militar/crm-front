@@ -1,0 +1,35 @@
+.configuracoes-seguranca {
+  gap: 8px;
+}
+
+.configuracoes-seguranca .card-title {
+  margin-bottom: 8px;
+}
+
+/* Agrupa as seções editáveis (disabled para quem não é admin) */
+.cfg-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+}
+
+.cfg-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cfg-error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.cfg-hint {
+  font-size: 13px;
+  color: var(--text-subtle);
+}

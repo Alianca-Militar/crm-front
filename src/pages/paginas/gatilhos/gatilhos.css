@@ -1,0 +1,134 @@
+.gatilhos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gatilhos-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+}
+
+.gatilhos-info {
+  flex: 1 1 240px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gatilhos-name {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.gatilhos-stats {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+/* Fluxo QUANDO → ESPERAR → ENVIAR */
+.gatilhos-flow {
+  flex: 2 1 420px;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.gatilhos-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 6px;
+}
+
+.gatilhos-step strong {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.gatilhos-step.when {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.gatilhos-step.when strong {
+  color: var(--accent);
+}
+
+.gatilhos-step.wait {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+}
+
+.gatilhos-step.wait strong {
+  color: var(--text-subtle);
+}
+
+.gatilhos-step.send {
+  background: var(--accent-bg);
+}
+
+.gatilhos-step.send strong {
+  color: var(--link);
+}
+
+.gatilhos-step.send .mono {
+  font-size: 13px;
+}
+
+.gatilhos-arrow {
+  display: inline-flex;
+  color: var(--text-muted);
+}
+
+/* Liga/desliga */
+.gatilhos-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.gatilhos-switch {
+  width: 48px;
+  height: 28px;
+  padding: 3px;
+  border: 0;
+  border-radius: 14px;
+  display: flex;
+  justify-content: flex-start;
+  background: #8a817a;
+  cursor: pointer;
+}
+
+.gatilhos-switch.on {
+  justify-content: flex-end;
+  background: var(--ok-icon);
+}
+
+.gatilhos-knob {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.gatilhos-toggle-label {
+  min-width: 56px;
+}
