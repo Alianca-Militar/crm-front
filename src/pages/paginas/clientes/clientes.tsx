@@ -22,6 +22,9 @@ export default function Clientes() {
     store: params.get('store') ?? '',
     segment: params.get('segment') ?? '',
     buyers: params.get('buyers') ?? '',
+    last_order_from: params.get('last_order_from') ?? '',
+    last_order_to: params.get('last_order_to') ?? '',
+    blocked: params.get('blocked') ?? '',
     ordering: params.get('ordering') ?? 'recent',
     page: Number(params.get('page') ?? '1') || 1,
   }
@@ -111,6 +114,36 @@ export default function Clientes() {
           </select>
         </div>
         <div className="field">
+          <label htmlFor="clientes-from">Última compra de</label>
+          <input
+            id="clientes-from"
+            type="date"
+            value={filters.last_order_from}
+            onChange={(e) => set('last_order_from', e.target.value)}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="clientes-to">até</label>
+          <input
+            id="clientes-to"
+            type="date"
+            value={filters.last_order_to}
+            onChange={(e) => set('last_order_to', e.target.value)}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="clientes-blocked">Marketing</label>
+          <select
+            id="clientes-blocked"
+            value={filters.blocked}
+            onChange={(e) => set('blocked', e.target.value)}
+          >
+            <option value="">Todos</option>
+            <option value="1">Bloqueados</option>
+            <option value="0">Liberados</option>
+          </select>
+        </div>
+        <div className="field">
           <label htmlFor="clientes-ord">Ordenar por</label>
           <select
             id="clientes-ord"
@@ -171,9 +204,15 @@ export default function Clientes() {
                 <td className="num">{c.orders_count || '—'}</td>
                 <td className="num strong">{c.orders_count ? formatMoney(c.total_spent) : '—'}</td>
                 <td>
-                  {[c.primary_phone && 'Telefone', c.has_email && 'e-mail']
-                    .filter(Boolean)
-                    .join(' · ') || <span className="muted">sem contato</span>}
+                  {c.primary_phone || c.has_email ? (
+                    <>
+                      {c.primary_phone && <span className="mono">{c.primary_phone}</span>}
+                      {c.primary_phone && c.has_email && ' · '}
+                      {c.has_email && 'e-mail'}
+                    </>
+                  ) : (
+                    <span className="muted">sem contato</span>
+                  )}
                 </td>
                 <td>
                   {c.rfm_segment ? (

@@ -11,6 +11,7 @@ import NovaCampanha from './pages/paginas/nova_campanha/nova_campanha'
 import Resultados from './pages/paginas/resultados/resultados'
 import Clientes from './pages/paginas/clientes/clientes'
 import FichaCliente from './pages/paginas/ficha_cliente/ficha_cliente'
+import Bloqueios from './pages/paginas/bloqueios/bloqueios'
 import Templates from './pages/paginas/templates/templates'
 import WhatsappEditor from './pages/paginas/templates/whatsapp_editor'
 import EmailEditor from './pages/paginas/templates/email_editor'
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
       { path: 'campanhas/:id/resultados', element: <Resultados /> },
       { path: 'clientes', element: <Clientes /> },
       { path: 'clientes/:id', element: <FichaCliente /> },
+      { path: 'bloqueios', element: <Bloqueios /> },
       { path: 'templates', element: <Templates /> },
       { path: 'templates/whatsapp/novo', element: <WhatsappEditor /> },
       { path: 'templates/email/novo', element: <EmailEditor /> },

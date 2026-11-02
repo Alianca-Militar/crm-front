@@ -46,6 +46,24 @@ export function formatDate(iso: string | null | undefined): string {
   return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('pt-BR')
 }
 
+/** 5532999990000 → (32) 99999-0000 (vazio = "—"; o que não for telefone BR volta como veio). */
+export function formatPhone(phone: string | null | undefined): string {
+  if (!phone) return '—'
+  const local = phone.startsWith('55') ? phone.slice(2) : phone
+  if (local.length === 11) return `(${local.slice(0, 2)}) ${local.slice(2, 7)}-${local.slice(7)}`
+  if (local.length === 10) return `(${local.slice(0, 2)}) ${local.slice(2, 6)}-${local.slice(6)}`
+  return phone
+}
+
+/** 2026-10-31T14:05:00Z → 31/10/2026 11:05 (vazio = "—"). */
+export function formatDateTime(iso: string | null | undefined): string {
+  if (!iso) return '—'
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return '—'
+  const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return `${date.toLocaleDateString('pt-BR')} ${time}`
+}
+
 /** "MARIA DA SILVA" → "MS" */
 export function initials(name: string | null | undefined): string {
   const parts = (name ?? '').trim().split(/\s+/).filter(Boolean)

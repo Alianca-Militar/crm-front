@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, ApiError } from '../../../lib/api'
 
 export type CampaignStatus =
@@ -68,6 +68,23 @@ export type Campaign = {
   audience_total: number | null
   created_at: string
   updated_at: string
+  /** Só na lista: funil e vendas atribuídas (último toque, qualquer loja, janela da campanha). */
+  results?: CampaignResults | null
+}
+
+export type CampaignResults = {
+  sent: number
+  delivered: number
+  read: number
+  orders: number
+  buyers: number
+  revenue: string
+}
+
+export type CampaignListFilters = {
+  store?: string
+  created_from?: string
+  created_to?: string
 }
 
 export type CampaignInput = Pick<
@@ -122,10 +139,14 @@ export type FilterOptions = {
 
 const key = ['campaigns'] as const
 
-export function useCampaigns() {
+export function useCampaigns(filters: CampaignListFilters = {}) {
+  const search = new URLSearchParams(
+    Object.entries(filters).filter((entry): entry is [string, string] => Boolean(entry[1])),
+  ).toString()
   return useQuery({
-    queryKey: [...key, 'list'],
-    queryFn: () => api<Campaign[]>('/campaigns/'),
+    queryKey: [...key, 'list', filters],
+    queryFn: () => api<Campaign[]>(`/campaigns/${search ? `?${search}` : ''}`),
+    placeholderData: keepPreviousData,
   })
 }
 

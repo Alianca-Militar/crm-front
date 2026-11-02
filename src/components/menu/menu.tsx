@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router'
 import { useLogout, useMe } from '../../lib/auth'
 import logoHorizontal from '../../img/logos/invictus-logotipo-horizontal-branca-registrado.svg'
 import { IconChevronLeft, IconChevronRight, IconLogout } from './icons'
-import { getRouteInfo, navGroups } from './nav'
+import { getRouteInfo, visibleGroups } from './nav'
 import './menu.css'
 
 type MenuProps = {
@@ -52,7 +52,7 @@ export default function Menu({ collapsed, onToggle, badges = {} }: MenuProps) {
         </button>
       </div>
 
-      {navGroups.map((group, index) => (
+      {visibleGroups(role).map((group, index) => (
         <div key={group.key} className="app-menu-group">
           {collapsed ? (
             index > 0 && <div className="app-menu-divider" aria-hidden="true" />
@@ -60,33 +60,31 @@ export default function Menu({ collapsed, onToggle, badges = {} }: MenuProps) {
             <div className="app-menu-title">{group.title}</div>
           )}
 
-          {group.items
-            .filter((item) => !item.roles || (role && item.roles.includes(role)))
-            .map((item) => {
-              const Icon = item.icon
-              const active = item.key === activeKey
-              const badge = badges[item.key] ?? 0
-              return (
-                <Link
-                  key={item.key}
-                  to={item.to}
-                  className={active ? 'app-menu-link active' : 'app-menu-link'}
-                  aria-current={active ? 'page' : undefined}
-                  aria-label={
-                    collapsed ? item.label + (badge ? `, ${badge} aguardando` : '') : undefined
-                  }
-                  title={collapsed ? item.label : undefined}
-                >
-                  <Icon />
-                  {!collapsed && <span className="app-menu-label">{item.label}</span>}
-                  {badge > 0 && (
-                    <span className="app-menu-badge" aria-hidden={collapsed}>
-                      {badge}
-                    </span>
-                  )}
-                </Link>
-              )
-            })}
+          {group.items.map((item) => {
+            const Icon = item.icon
+            const active = item.key === activeKey
+            const badge = badges[item.key] ?? 0
+            return (
+              <Link
+                key={item.key}
+                to={item.to}
+                className={active ? 'app-menu-link active' : 'app-menu-link'}
+                aria-current={active ? 'page' : undefined}
+                aria-label={
+                  collapsed ? item.label + (badge ? `, ${badge} aguardando` : '') : undefined
+                }
+                title={collapsed ? item.label : undefined}
+              >
+                <Icon />
+                {!collapsed && <span className="app-menu-label">{item.label}</span>}
+                {badge > 0 && (
+                  <span className="app-menu-badge" aria-hidden={collapsed}>
+                    {badge}
+                  </span>
+                )}
+              </Link>
+            )
+          })}
         </div>
       ))}
 

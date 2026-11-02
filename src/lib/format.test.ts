@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatCep, formatCnpj, formatLastAccess, onlyDigits } from './format'
+import { formatCep, formatCnpj, formatLastAccess, formatPhone, onlyDigits } from './format'
 
 describe('format', () => {
   it('onlyDigits', () => {
@@ -27,5 +27,11 @@ describe('format', () => {
     expect(formatLastAccess(new Date(2026, 9, 24, 8, 12).toISOString(), now)).toBe('hoje, 08:12')
     expect(formatLastAccess(new Date(2026, 9, 23, 17, 55).toISOString(), now)).toBe('ontem, 17:55')
     expect(formatLastAccess(new Date(2026, 8, 2, 9, 0).toISOString(), now)).toBe('02/09/2026')
+  })
+
+  it('formatPhone', () => {
+    expect(formatPhone('5531988887777')).toBe('(31) 98888-7777')
+    expect(formatPhone('553133334444')).toBe('(31) 3333-4444')
+    expect(formatPhone(null)).toBe('—')
   })
 })

@@ -106,6 +106,9 @@ export type CustomerFilters = {
   store?: string
   segment?: string
   buyers?: string
+  last_order_from?: string
+  last_order_to?: string
+  blocked?: string
   ordering?: string
   page?: number
 }

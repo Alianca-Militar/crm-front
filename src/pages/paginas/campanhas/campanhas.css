@@ -7,7 +7,24 @@
 }
 
 .campanhas-table {
-  min-width: 900px;
+  min-width: 1080px;
+}
+
+.campanhas-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.campanhas-filters .field input,
+.campanhas-filters .field select {
+  height: 40px;
+}
+
+.campanhas-rate {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .campanhas-tipo {

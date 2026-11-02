@@ -242,3 +242,8 @@
   flex-direction: column;
   gap: 2px;
 }
+
+.ficha-consent-note {
+  margin: 4px 0 0;
+  font-size: 13px;
+}

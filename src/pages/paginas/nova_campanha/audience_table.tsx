@@ -1,13 +1,7 @@
 import { useState } from 'react'
 import MsgNok from '../../../components/msg_nok/msg_nok'
+import { formatPhone } from '../../../lib/format'
 import { useAudience } from '../campanhas/campanhas_api'
-
-function formatPhone(phone: string): string {
-  const local = phone.startsWith('55') ? phone.slice(2) : phone
-  if (local.length === 11) return `(${local.slice(0, 2)}) ${local.slice(2, 7)}-${local.slice(7)}`
-  if (local.length === 10) return `(${local.slice(0, 2)}) ${local.slice(2, 6)}-${local.slice(6)}`
-  return phone
-}
 
 /** Público congelado da campanha: incluídos e excluídos (com o motivo). */
 export default function AudienceTable({

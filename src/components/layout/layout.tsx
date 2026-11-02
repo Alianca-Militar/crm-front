@@ -5,6 +5,7 @@ import { ROLE_LABEL, useMe } from '../../lib/auth'
 import { useTemplateReviews } from '../../pages/paginas/templates/templates_api'
 import Header, { type HeaderUser, type StoreOption } from '../header/header'
 import Menu from '../menu/menu'
+import { canAccess } from '../menu/nav'
 import type { NotificationItem } from '../notifications/notifications'
 import './layout.css'
 
@@ -64,6 +65,10 @@ export default function Layout() {
       return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />
     }
     return <div className="app-loading">{me.error.message}</div>
+  }
+  // Tela fora do perfil (ex.: vendedor digitou /campanhas): volta para a Home.
+  if (!canAccess(location.pathname, me.data.role)) {
+    return <Navigate to="/" replace />
   }
 
   const user: HeaderUser = {

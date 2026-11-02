@@ -1,7 +1,14 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import MsgNok from '../../../components/msg_nok/msg_nok'
-import { formatCep, formatDate, formatMoney, initials, titleCase } from '../../../lib/format'
+import {
+  formatCep,
+  formatDate,
+  formatMoney,
+  initials,
+  titleCase,
+  formatPhone,
+} from '../../../lib/format'
 import {
   type Customer,
   useCustomer,
@@ -19,15 +26,6 @@ const SEND_STATUS: Record<string, string> = {
   delivered: 'Entregue',
   read: 'Lida',
   failed: 'Falhou',
-}
-
-/** 5532999990000 → (32) 99999-0000 */
-function formatPhone(phone: string | null): string {
-  if (!phone) return '—'
-  const local = phone.startsWith('55') ? phone.slice(2) : phone
-  if (local.length === 11) return `(${local.slice(0, 2)}) ${local.slice(2, 7)}-${local.slice(7)}`
-  if (local.length === 10) return `(${local.slice(0, 2)}) ${local.slice(2, 6)}-${local.slice(6)}`
-  return phone
 }
 
 function formatCpf(cpf: string | null): string {
@@ -165,13 +163,18 @@ export default function FichaCliente() {
           <section className="card ficha-card">
             <h2 className="card-title sm">Marketing (LGPD)</h2>
             <div className="ficha-consent">
-              <span>WhatsApp</span>
+              <span>Disparos em massa</span>
               {blocked ? (
                 <span className="ficha-consent-blocked">Bloqueado</span>
               ) : (
                 <span className="ficha-consent-ok">Pode receber</span>
               )}
             </div>
+            {blocked && (
+              <p className="muted ficha-consent-note">
+                Só sai das campanhas. O vendedor pode falar com o cliente normalmente.
+              </p>
+            )}
             {d?.last_campaign_sent_at && (
               <div className="ficha-consent">
                 <span>Última campanha</span>

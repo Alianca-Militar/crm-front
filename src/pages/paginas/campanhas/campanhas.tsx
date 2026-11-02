@@ -3,7 +3,10 @@ import { Link } from 'react-router'
 import { IconPlus } from '../../../components/menu/icons'
 import MsgNok from '../../../components/msg_nok/msg_nok'
 import { useMe } from '../../../lib/auth'
+import { formatMoney } from '../../../lib/format'
 import {
+  type Campaign,
+  type CampaignListFilters,
   CAMPAIGN_STATUS_LABEL,
   CAMPAIGN_STATUS_TONE,
   type CampaignStatus,
@@ -19,10 +22,60 @@ const TABS: { label: string; statuses: CampaignStatus[] | null }[] = [
 ]
 
 const dateFormat = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' })
+const n = (value: number) => value.toLocaleString('pt-BR')
+
+/** Número e % sobre as enviadas (ex.: "1.234 · 87%"). */
+function Rate({ value, of }: { value: number; of: number }) {
+  return (
+    <>
+      {n(value)}
+      <span className="campanhas-rate"> · {Math.round((value / of) * 100)}%</span>
+    </>
+  )
+}
+
+/** Enviadas, entregues, lidas e vendas atribuídas (vazio enquanto nada foi enviado). */
+function Results({ c }: { c: Campaign }) {
+  const r = c.results
+  if (!r || !r.sent) {
+    return (
+      <>
+        {[0, 1, 2, 3].map((i) => (
+          <td key={i} className="num muted">
+            —
+          </td>
+        ))}
+      </>
+    )
+  }
+  return (
+    <>
+      <td className="num">{n(r.sent)}</td>
+      <td className="num nowrap">
+        <Rate value={r.delivered} of={r.sent} />
+      </td>
+      <td className="num nowrap">
+        <Rate value={r.read} of={r.sent} />
+      </td>
+      <td className="num nowrap">
+        {r.orders ? (
+          <span title={`${n(r.orders)} vendas de ${n(r.buyers)} clientes`}>
+            <strong>{formatMoney(r.revenue)}</strong>
+            <span className="campanhas-rate"> · {n(r.orders)}</span>
+          </span>
+        ) : (
+          <span className="muted">R$ 0,00</span>
+        )}
+      </td>
+    </>
+  )
+}
 
 export default function Campanhas() {
   const me = useMe()
-  const campaigns = useCampaigns()
+  const [filters, setFilters] = useState<CampaignListFilters>({})
+  const campaigns = useCampaigns(filters)
+  const stores = me.data?.stores ?? []
   const [tab, setTab] = useState('Todas')
   const canWrite = me.data?.role === 'admin' || me.data?.role === 'gerente'
   const all = campaigns.data ?? []
@@ -67,6 +120,43 @@ export default function Campanhas() {
             )
           })}
         </div>
+        <div className="campanhas-filters">
+          {stores.length > 1 && (
+            <div className="field">
+              <label htmlFor="camp-store">Loja</label>
+              <select
+                id="camp-store"
+                value={filters.store ?? ''}
+                onChange={(e) => setFilters({ ...filters, store: e.target.value })}
+              >
+                <option value="">Todas</option>
+                {stores.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="field">
+            <label htmlFor="camp-from">Criada de</label>
+            <input
+              id="camp-from"
+              type="date"
+              value={filters.created_from ?? ''}
+              onChange={(e) => setFilters({ ...filters, created_from: e.target.value })}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="camp-to">até</label>
+            <input
+              id="camp-to"
+              type="date"
+              value={filters.created_to ?? ''}
+              onChange={(e) => setFilters({ ...filters, created_to: e.target.value })}
+            />
+          </div>
+        </div>
       </div>
 
       {campaigns.isError && (
@@ -82,24 +172,31 @@ export default function Campanhas() {
             <tr>
               <th>Campanha</th>
               <th>Loja</th>
-              <th>Número · Template</th>
               <th className="num">Público</th>
+              <th className="num">Enviadas</th>
+              <th className="num">Entregues</th>
+              <th className="num">Lidas</th>
+              <th
+                className="num"
+                title="Compras em qualquer loja dentro da janela da campanha (padrão 7 dias). Cada venda conta só para a campanha mais recente."
+              >
+                Vendas
+              </th>
               <th>Criada</th>
-              <th>Exportada</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
             {campaigns.isPending && (
               <tr>
-                <td colSpan={7} className="muted">
+                <td colSpan={9} className="muted">
                   Carregando…
                 </td>
               </tr>
             )}
             {campaigns.isSuccess && rows.length === 0 && (
               <tr>
-                <td colSpan={7} className="muted">
+                <td colSpan={9} className="muted">
                   {all.length === 0
                     ? 'Nenhuma campanha ainda. Crie a primeira em “Nova campanha”.'
                     : 'Nenhuma campanha neste filtro.'}
@@ -113,12 +210,11 @@ export default function Campanhas() {
                     {c.name}
                   </Link>
                   {c.objective && <div className="campanhas-tipo">{c.objective}</div>}
+                  <div className="campanhas-tipo">
+                    {c.number_label} · <span className="mono">{c.template_name}</span>
+                  </div>
                 </td>
                 <td>{c.store_code}</td>
-                <td>
-                  <div>{c.number_label}</div>
-                  <div className="campanhas-tipo mono">{c.template_name}</div>
-                </td>
                 <td className="num">
                   {c.audience_total ? (
                     <span title={`${c.audience_total} no filtro`}>
@@ -128,16 +224,17 @@ export default function Campanhas() {
                     <span className="muted">—</span>
                   )}
                 </td>
+                <Results c={c} />
                 <td className="nowrap">{dateFormat.format(new Date(c.created_at))}</td>
-                <td className="nowrap">
-                  {c.exported_at ? (
-                    dateFormat.format(new Date(c.exported_at))
-                  ) : (
-                    <span className="muted">—</span>
-                  )}
-                </td>
                 <td>
-                  <span className={`badge ${CAMPAIGN_STATUS_TONE[c.status]}`}>
+                  <span
+                    className={`badge ${CAMPAIGN_STATUS_TONE[c.status]}`}
+                    title={
+                      c.exported_at
+                        ? `Exportada em ${dateFormat.format(new Date(c.exported_at))}`
+                        : undefined
+                    }
+                  >
                     {CAMPAIGN_STATUS_LABEL[c.status]}
                   </span>
                 </td>

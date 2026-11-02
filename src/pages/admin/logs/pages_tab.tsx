@@ -61,7 +61,11 @@ export default function PagesTab() {
         </div>
         <div className="field">
           <label htmlFor="pv-user">Usuário</label>
-          <select id="pv-user" value={filters.user} onChange={(e) => update({ user: e.target.value })}>
+          <select
+            id="pv-user"
+            value={filters.user}
+            onChange={(e) => update({ user: e.target.value })}
+          >
             <option value="">Todos</option>
             {(users.data ?? []).map((u) => (
               <option key={u.id} value={String(u.id)}>
@@ -215,7 +219,9 @@ export default function PagesTab() {
               {views.data?.results.length === 0 && (
                 <tr>
                   <td colSpan={4} className="muted">
-                    {hasFilter ? 'Nenhum acesso com esses filtros.' : 'Nenhum acesso registrado ainda.'}
+                    {hasFilter
+                      ? 'Nenhum acesso com esses filtros.'
+                      : 'Nenhum acesso registrado ainda.'}
                   </td>
                 </tr>
               )}

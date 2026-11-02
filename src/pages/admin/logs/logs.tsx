@@ -186,7 +186,11 @@ function LogsTab() {
       )}
 
       <div className="table-wrap">
-        <table className={logs.isFetching ? 'table compact logs-table loading' : 'table compact logs-table'}>
+        <table
+          className={
+            logs.isFetching ? 'table compact logs-table loading' : 'table compact logs-table'
+          }
+        >
           <thead>
             <tr>
               <th>Data e hora</th>

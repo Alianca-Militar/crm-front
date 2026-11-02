@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import type { Role } from '../../lib/auth'
 import {
   IconAprovacoes,
+  IconBloqueios,
   IconCampanhas,
   IconCanais,
   IconClientes,
@@ -25,8 +26,8 @@ export type NavItem = {
   icon: ComponentType<{ size?: number }>
   /** Seção no breadcrumb, quando diferente da do grupo. */
   section?: string
-  /** Só aparece para estes perfis (padrão: todos). */
-  roles?: Role[]
+  /** Perfis que veem o item e abrem a tela. */
+  roles: Role[]
 }
 
 export type NavGroup = {
@@ -36,26 +37,58 @@ export type NavGroup = {
   items: NavItem[]
 }
 
+// Quem vê cada item (o backend também recusa com 403 o que o perfil não pode).
+const ALL: Role[] = ['admin', 'gerente', 'analista', 'vendedor']
+const OFFICE: Role[] = ['admin', 'gerente', 'analista']
+const MANAGERS: Role[] = ['admin', 'gerente']
+const ADMIN: Role[] = ['admin']
+
 export const navGroups: NavGroup[] = [
   {
     key: 'crm',
     title: 'Relacionamento',
     section: 'Relacionamento',
     items: [
-      { key: 'home', to: '/', label: 'Home', icon: IconHome, section: 'CRM' },
-      { key: 'campanhas', to: '/campanhas', label: 'Campanhas', icon: IconCampanhas },
+      { key: 'home', to: '/', label: 'Home', icon: IconHome, section: 'CRM', roles: ALL },
+      {
+        key: 'campanhas',
+        to: '/campanhas',
+        label: 'Campanhas',
+        icon: IconCampanhas,
+        roles: OFFICE,
+      },
       {
         key: 'resultados',
         to: '/resultados',
         label: 'Resultados',
         icon: IconResultados,
         section: 'Campanhas',
+        roles: OFFICE,
       },
-      { key: 'clientes', to: '/clientes', label: 'Clientes', icon: IconClientes },
-      { key: 'conversas', to: '/conversas', label: 'Conversas', icon: IconConversas },
-      { key: 'templates', to: '/templates', label: 'Templates', icon: IconTemplates },
-      { key: 'gatilhos', to: '/gatilhos', label: 'Gatilhos', icon: IconGatilhos },
-      { key: 'relatorios', to: '/relatorios', label: 'Relatórios', icon: IconRelatorios },
+      { key: 'clientes', to: '/clientes', label: 'Clientes', icon: IconClientes, roles: ALL },
+      {
+        key: 'bloqueios',
+        to: '/bloqueios',
+        label: 'Bloqueios',
+        icon: IconBloqueios,
+        roles: OFFICE,
+      },
+      { key: 'conversas', to: '/conversas', label: 'Conversas', icon: IconConversas, roles: ALL },
+      {
+        key: 'templates',
+        to: '/templates',
+        label: 'Templates',
+        icon: IconTemplates,
+        roles: OFFICE,
+      },
+      { key: 'gatilhos', to: '/gatilhos', label: 'Gatilhos', icon: IconGatilhos, roles: MANAGERS },
+      {
+        key: 'relatorios',
+        to: '/relatorios',
+        label: 'Relatórios',
+        icon: IconRelatorios,
+        roles: OFFICE,
+      },
     ],
   },
   {
@@ -63,23 +96,36 @@ export const navGroups: NavGroup[] = [
     title: 'Admin',
     section: 'Admin',
     items: [
-      { key: 'usuarios', to: '/admin/usuarios', label: 'Usuários', icon: IconUsuarios },
-      { key: 'lojas', to: '/admin/lojas', label: 'Lojas', icon: IconLojas },
-      { key: 'canais', to: '/admin/canais', label: 'Canais', icon: IconCanais },
+      {
+        key: 'usuarios',
+        to: '/admin/usuarios',
+        label: 'Usuários',
+        icon: IconUsuarios,
+        roles: ADMIN,
+      },
+      { key: 'lojas', to: '/admin/lojas', label: 'Lojas', icon: IconLojas, roles: MANAGERS },
+      { key: 'canais', to: '/admin/canais', label: 'Canais', icon: IconCanais, roles: ADMIN },
       {
         key: 'aprovacoes',
         to: '/admin/aprovacoes',
         label: 'Aprovações',
         icon: IconAprovacoes,
-        roles: ['admin'],
+        roles: ADMIN,
       },
-      { key: 'integracoes', to: '/admin/integracoes', label: 'Integrações', icon: IconIntegracoes },
-      { key: 'logs', to: '/admin/logs', label: 'Logs', icon: IconLogs },
+      {
+        key: 'integracoes',
+        to: '/admin/integracoes',
+        label: 'Integrações',
+        icon: IconIntegracoes,
+        roles: ADMIN,
+      },
+      { key: 'logs', to: '/admin/logs', label: 'Logs', icon: IconLogs, roles: ADMIN },
       {
         key: 'configuracoes',
         to: '/admin/configuracoes',
         label: 'Configurações',
         icon: IconConfiguracoes,
+        roles: ADMIN,
       },
     ],
   },
@@ -128,4 +174,20 @@ export function getRouteInfo(pathname: string): RouteInfo {
     }
   }
   return { activeKey: null, section: 'CRM', crumb: '' }
+}
+
+/** Grupos do menu com só os itens do perfil (grupo sem item some). */
+export function visibleGroups(role: Role | undefined): NavGroup[] {
+  if (!role) return []
+  return navGroups
+    .map((group) => ({ ...group, items: group.items.filter((i) => i.roles.includes(role)) }))
+    .filter((group) => group.items.length > 0)
+}
+
+/** O perfil pode abrir esta URL? Telas fora do menu (ex.: Meu perfil) valem para todos. */
+export function canAccess(pathname: string, role: Role): boolean {
+  const { activeKey } = getRouteInfo(pathname)
+  if (activeKey === null) return true
+  const item = navGroups.flatMap((g) => g.items).find((i) => i.key === activeKey)
+  return !item || item.roles.includes(role)
 }
