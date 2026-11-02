@@ -1,0 +1,125 @@
+.links-table td {
+  vertical-align: top;
+}
+
+.links-small {
+  font-size: 12px;
+}
+
+.links-off td {
+  color: var(--text-muted);
+}
+
+.links-dest {
+  max-width: 260px;
+  word-break: break-all;
+}
+
+.links-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.links-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.links-hint {
+  margin: 0;
+  font-size: 13px;
+}
+
+.links-error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* Formulário (modal) */
+.links-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: min(640px, 100%);
+}
+
+.links-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.links-fieldset legend {
+  margin-bottom: 4px;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+/* Números do link (modal) */
+.links-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: min(720px, 100%);
+}
+
+.links-break {
+  word-break: break-all;
+}
+
+.links-period {
+  display: flex;
+  gap: 6px;
+}
+
+.links-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.links-chart {
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.links-bar {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.links-bar > div {
+  min-height: 2px;
+  background: var(--ink);
+  border-radius: 2px 2px 0 0;
+}
+
+.links-chart-labels {
+  display: flex;
+  gap: 2px;
+  margin-top: -12px;
+}
+
+.links-chart-labels > div {
+  flex: 1;
+  overflow: visible;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--text-muted);
+}

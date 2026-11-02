@@ -11,6 +11,7 @@ import {
   IconGatilhos,
   IconHome,
   IconIntegracoes,
+  IconLinks,
   IconLogs,
   IconLojas,
   IconRelatorios,
@@ -105,6 +106,7 @@ export const navGroups: NavGroup[] = [
       },
       { key: 'lojas', to: '/admin/lojas', label: 'Lojas', icon: IconLojas, roles: MANAGERS },
       { key: 'canais', to: '/admin/canais', label: 'Canais', icon: IconCanais, roles: ADMIN },
+      { key: 'links', to: '/admin/links', label: 'Links', icon: IconLinks, roles: ADMIN },
       {
         key: 'aprovacoes',
         to: '/admin/aprovacoes',

@@ -24,6 +24,7 @@ import Usuarios from './pages/admin/usuarios/usuarios'
 import Perfil from './pages/admin/perfil/perfil'
 import Lojas from './pages/admin/lojas/lojas'
 import Canais from './pages/admin/canais/canais'
+import Links from './pages/admin/links/links'
 import Configuracoes from './pages/admin/configuracoes/configuracoes'
 import Logs from './pages/admin/logs/logs'
 import Integracoes from './pages/admin/integracoes/integracoes'
@@ -63,6 +64,7 @@ export const router = createBrowserRouter([
       { path: 'admin/perfil', element: <Perfil /> },
       { path: 'admin/lojas', element: <Lojas /> },
       { path: 'admin/canais', element: <Canais /> },
+      { path: 'admin/links', element: <Links /> },
       { path: 'admin/configuracoes', element: <Configuracoes /> },
       { path: 'admin/logs', element: <Logs /> },
       { path: 'admin/integracoes', element: <Integracoes /> },

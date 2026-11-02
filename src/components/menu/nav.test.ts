@@ -49,7 +49,7 @@ describe('menu por perfil', () => {
 
   it('admin vê tudo', () => {
     const all = visibleGroups('admin').flatMap((g) => g.items)
-    expect(all).toHaveLength(16)
+    expect(all).toHaveLength(17)
   })
 
   it('sem perfil não vê nada', () => {
