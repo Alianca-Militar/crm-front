@@ -63,6 +63,18 @@ const EXCLUSION_ORDER: ExclusionReason[] = [
 // Template que não serve para campanha (a Meta não deixa enviar).
 const BLOCKED_TEMPLATE = new Set(['REJECTED', 'PAUSED', 'DISABLED'])
 
+// Template que veio da Meta com {{1}} vira {{var1}}: se o 1 for o nome, a variável puxa do cadastro.
+const FROM_RECORD: [string, string][] = [
+  ['{{nome-cliente}}', 'Nome do cliente'],
+  ['{{corporacao}}', 'Corporação'],
+  ['{{nome-loja}}', 'Nome da loja'],
+]
+
+function valueLabel(value: string | undefined) {
+  const linked = FROM_RECORD.find(([token]) => token === value)
+  return linked ? `${linked[1]} (de cada cliente)` : value
+}
+
 type Form = {
   name: string
   objective: string
@@ -653,6 +665,23 @@ export default function NovaCampanha() {
                               })
                             }
                           />
+                          <span className="nova-linked muted">
+                            Ou puxar de cada cliente:{' '}
+                            {FROM_RECORD.map(([token, label]) => (
+                              <button
+                                key={token}
+                                type="button"
+                                className={
+                                  form.template_values[k] === token ? 'btn xs primary' : 'btn xs'
+                                }
+                                onClick={() =>
+                                  set('template_values', { ...form.template_values, [k]: token })
+                                }
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -766,7 +795,7 @@ export default function NovaCampanha() {
                   </dd>
                   {campaignKeys.map((k) => [
                     <dt key={`${k}-t`} className="mono">{`{{${k}}}`}</dt>,
-                    <dd key={`${k}-d`}>{form.template_values[k]}</dd>,
+                    <dd key={`${k}-d`}>{valueLabel(form.template_values[k])}</dd>,
                   ])}
                   <dt>Público</dt>
                   <dd>

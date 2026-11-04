@@ -198,6 +198,15 @@
   font-size: 13px;
 }
 
+.nova-linked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
 .nova-empty {
   font-size: 13px;
 }
