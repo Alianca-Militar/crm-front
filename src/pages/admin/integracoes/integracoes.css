@@ -72,3 +72,32 @@
   font-size: 13px;
   color: var(--text-muted);
 }
+
+.integracoes-card.offline .integracoes-sigla {
+  background: var(--bg-muted);
+  color: var(--text-subtle);
+}
+
+.integracoes-erro {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--nok-icon);
+}
+
+.integracoes-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.integracoes-config {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.integracoes-modal-note {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}

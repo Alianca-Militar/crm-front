@@ -13,6 +13,7 @@ import {
   PAGE_SIZE,
   useAuditLogs,
 } from './logs_api'
+import IntegrationsTab from './integrations_tab'
 import PagesTab from './pages_tab'
 import './logs.css'
 
@@ -23,7 +24,7 @@ function formatDateTime(iso: string) {
   return `${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR')}`
 }
 
-type Aba = 'logs' | 'pages'
+type Aba = 'logs' | 'pages' | 'integracoes'
 
 const ABAS: { key: Aba; label: string; subtitle: string }[] = [
   {
@@ -36,13 +37,18 @@ const ABAS: { key: Aba; label: string; subtitle: string }[] = [
     label: 'Pages',
     subtitle: 'Quais telas cada usuário abriu, e quando. Retenção de 12 meses.',
   },
+  {
+    key: 'integracoes',
+    label: 'Integrações',
+    subtitle: 'O que cada integração mandou para o CRM, e quando. Retenção de 12 meses.',
+  },
 ]
 
 export default function Logs() {
   // A aba fica na URL (?aba=pages): o link pode ser compartilhado e o "voltar" funciona.
   const [params, setParams] = useSearchParams()
-  const aba: Aba = params.get('aba') === 'pages' ? 'pages' : 'logs'
-  const current = ABAS.find((a) => a.key === aba) ?? ABAS[0]
+  const current = ABAS.find((a) => a.key === params.get('aba')) ?? ABAS[0]
+  const aba = current.key
 
   return (
     <div className="page page-logs">
@@ -68,7 +74,9 @@ export default function Logs() {
         ))}
       </div>
 
-      {aba === 'logs' ? <LogsTab /> : <PagesTab />}
+      {aba === 'logs' && <LogsTab />}
+      {aba === 'pages' && <PagesTab />}
+      {aba === 'integracoes' && <IntegrationsTab />}
     </div>
   )
 }

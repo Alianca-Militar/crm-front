@@ -5,13 +5,21 @@ import { IconPlus } from '../../../components/menu/icons'
 import { api } from '../../../lib/api'
 import { useMe } from '../../../lib/auth'
 import { formatLastAccess, formatMoney, initials, titleCase } from '../../../lib/format'
+import { delta, MONTHS, periodLabel } from './home_utils'
 import './home.css'
 
 type Period = { revenue: string; orders: number; avg_ticket: string | null; buyers: number }
 
 type Dashboard = {
   month: string
-  kpis: { month: Period; previous_same_period: Period }
+  kpis: {
+    /** Acumulado do mês: dia 1 até ontem (as vendas do dia chegam no dia seguinte). */
+    month: Period
+    /** Os mesmos dias do ano anterior. */
+    previous_year: Period
+    period: { start: string; end: string }
+    previous_year_period: { start: string; end: string }
+  }
   customers: { total: number; with_phone: number; active_12m: number; new_this_month: number }
   series: { month: string; stores: Record<string, string> }[]
   stores: ({ id: number; code: string; name: string } & Period)[]
@@ -28,7 +36,6 @@ type Dashboard = {
   }
 }
 
-const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
 const n = (value: number) => value.toLocaleString('pt-BR')
 
 function saudacao(date: Date) {
@@ -51,17 +58,6 @@ function monthLabel(key: string) {
   return `${MONTHS[Number(m) - 1]}/${y.slice(2)}`
 }
 
-/** Variação contra o mesmo período do mês anterior. */
-function delta(now: number, before: number): { text: string; tone: string } {
-  if (!before) return { text: 'sem base no mês anterior', tone: 'neutral' }
-  const pct = Math.round(((now - before) / before) * 100)
-  const sign = pct > 0 ? '+' : pct < 0 ? '−' : ''
-  return {
-    text: `${sign}${Math.abs(pct)}% vs. mesmo período do mês anterior`,
-    tone: pct > 0 ? 'good' : pct < 0 ? 'bad' : 'neutral',
-  }
-}
-
 /** R$ 154.616 → "R$ 154,6 mil" */
 function compact(value: number) {
   if (value >= 1_000_000)
@@ -79,20 +75,28 @@ export default function Home() {
   const firstName = titleCase(me.data?.name.split(' ')[0] ?? '')
 
   const month = d?.kpis.month
-  const prev = d?.kpis.previous_same_period
+  const prev = d?.kpis.previous_year
+  const dias = d ? periodLabel(d.kpis.period.start, d.kpis.period.end) : ''
+  const base = d
+    ? periodLabel(d.kpis.previous_year_period.start, d.kpis.previous_year_period.end, true)
+    : ''
   const kpis =
     d && month && prev
       ? [
           {
-            label: 'Faturamento no mês',
+            label: `Faturamento · ${dias}`,
             valor: compact(Number(month.revenue)),
-            ...delta(Number(month.revenue), Number(prev.revenue)),
+            ...delta(Number(month.revenue), Number(prev.revenue), base),
           },
-          { label: 'Vendas no mês', valor: n(month.orders), ...delta(month.orders, prev.orders) },
           {
-            label: 'Ticket médio no mês',
+            label: `Vendas · ${dias}`,
+            valor: n(month.orders),
+            ...delta(month.orders, prev.orders, base),
+          },
+          {
+            label: `Ticket médio · ${dias}`,
             valor: formatMoney(month.avg_ticket),
-            ...delta(Number(month.avg_ticket ?? 0), Number(prev.avg_ticket ?? 0)),
+            ...delta(Number(month.avg_ticket ?? 0), Number(prev.avg_ticket ?? 0), base),
           },
           {
             label: 'Clientes ativos · 12 meses',

@@ -1,0 +1,22 @@
+.integration-log-table {
+  min-width: 720px;
+}
+
+.integration-log-table.loading {
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.integration-log-time {
+  font-size: 13px;
+}
+
+.integration-log-error {
+  color: var(--nok-icon);
+}
+
+.integration-log-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
