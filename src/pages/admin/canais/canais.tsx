@@ -21,6 +21,7 @@ import {
   SENDER_STATUS_TONE,
   useDeleteEmailSender,
   useEmailSenders,
+  useSyncNumbersFromMeta,
   useTestEmailSender,
   useWhatsappNumbers,
   type WhatsappNumber,
@@ -155,18 +156,42 @@ function NumerosTab({
   // undefined = fechado · null = novo · número = editar
   const [editing, setEditing] = useState<WhatsappNumber | null | undefined>(undefined)
   const [saved, setSaved] = useState<string | null>(null)
+  const sync = useSyncNumbersFromMeta()
+  const [syncErrors, setSyncErrors] = useState<string[]>([])
   const list = (numbers.data ?? []).filter((n) => !loja || String(n.store) === loja)
+
+  function onSync() {
+    setSaved(null)
+    setSyncErrors([])
+    sync.mutate(undefined, {
+      onSuccess: (r) => {
+        setSaved(`${r.updated} número(s) atualizado(s) com os dados da Meta.`)
+        setSyncErrors(r.errors)
+      },
+    })
+  }
 
   return (
     <>
       {saved && <MsgOk mensagem={saved} onClose={() => setSaved(null)} />}
+      {sync.isError && (
+        <MsgNok titulo="Não foi possível atualizar da Meta" mensagem={sync.error.message} />
+      )}
+      {syncErrors.length > 0 && (
+        <MsgNok titulo="Alguns números não atualizaram" mensagem={syncErrors.join(' · ')} />
+      )}
 
       <div className="filter-bar">
         <StoreFilter id="num-f-loja" value={loja} onChange={onLoja} />
         {canEdit && (
-          <button type="button" className="btn primary" onClick={() => setEditing(null)}>
-            Adicionar número
-          </button>
+          <>
+            <button type="button" className="btn" disabled={sync.isPending} onClick={onSync}>
+              {sync.isPending ? 'Atualizando…' : 'Atualizar da Meta'}
+            </button>
+            <button type="button" className="btn primary" onClick={() => setEditing(null)}>
+              Adicionar número
+            </button>
+          </>
         )}
       </div>
 
@@ -176,8 +201,8 @@ function NumerosTab({
 
       {numbers.isSuccess && !numbers.data.some((n) => n.meta_synced_at) && (
         <p className="muted canais-hint">
-          Status na Meta, qualidade e limite de mensagens vêm da Meta e aparecem aqui quando a
-          integração estiver ligada.
+          Status na Meta, qualidade e limite de mensagens vêm da Meta: o CRM atualiza todo dia às
+          7h, ou na hora pelo botão “Atualizar da Meta”.
         </p>
       )}
 
@@ -250,7 +275,11 @@ function NumerosTab({
                   <QualityDot value={n.quality_rating} />
                 </td>
                 <td className="nowrap">
-                  {n.messaging_limit_tier ? LIMIT_LABEL[n.messaging_limit_tier] : <NotFromMeta />}
+                  {n.messaging_limit_tier ? (
+                    (LIMIT_LABEL[n.messaging_limit_tier] ?? n.messaging_limit_tier)
+                  ) : (
+                    <NotFromMeta />
+                  )}
                 </td>
                 <td className="num">{n.templates_count}</td>
                 <td className="num">

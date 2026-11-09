@@ -45,3 +45,17 @@
   align-self: flex-end;
   min-height: 40px;
 }
+
+.clientes-count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  min-height: 36px;
+  font-size: 15px;
+}
+
+.clientes-count strong {
+  font-size: 17px;
+}

@@ -56,6 +56,14 @@ export default function Bloqueios() {
   const [manual, setManual] = useState<Partial<ManualOptout> | null>(null)
   const [done, setDone] = useState('')
 
+  // Totais das abas (sem os filtros da lista). O histórico é de um telefone: sem total.
+  const blockedTotal = useBlocklist({ page: 1 }).data?.count
+  const reviewTotal = useReviewQueue().data?.count
+  const totals: Partial<Record<Aba, number | undefined>> = {
+    atuais: blockedTotal,
+    revisao: reviewTotal,
+  }
+
   function openHistory(phone: string) {
     setParams({ aba: 'historico', phone })
   }
@@ -85,6 +93,7 @@ export default function Bloqueios() {
             onClick={() => setParams(a.key === 'atuais' ? {} : { aba: a.key })}
           >
             {a.label}
+            {!!totals[a.key] && <span className="seg-tab-count">{n(totals[a.key] ?? 0)}</span>}
           </button>
         ))}
       </div>

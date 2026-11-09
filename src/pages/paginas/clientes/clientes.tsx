@@ -11,6 +11,17 @@ const ORDERINGS = [
   { value: 'name', label: 'Nome' },
 ]
 
+const FILTER_KEYS = [
+  'q',
+  'corp',
+  'store',
+  'segment',
+  'buyers',
+  'last_order_from',
+  'last_order_to',
+  'blocked',
+] as const
+
 const n = (value: number) => value.toLocaleString('pt-BR')
 
 export default function Clientes() {
@@ -39,6 +50,13 @@ export default function Clientes() {
     setParams(next, { replace: true })
   }
 
+  function clearFilters() {
+    const next = new URLSearchParams()
+    if (params.get('ordering')) next.set('ordering', params.get('ordering') ?? '')
+    setParams(next, { replace: true })
+  }
+
+  const filtered = FILTER_KEYS.some((k) => filters[k])
   const total = list.data?.count ?? 0
   const first = total ? (filters.page - 1) * PAGE_SIZE + 1 : 0
   const last = Math.min(filters.page * PAGE_SIZE, total)
@@ -165,6 +183,25 @@ export default function Clientes() {
           />
           Só quem já comprou
         </label>
+      </div>
+
+      <div className="clientes-count" aria-live="polite">
+        <span>
+          {list.data ? (
+            <>
+              <strong>{n(total)}</strong> {total === 1 ? 'cliente' : 'clientes'}
+              {filtered ? ' com esses filtros' : ''}
+            </>
+          ) : (
+            'Contando…'
+          )}
+          {list.isFetching && list.data && <span className="muted"> · atualizando…</span>}
+        </span>
+        {filtered && (
+          <button type="button" className="btn sm" onClick={clearFilters}>
+            Limpar filtros
+          </button>
+        )}
       </div>
 
       {list.isError && <MsgNok titulo="Não foi possível carregar" mensagem={list.error.message} />}

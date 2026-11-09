@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import MsgNok from '../../../components/msg_nok/msg_nok'
+import BackLink from '../../../components/back_link/back_link'
 import {
   formatCep,
   formatDate,
@@ -56,9 +57,7 @@ export default function FichaCliente() {
   if (customer.isError) {
     return (
       <div className="page">
-        <Link to="/clientes" className="back-link">
-          ← Clientes
-        </Link>
+        <BackLink to="/clientes" label="Clientes" />
         <MsgNok titulo="Cliente não encontrado" mensagem={customer.error.message} />
       </div>
     )
@@ -99,9 +98,7 @@ export default function FichaCliente() {
 
   return (
     <div className="page page-ficha-cliente">
-      <Link to="/clientes" className="back-link">
-        ← Clientes
-      </Link>
+      <BackLink to="/clientes" label="Clientes" />
 
       <div className="ficha-body">
         <aside className="ficha-aside">

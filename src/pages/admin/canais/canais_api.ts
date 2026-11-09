@@ -18,7 +18,8 @@ export type MetaStatus =
   | 'UNKNOWN'
 export type NumberProvider = 'fastzap' | 'octadesk' | 'pluri' | 'meta'
 export type Quality = 'GREEN' | 'YELLOW' | 'RED' | 'UNKNOWN'
-export type LimitTier = 'TIER_250' | 'TIER_2K' | 'TIER_10K' | 'TIER_100K' | 'TIER_UNLIMITED'
+export type LimitTier =
+  'TIER_250' | 'TIER_1K' | 'TIER_2K' | 'TIER_10K' | 'TIER_100K' | 'TIER_UNLIMITED'
 
 export type WhatsappNumber = {
   id: number
@@ -118,6 +119,7 @@ export const QUALITY_LABEL: Record<Quality, string> = {
 
 export const LIMIT_LABEL: Record<LimitTier, string> = {
   TIER_250: '250 / dia',
+  TIER_1K: '1 mil / dia',
   TIER_2K: '2 mil / dia',
   TIER_10K: '10 mil / dia',
   TIER_100K: '100 mil / dia',
@@ -130,6 +132,18 @@ export function useWhatsappNumbers() {
   return useQuery({
     queryKey: numbersKey,
     queryFn: () => api<WhatsappNumber[]>('/whatsapp-numbers/'),
+  })
+}
+
+/** Busca na Meta status, qualidade e limite dos números ativos (só admin). */
+export function useSyncNumbersFromMeta() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () =>
+      api<{ updated: number; errors: string[] }>('/whatsapp-numbers/sync-meta/', {
+        method: 'POST',
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: numbersKey }),
   })
 }
 

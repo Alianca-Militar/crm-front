@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import MsgNok from '../../../components/msg_nok/msg_nok'
+import BackLink from '../../../components/back_link/back_link'
 import MsgOk from '../../../components/msg_ok/msg_ok'
 import { ApiError, type FieldErrors as ApiFieldErrors } from '../../../lib/api'
 import { useMe } from '../../../lib/auth'
@@ -147,6 +148,11 @@ const NEW_BUTTON: Record<Exclude<ButtonType, 'OTP'>, TemplateButton> = {
   COPY_CODE: { type: 'COPY_CODE', text: 'Copiar código', example: '' },
 }
 
+// "Cancelar marketing": resposta rápida pronta. O CRM bloqueia quem toca nela porque o texto
+// está nas palavras de descadastro (Configurações).
+const OPTOUT_BUTTON_TEXT = 'Parar promoções'
+const OPTOUT_FOOTER = 'Não tem interesse? Toque em Parar promoções.'
+
 /** Editor de template de WhatsApp. `id` = editar; sem id = novo. */
 export default function WhatsappEditor({ id }: { id?: number }) {
   const navigate = useNavigate()
@@ -247,6 +253,19 @@ export default function WhatsappEditor({ id }: { id?: number }) {
     return true
   }
 
+  const hasOptoutButton = form.buttons.some(
+    (b) => b.type === 'QUICK_REPLY' && b.text.trim() === OPTOUT_BUTTON_TEXT,
+  )
+
+  /** Só um por template e só em Marketing. Preenche o rodapé se ele estiver vazio. */
+  function addOptoutButton() {
+    setForm((f) => ({
+      ...f,
+      buttons: [...f.buttons, { type: 'QUICK_REPLY', text: OPTOUT_BUTTON_TEXT }],
+      footer: f.footer.trim() ? f.footer : OPTOUT_FOOTER,
+    }))
+  }
+
   function fail(err: unknown, fallback: string) {
     if (err instanceof ApiError) {
       setErrors(err.fieldErrors)
@@ -326,9 +345,7 @@ export default function WhatsappEditor({ id }: { id?: number }) {
     return (
       <div className="page">
         <MsgNok titulo="Template não encontrado" mensagem={existing.error.message} />
-        <Link to="/templates" className="back-link">
-          ← Voltar para templates
-        </Link>
+        <BackLink to="/templates" label="Templates" />
       </div>
     )
   }
@@ -354,9 +371,7 @@ export default function WhatsappEditor({ id }: { id?: number }) {
     <div className="page page-template-editor">
       <div className="page-head">
         <div className="page-head-text">
-          <Link to="/templates" className="back-link">
-            ← Templates
-          </Link>
+          <BackLink to="/templates" label="Templates" />
           <h1 className="page-title">
             {template ? template.name : 'Novo template de WhatsApp'}
             {template && (
@@ -863,10 +878,22 @@ export default function WhatsappEditor({ id }: { id?: number }) {
                       + {choices.data?.button_types.find((t) => t.value === type)?.label}
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    className="btn xs"
+                    disabled={
+                      form.category !== 'MARKETING' || hasOptoutButton || !canAdd('QUICK_REPLY')
+                    }
+                    onClick={addOptoutButton}
+                  >
+                    + Cancelar marketing
+                  </button>
                 </div>
                 <span className="tpl-help muted">
                   Até 10 botões: respostas rápidas juntas, até 2 “Acessar site” e 1 “Ligar”. “Copiar
-                  código” (cupom) só em Marketing.
+                  código” (cupom) e “Cancelar marketing” só em Marketing. “Cancelar marketing” cria
+                  a resposta rápida “{OPTOUT_BUTTON_TEXT}” e, se o rodapé estiver vazio, preenche
+                  com “{OPTOUT_FOOTER}”.
                 </span>
                 <FieldErrors messages={errors.buttons} />
               </section>

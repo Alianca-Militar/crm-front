@@ -164,11 +164,6 @@ a:focus-visible {
   gap: 8px;
 }
 
-.back-link {
-  font-size: 14px;
-  font-weight: 600;
-}
-
 /* Cards */
 .card {
   min-width: 0;

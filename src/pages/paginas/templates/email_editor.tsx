@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import MsgNok from '../../../components/msg_nok/msg_nok'
+import BackLink from '../../../components/back_link/back_link'
 import MsgOk from '../../../components/msg_ok/msg_ok'
 import { ApiError, type FieldErrors as ApiFieldErrors } from '../../../lib/api'
 import { useMe } from '../../../lib/auth'
@@ -225,9 +226,7 @@ export default function EmailEditor({ id }: { id?: number }) {
     return (
       <div className="page">
         <MsgNok titulo="Template não encontrado" mensagem={existing.error.message} />
-        <Link to="/templates?canal=email" className="back-link">
-          ← Voltar para templates
-        </Link>
+        <BackLink to="/templates?canal=email" label="Templates" />
       </div>
     )
   }
@@ -238,9 +237,7 @@ export default function EmailEditor({ id }: { id?: number }) {
     <div className="page page-template-editor">
       <div className="page-head">
         <div className="page-head-text">
-          <Link to="/templates?canal=email" className="back-link">
-            ← Templates
-          </Link>
+          <BackLink to="/templates?canal=email" label="Templates" />
           <h1 className="page-title">
             {template ? template.name : 'Novo template de e-mail'}
             {template && (

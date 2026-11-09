@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import Modal from '../../../components/modal/modal'
 import MsgNok from '../../../components/msg_nok/msg_nok'
+import BackLink from '../../../components/back_link/back_link'
+import { IconChevronLeft } from '../../../components/menu/icons'
 import MsgOk from '../../../components/msg_ok/msg_ok'
 import { ApiError, type FieldErrors as ApiFieldErrors } from '../../../lib/api'
 import { useMe } from '../../../lib/auth'
@@ -159,6 +161,9 @@ function describeFilters(f: AudienceFilters, labels: Map<number, string>): strin
   if (f.birthday_months?.length)
     out.push(`Aniversário em: ${f.birthday_months.map((m) => MONTHS[m - 1]).join(', ')}`)
   if (f.tags?.length) out.push(`Tags: ${f.tags.join(', ')}`)
+  if (f.product_groups?.length) out.push(`Comprou do grupo: ${f.product_groups.join(', ')}`)
+  if (f.product_categories?.length)
+    out.push(`Comprou da categoria: ${f.product_categories.join(', ')}`)
   return out
 }
 
@@ -375,7 +380,7 @@ export default function NovaCampanha() {
     return (
       <div className="page">
         <MsgNok titulo="Campanha não encontrada" mensagem={existing.error.message} />
-        <Link to="/campanhas">← Voltar para campanhas</Link>
+        <BackLink to="/campanhas" label="Campanhas" />
       </div>
     )
   }
@@ -466,9 +471,7 @@ export default function NovaCampanha() {
     <div className="page page-nova-campanha">
       <div className="page-head">
         <div className="page-head-text">
-          <Link to="/campanhas" className="back-link">
-            ← Campanhas
-          </Link>
+          <BackLink to="/campanhas" label="Campanhas" />
           <h1 className="page-title">
             {campaign ? campaign.name : 'Nova campanha'}{' '}
             {campaign && (
@@ -904,7 +907,8 @@ export default function NovaCampanha() {
                   disabled={busy}
                   onClick={() => goTo(step - 1)}
                 >
-                  ← Voltar
+                  <IconChevronLeft size={18} />
+                  Voltar
                 </button>
               ) : (
                 <span />

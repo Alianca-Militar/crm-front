@@ -2,7 +2,7 @@ import type { AudienceFilters, FilterOptions } from '../campanhas/campanhas_api'
 
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
-type ListKey = 'corporacoes' | 'patentes' | 'rfm_segments' | 'tags'
+type ListKey = 'corporacoes' | 'patentes' | 'rfm_segments' | 'tags' | 'product_categories'
 type NumberKey = 'purchased_within_days' | 'not_purchased_days' | 'orders_min' | 'orders_max'
 type MoneyKey = 'spent_min' | 'spent_max'
 
@@ -85,6 +85,26 @@ export default function AudienceFiltersEditor({
     if (raw === '') delete next[key]
     else next[key] = raw
     onChange(next)
+  }
+
+  // Categorias dos grupos marcados (sem grupo marcado: todas).
+  const products = options?.products ?? []
+  const pickedGroups = value.product_groups ?? []
+  const categoriesOf = (groups: string[]) =>
+    [
+      ...new Set(
+        products
+          .filter((p) => groups.length === 0 || groups.includes(p.group))
+          .flatMap((p) => p.categories),
+      ),
+    ].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+
+  function toggleGroup(group: string) {
+    const groups = toggle(value.product_groups, group)
+    // Tira a categoria que não existe mais nos grupos marcados.
+    const visible = new Set(categoriesOf(groups))
+    const categories = (value.product_categories ?? []).filter((c) => visible.has(c))
+    onChange({ ...value, product_groups: groups, product_categories: categories })
   }
 
   const numberField = (key: NumberKey, label: string, placeholder: string) => (
@@ -179,6 +199,30 @@ export default function AudienceFiltersEditor({
           disabled={disabled}
           empty={NO_CUSTOMERS}
         />
+      </fieldset>
+
+      <fieldset className="nova-group">
+        <legend>Produtos comprados</legend>
+        <Chips
+          label="Grupo"
+          options={asOptions(products.map((p) => p.group))}
+          selected={value.product_groups}
+          onToggle={toggleGroup}
+          disabled={disabled}
+          empty="Nenhum produto cadastrado ainda."
+        />
+        <Chips
+          label="Categoria"
+          options={asOptions(categoriesOf(pickedGroups))}
+          selected={value.product_categories}
+          onToggle={(v) => setList('product_categories', v)}
+          disabled={disabled}
+          empty="Nenhuma categoria nos grupos marcados."
+        />
+        <span className="tpl-help muted">
+          Quem já comprou algum produto do grupo e da categoria marcados (vendas pagas, qualquer
+          loja).
+        </span>
       </fieldset>
 
       <fieldset className="nova-group">

@@ -35,6 +35,8 @@ const schema = z
     anonymize_inactive_after_months: int(1, 120),
     mask_data_for_seller: z.boolean(),
     conversation_timeout_hours: int(1, 168),
+    conversation_autoclose: z.boolean(),
+    conversation_autoassign: z.boolean(),
     pegasus_import_alert_hour: z.string().regex(HHMM, 'Use HH:MM.'),
   })
   .refine((v) => v.send_window_start < v.send_window_end, {
@@ -69,6 +71,9 @@ function toForm(rows: Setting[]): FormValues {
     anonymize_inactive_after_months: Number(v.anonymize_inactive_after_months),
     mask_data_for_seller: Boolean(v.mask_data_for_seller),
     conversation_timeout_hours: Number(v.conversation_timeout_hours),
+    // Sem a linha no banco vale o padrão do backend: encerra sozinha, sem rodízio.
+    conversation_autoclose: v.conversation_autoclose !== false,
+    conversation_autoassign: v.conversation_autoassign === true,
     pegasus_import_alert_hour: String(v.pegasus_import_alert_hour ?? ''),
   }
 }
@@ -306,7 +311,22 @@ function ConfiguracoesForm({ rows, canEdit }: { rows: Setting[]; canEdit: boolea
           <h2 className="card-title">Operação</h2>
           <div className="form-grid tight">
             <div className="field">
-              <label htmlFor="cfg-conv">Nova conversa após (horas sem mensagem)</label>
+              <label htmlFor="cfg-peg">Alertar se a carga do Pegasus não chegar até</label>
+              <input id="cfg-peg" type="time" {...register('pegasus_import_alert_hour')} />
+              {fieldError('pegasus_import_alert_hour')}
+            </div>
+          </div>
+        </section>
+
+        <section className="card">
+          <h2 className="card-title">Atendimento (Conversas)</h2>
+          <label className="check">
+            <input type="checkbox" {...register('conversation_autoclose')} />
+            Encerrar automaticamente conversas abertas sem troca de mensagens
+          </label>
+          <div className="form-grid tight">
+            <div className="field">
+              <label htmlFor="cfg-conv">Encerrar após (horas sem mensagem)</label>
               <input
                 id="cfg-conv"
                 type="number"
@@ -314,14 +334,30 @@ function ConfiguracoesForm({ rows, canEdit }: { rows: Setting[]; canEdit: boolea
                 max={168}
                 {...num('conversation_timeout_hours')}
               />
+              <span className="cfg-hint">
+                Conversas em Aguardando nunca são encerradas sozinhas. Se o cliente escrever depois,
+                abre uma conversa nova com o histórico.
+              </span>
               {fieldError('conversation_timeout_hours')}
             </div>
-            <div className="field">
-              <label htmlFor="cfg-peg">Alertar se a carga do Pegasus não chegar até</label>
-              <input id="cfg-peg" type="time" {...register('pegasus_import_alert_hour')} />
-              {fieldError('pegasus_import_alert_hour')}
-            </div>
           </div>
+          <label className="check">
+            <input type="checkbox" {...register('conversation_autoassign')} />
+            Distribuir conversas novas automaticamente entre os vendedores da loja
+          </label>
+          <span className="cfg-hint">
+            Em rodízio, entre os vendedores ativos que têm acesso à loja do número. Vendedor
+            inativado sai do rodízio. Sem vendedor cadastrado, ou com a opção desligada, a conversa
+            fica em Aguardando até alguém assumir.
+          </span>
+          <label className="check">
+            <input type="checkbox" disabled />
+            Permitir responder e iniciar conversas pelo CRM{' '}
+            <span className="badge tone-gray">Em breve</span>
+          </label>
+          <span className="cfg-hint">
+            Desligado, o CRM só mostra as conversas, e a equipe responde pelo app do WhatsApp.
+          </span>
         </section>
       </fieldset>
 

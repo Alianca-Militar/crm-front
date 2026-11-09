@@ -31,6 +31,9 @@ export type AudienceFilters = {
   rfm_segments?: string[]
   birthday_months?: number[]
   tags?: string[]
+  /** grupo e categoria do cadastro de produtos (valem para o mesmo produto comprado) */
+  product_groups?: string[]
+  product_categories?: string[]
   purchased_within_days?: number
   not_purchased_days?: number
   orders_min?: number
@@ -134,6 +137,7 @@ export type FilterOptions = {
   tags: string[]
   cities: { value: number; label: string }[]
   stores: { value: number; label: string }[]
+  products: { group: string; categories: string[] }[]
   exclusions: Record<ExclusionReason, string>
 }
 
