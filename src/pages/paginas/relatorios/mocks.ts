@@ -1,6 +1,6 @@
 // Dados de exemplo do design. Trocar pela API quando o banco estiver pronto.
 
-export const periodos = ['Outubro 2026', '3º trimestre 2026', '2026']
+import type { ProductLeaf } from './vendas_produto_utils'
 
 export const relatorios = [
   { nome: 'Vendas por produto', desc: 'Peças vendidas por loja' },
@@ -9,14 +9,40 @@ export const relatorios = [
   { nome: 'Atendimento e SAC', desc: 'NPS, conversas, protocolos' },
 ]
 
-export const produtos = [
-  { nome: 'Gandola PMMG (novo fardamento)', jf: '148', bh: '231', total: '379', camp: '41%' },
-  { nome: 'Calça tática', jf: '122', bh: '190', total: '312', camp: '33%' },
-  { nome: 'Combat Shirt', jf: '96', bh: '158', total: '254', camp: '28%' },
-  { nome: 'Camiseta', jf: '204', bh: '277', total: '481', camp: '19%' },
-  { nome: 'Farda Safari', jf: '31', bh: '22', total: '53', camp: '9%' },
-  { nome: 'Acessórios', jf: '87', bh: '134', total: '221', camp: '12%' },
+// Vendas por produto: [grupo, categoria, subcategoria, valor, peças, % desconto, markup, estoque].
+const LINHAS: [string, string, string, number, number, number, number, number][] = [
+  ['Fardamento', 'Gandola', 'PMMG novo fardamento', 68400, 228, 4.5, 2.1, 140],
+  ['Fardamento', 'Gandola', 'Camuflada', 21300, 92, 6, 2.0, 110],
+  ['Fardamento', 'Calça', 'Tática', 49800, 312, 5.2, 2.2, 260],
+  ['Fardamento', 'Calça', 'Cargo', 18700, 134, 7.8, 2.0, 190],
+  ['Fardamento', 'Farda', 'Safari', 9600, 53, 3.1, 2.3, 75],
+  ['Calçados', 'Coturno', 'Cano alto', 58200, 166, 3.8, 1.9, 120],
+  ['Calçados', 'Coturno', 'Cano curto', 22100, 79, 4.4, 1.9, 95],
+  ['Calçados', 'Tênis', 'Tático', 27300, 105, 6.5, 2.0, 140],
+  ['Camisetas', 'Combat Shirt', 'Manga longa', 30500, 254, 5.0, 2.4, 300],
+  ['Camisetas', 'Camiseta', 'Algodão', 24050, 481, 8.2, 2.6, 620],
+  ['Camisetas', 'Camiseta', 'Dry fit', 15400, 220, 7.1, 2.5, 280],
+  ['Acessórios', 'Boina', 'Lã', 8900, 148, 2.4, 2.8, 210],
+  ['Acessórios', 'Cinto', 'Tático', 7700, 121, 4.0, 2.7, 160],
+  ['Acessórios', 'Bolso', 'Multiuso', 6100, 98, 5.5, 2.5, 140],
+  ['Acessórios', 'Meia', 'Tática', 4300, 215, 9.0, 3.0, 480],
+  ['Equipamentos', 'Mochila', 'Assalto', 19800, 44, 3.2, 1.8, 60],
+  ['Equipamentos', 'Colete', 'Modular', 16200, 27, 2.9, 1.7, 35],
+  ['Equipamentos', 'Coldre', 'Velado', 5400, 36, 4.8, 2.2, 70],
 ]
+
+export const vendasProduto: ProductLeaf[] = LINHAS.map(
+  ([grupo, categoria, subcategoria, valor, qtd, desconto, markup, estoque]) => ({
+    grupo,
+    categoria,
+    subcategoria,
+    valor,
+    bruto: valor / (1 - desconto / 100),
+    custo: valor / markup,
+    qtd,
+    estoque,
+  }),
+)
 
 export const nps = {
   geral: '77',
@@ -29,3 +55,194 @@ export const nps = {
     { loja: 'Belo Horizonte', nps: 'NPS 74' },
   ],
 }
+
+// Desempenho de campanhas.
+export const campanhasResumo = {
+  campanhas: 12,
+  vendas: 48_620.5,
+  pedidos: 96,
+  disparos: 18_450,
+  investimento: 7_380,
+}
+
+/** Vendas por dia: total das lojas e a parte atribuída às campanhas. */
+export const campanhasPorDia = Array.from({ length: 30 }, (_, i) => {
+  const day = new Date(2026, 9, 12 + i)
+  const sunday = day.getDay() === 0
+  const wave = 1 + 0.35 * Math.sin(i / 2.2)
+  const total = sunday ? 0 : Math.round(9_000 * wave + (i % 5) * 900)
+  return {
+    dia: `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`,
+    total,
+    campanhas: Math.round(total * (0.12 + ((i * 7) % 10) / 100)),
+  }
+})
+
+export const campanhasFunil = [
+  { etapa: 'Disponibilizados', valor: 21_300 },
+  { etapa: 'Enviados', valor: 18_450 },
+  { etapa: 'Entregues', valor: 17_380 },
+  { etapa: 'Lidos', valor: 9_940 },
+  { etapa: 'Clicados', valor: 1_220 },
+  { etapa: 'Comprados', valor: 96 },
+]
+
+// Base de clientes.
+export const baseResumo = {
+  total: 14_820,
+  whatsapp: 11_130,
+  completos: 2_240,
+  optin: 10_410,
+}
+
+/** Vendas do período no consumidor final (sem cliente identificado). */
+export const semIdentificacao = {
+  valor: 182_340.9,
+  vendas: 401,
+  totalValor: 309_292.18,
+  totalVendas: 646,
+}
+
+export const completude = [
+  { campo: 'CPF', pct: 77 },
+  { campo: 'Cidade', pct: 77 },
+  { campo: 'Endereço', pct: 77 },
+  { campo: 'Telefone', pct: 75 },
+  { campo: 'Corporação', pct: 18 },
+  { campo: 'Data de nasc.', pct: 4 },
+  { campo: 'E-mail', pct: 1 },
+]
+
+export const clientesPorLoja = [
+  { loja: 'Belo Horizonte', clientes: 9_870 },
+  { loja: 'Juiz de Fora', clientes: 4_310 },
+  { loja: 'Sem loja definida', clientes: 640 },
+]
+
+export type RfmTone = 'best' | 'good' | 'watch' | 'risk' | 'lost'
+
+export const rfm: {
+  perfil: string
+  clientes: number
+  receita: number
+  acao: string
+  tom: RfmTone
+}[] = [
+  {
+    perfil: 'Champions',
+    clientes: 49,
+    receita: 78_672.99,
+    acao: 'Recompensar, VIP, pedir indicação.',
+    tom: 'best',
+  },
+  {
+    perfil: 'Loyal Customers',
+    clientes: 93,
+    receita: 126_335.54,
+    acao: 'Upsell, fidelidade, indicação.',
+    tom: 'best',
+  },
+  {
+    perfil: 'Potential Loyalist',
+    clientes: 183,
+    receita: 210_152.25,
+    acao: 'Incentivar a próxima compra.',
+    tom: 'good',
+  },
+  {
+    perfil: 'New Customers',
+    clientes: 384,
+    receita: 278_564.5,
+    acao: 'Onboarding, garantir a 2ª compra.',
+    tom: 'good',
+  },
+  {
+    perfil: 'Promising',
+    clientes: 381,
+    receita: 227_593.55,
+    acao: 'Nutrir com ofertas leves.',
+    tom: 'good',
+  },
+  {
+    perfil: 'Need Attention',
+    clientes: 82,
+    receita: 86_820.72,
+    acao: 'Oferta com prazo, reengajar.',
+    tom: 'watch',
+  },
+  {
+    perfil: 'About to Sleep',
+    clientes: 24,
+    receita: 10_543.63,
+    acao: 'Reativar logo: lembrete + oferta.',
+    tom: 'watch',
+  },
+  { perfil: 'At Risk', clientes: 0, receita: 0, acao: 'Campanha de reativação.', tom: 'risk' },
+  {
+    perfil: "Can't Lose Them",
+    clientes: 0,
+    receita: 0,
+    acao: 'Resgate urgente, contato pessoal.',
+    tom: 'risk',
+  },
+  {
+    perfil: 'Hibernating',
+    clientes: 0,
+    receita: 0,
+    acao: 'Reengajar ou aceitar a perda.',
+    tom: 'lost',
+  },
+  { perfil: 'Lost', clientes: 0, receita: 0, acao: 'Campanha agressiva ou arquivar.', tom: 'lost' },
+]
+
+// Atendimento e SAC.
+export const notasGoogle = [
+  { loja: 'Belo Horizonte', nota: 4.7, avaliacoes: 1_284 },
+  { loja: 'Juiz de Fora', nota: 4.8, avaliacoes: 612 },
+]
+
+export const atendimentoResumo = {
+  conversas: 1_946,
+  mensagens: 23_480,
+  notaAtendente: 4.6,
+  avaliacoesAtendente: 318,
+  notaIa: 8.4,
+  analisadasIa: 1_102,
+}
+
+/** Conversas por dia e o custo do dia (templates + mensagens cobradas). */
+export const conversasPorDia = Array.from({ length: 30 }, (_, i) => {
+  const day = new Date(2026, 9, 12 + i)
+  const sunday = day.getDay() === 0
+  const conversas = sunday ? 8 : Math.round(55 + 25 * Math.sin(i / 3) + (i % 4) * 6)
+  const templates = sunday ? 0 : Math.round(120 + 90 * Math.abs(Math.sin(i / 5)))
+  return {
+    dia: `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`,
+    conversas,
+    custoTemplates: templates * 0.4,
+    custoMensagens: conversas * 0.05,
+  }
+})
+
+export const conversasPorNumero = [
+  { numero: 'Ofertas BH', conversas: 812 },
+  { numero: 'Atendimento BH', conversas: 604 },
+  { numero: 'Atendimento JF', conversas: 391 },
+  { numero: 'Ofertas JF', conversas: 139 },
+]
+
+export const iaAcertos = [
+  { semana: '13/10', acertos: 212, erros: 31 },
+  { semana: '20/10', acertos: 248, erros: 27 },
+  { semana: '27/10', acertos: 263, erros: 22 },
+  { semana: '03/11', acertos: 281, erros: 18 },
+]
+
+/** Quantas conversas a IA avaliou com cada nota (0 a 10). */
+export const iaNotas = [
+  { nota: '0–2', conversas: 21 },
+  { nota: '3–4', conversas: 48 },
+  { nota: '5–6', conversas: 117 },
+  { nota: '7–8', conversas: 402 },
+  { nota: '9–10', conversas: 514 },
+]

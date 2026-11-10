@@ -1,0 +1,105 @@
+.date-range {
+  position: relative;
+}
+
+.date-range-trigger {
+  height: 44px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.date-range-trigger:hover,
+.date-range-trigger.open {
+  border-color: var(--border-strong);
+}
+
+.date-range-label {
+  font-weight: 600;
+}
+
+.date-range-dates {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.date-range-panel {
+  position: absolute;
+  right: 0;
+  top: 52px;
+  z-index: 20;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.date-range-presets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.date-range-preset {
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.date-range-preset:hover {
+  background: var(--bg-muted);
+}
+
+.date-range-preset.on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.date-range-custom {
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.date-range-custom .btn {
+  align-self: flex-end;
+}
+
+.date-range-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+@media (max-width: 640px) {
+  .date-range-panel {
+    left: 0;
+    right: auto;
+  }
+
+  .date-range-dates {
+    display: none;
+  }
+}

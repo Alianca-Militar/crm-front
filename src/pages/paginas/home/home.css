@@ -63,6 +63,226 @@
   color: var(--text-muted);
 }
 
+/* Faturamento dos últimos 12 meses (abaixo do gráfico do mês) */
+.home-year-card {
+  gap: 20px;
+}
+
+.year-chart {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.home-bar.hover > div {
+  filter: brightness(1.15);
+}
+
+.home-bar.hover {
+  outline: 6px solid var(--bg-muted);
+  border-radius: 3px;
+}
+
+.month-tooltip-muted.good {
+  color: var(--ok-icon);
+}
+
+.month-tooltip-muted.bad {
+  color: var(--danger);
+}
+
+/* Vendas do mês com tendência */
+.month-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 32px;
+}
+
+.month-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.month-summary-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.month-summary-value {
+  font-size: 26px;
+}
+
+.month-summary-note {
+  flex: 1 1 260px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.month-chart {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.month-chart svg:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.month-chart-hover {
+  fill: var(--bg-muted);
+}
+
+.month-chart-dot.hover {
+  stroke: var(--bg);
+  stroke-width: 2;
+}
+
+/* Caixa do dia (passar o mouse ou tocar numa barra) */
+.month-tooltip {
+  position: absolute;
+  top: 8px;
+  z-index: 2;
+  width: max-content;
+  min-width: 220px;
+  max-width: min(300px, calc(100% - 16px));
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  pointer-events: none;
+  transform: translateX(14px);
+}
+
+.month-tooltip.right {
+  transform: translateX(calc(-100% - 14px));
+}
+
+.month-tooltip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.month-tooltip-muted {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.month-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.month-tooltip-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.month-tooltip-value {
+  font-weight: 600;
+}
+
+.month-tooltip-weight {
+  min-width: 40px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.month-tooltip-row.total,
+.month-tooltip-row.cumulative {
+  padding-top: 6px;
+  border-top: 1px solid var(--divider);
+  font-weight: 700;
+}
+
+.month-tooltip-row.cumulative .month-tooltip-value {
+  color: var(--link);
+}
+
+.month-chart svg {
+  display: block;
+}
+
+.month-chart-grid {
+  stroke: var(--divider);
+}
+
+.month-chart-axis {
+  font-size: 11px;
+  fill: var(--text-muted);
+}
+
+.month-chart-today {
+  stroke: var(--border-strong);
+  stroke-dasharray: 3 3;
+}
+
+.home-series-fill-0 {
+  fill: var(--ink);
+}
+
+.home-series-fill-1 {
+  fill: var(--accent);
+}
+
+.home-series-fill-2 {
+  fill: var(--text-muted);
+}
+
+.month-chart-projected rect:not(.month-chart-hover) {
+  opacity: 0.22;
+}
+
+.month-chart-line {
+  fill: none;
+  stroke: var(--link);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+
+.month-chart-line.trend {
+  stroke-dasharray: 6 5;
+}
+
+.month-chart-dot {
+  fill: var(--link);
+}
+
+.month-chart-end {
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--link);
+}
+
+.legend-line {
+  display: inline-block;
+  width: 18px;
+  border-top: 2.2px solid var(--link);
+  vertical-align: middle;
+}
+
+.legend-line.trend {
+  border-top-style: dashed;
+}
+
 /* Lojas */
 .home-stores {
   flex: 1 1 280px;
@@ -91,6 +311,31 @@
 
 .home-store-value {
   font-size: 32px;
+}
+
+.home-store-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.home-store-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.home-store-stats span,
+.home-store-stats small {
+  font-size: 12px;
+  color: #c9c1ba;
+}
+
+.home-store-stats strong {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
 }
 
 .home-stores-link {
@@ -197,4 +442,108 @@
   font-size: 12px;
   color: var(--text-muted);
   white-space: nowrap;
+}
+
+/* Vendas por grupo */
+.home-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px 0;
+}
+
+.home-list-head + .home-group {
+  padding-top: 0;
+}
+
+.home-group-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.home-group-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.home-group-share {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-group-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--bg-muted);
+  overflow: hidden;
+}
+
+.home-group-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+.home-group-value {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Conversão de vendas (em breve) */
+.home-conversion {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0 14px;
+}
+
+.home-conversion-rate {
+  font-size: 40px;
+  color: var(--text-muted);
+}
+
+.home-conversion-goal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.home-conversion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--divider);
+  font-size: 14px;
+}
+
+.home-conversion-row strong {
+  color: var(--text-muted);
+}
+
+.home-conversion-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.home-conversion-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
 }

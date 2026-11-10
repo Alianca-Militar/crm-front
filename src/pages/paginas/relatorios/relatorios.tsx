@@ -1,23 +1,42 @@
 import { useState } from 'react'
-import { nps, periodos, produtos, relatorios } from './mocks'
+import DateRangePicker from '../../../components/date_range/date_range'
+import { presetRange, rangeText } from '../../../components/date_range/date_range_utils'
+import AtendimentoSac from './atendimento_sac'
+import BaseClientes from './base_clientes'
+import DesempenhoCampanhas from './desempenho_campanhas'
+import {
+  atendimentoResumo,
+  baseResumo,
+  campanhasFunil,
+  campanhasPorDia,
+  campanhasResumo,
+  clientesPorLoja,
+  completude,
+  conversasPorDia,
+  conversasPorNumero,
+  iaAcertos,
+  iaNotas,
+  notasGoogle,
+  nps,
+  relatorios,
+  rfm,
+  semIdentificacao,
+  vendasProduto,
+} from './mocks'
+import VendasProduto from './vendas_produto'
 import './relatorios.css'
 
 export default function Relatorios() {
   const [selecionado, setSelecionado] = useState(0)
+  const nome = relatorios[selecionado].nome
+  const [periodo, setPeriodo] = useState(() => presetRange('month'))
 
   return (
     <div className="page page-relatorios">
       <div className="page-head">
         <h1 className="page-title">Relatórios</h1>
         <div className="page-actions">
-          <label className="inline-select">
-            Período
-            <select>
-              {periodos.map((p) => (
-                <option key={p}>{p}</option>
-              ))}
-            </select>
-          </label>
+          <DateRangePicker value={periodo} onChange={setPeriodo} />
           <button type="button" className="btn md">
             Exportar PDF
           </button>
@@ -42,82 +61,44 @@ export default function Relatorios() {
         ))}
       </div>
 
-      <div className="row">
-        <section className="card relatorios-produtos">
-          <h2 className="card-title relatorios-produtos-title">
-            Vendas por produto e loja · outubro
-          </h2>
-          <div className="relatorios-scroll">
-            <table className="table compact relatorios-table">
-              <thead>
-                <tr>
-                  <th>Produto</th>
-                  <th className="num">Juiz de Fora</th>
-                  <th className="num">Belo Horizonte</th>
-                  <th className="num">Total</th>
-                  <th className="num">Via campanha</th>
-                </tr>
-              </thead>
-              <tbody>
-                {produtos.map((p) => (
-                  <tr key={p.nome}>
-                    <td className="strong">{p.nome}</td>
-                    <td className="num">{p.jf}</td>
-                    <td className="num">{p.bh}</td>
-                    <td className="num relatorios-total">{p.total}</td>
-                    <td className="num">{p.camp}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+      {nome === 'Vendas por produto' && (
+        <VendasProduto
+          leaves={vendasProduto}
+          title={`Vendas por produto · ${rangeText(periodo)}`}
+        />
+      )}
 
-        <section className="card relatorios-nps">
-          <h2 className="card-title">Satisfação no atendimento</h2>
-          <div className="relatorios-nps-nums">
-            <div>
-              <div className="relatorios-nps-label">NPS geral</div>
-              <div className="relatorios-nps-value display-num">{nps.geral}</div>
-            </div>
-            <div>
-              <div className="relatorios-nps-label">Respostas</div>
-              <div className="relatorios-nps-value display-num">{nps.respostas}</div>
-            </div>
-          </div>
-          <div
-            className="relatorios-nps-bar"
-            role="img"
-            aria-label={`Promotores ${nps.promotores}%, neutros ${nps.neutros}%, detratores ${nps.detratores}%`}
-          >
-            <div className="promotores" style={{ width: `${nps.promotores}%` }} />
-            <div className="neutros" style={{ width: `${nps.neutros}%` }} />
-            <div className="detratores" style={{ width: `${nps.detratores}%` }} />
-          </div>
-          <div className="legend">
-            <span className="legend-item">
-              <span className="legend-swatch promotores" />
-              Promotores {nps.promotores}%
-            </span>
-            <span className="legend-item">
-              <span className="legend-swatch neutros" />
-              Neutros {nps.neutros}%
-            </span>
-            <span className="legend-item">
-              <span className="legend-swatch detratores" />
-              Detratores {nps.detratores}%
-            </span>
-          </div>
-          <div className="relatorios-nps-lojas">
-            {nps.porLoja.map((l) => (
-              <div key={l.loja} className="relatorios-nps-loja">
-                <span>{l.loja}</span>
-                <strong>{l.nps}</strong>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
+      {nome === 'Desempenho de campanhas' && (
+        <DesempenhoCampanhas
+          resumo={campanhasResumo}
+          dias={campanhasPorDia}
+          funil={campanhasFunil}
+          periodo={rangeText(periodo)}
+        />
+      )}
+
+      {nome === 'Base de clientes' && (
+        <BaseClientes
+          resumo={baseResumo}
+          semId={semIdentificacao}
+          completude={completude}
+          porLoja={clientesPorLoja}
+          rfm={rfm}
+        />
+      )}
+
+      {nome === 'Atendimento e SAC' && (
+        <AtendimentoSac
+          nps={nps}
+          google={notasGoogle}
+          resumo={atendimentoResumo}
+          dias={conversasPorDia}
+          porNumero={conversasPorNumero}
+          iaAcertos={iaAcertos}
+          iaNotas={iaNotas}
+          periodo={rangeText(periodo)}
+        />
+      )}
     </div>
   )
 }

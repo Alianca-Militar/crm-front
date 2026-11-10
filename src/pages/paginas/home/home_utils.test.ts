@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { delta, periodLabel } from './home_utils'
+import { delta, lastDayLabel, periodLabel } from './home_utils'
 
 describe('periodLabel', () => {
   it('escreve o período curto e com ano', () => {
@@ -17,5 +17,12 @@ describe('delta', () => {
     })
     expect(delta(80, 100, 'x').tone).toBe('bad')
     expect(delta(50, 0, '1/nov/2025').text).toBe('sem vendas em 1/nov/2025')
+  })
+})
+
+describe('lastDayLabel', () => {
+  it('mostra o último dia do mês', () => {
+    expect(lastDayLabel('2026-11')).toBe('30/nov')
+    expect(lastDayLabel('2028-02')).toBe('29/fev')
   })
 })

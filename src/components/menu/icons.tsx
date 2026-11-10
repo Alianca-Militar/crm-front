@@ -197,3 +197,38 @@ export const IconAprovacoes = (p: IconProps) => (
     <path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z" />
   </Svg>
 )
+
+/** Fluxo de pessoas: entrada na loja. */
+export const IconFluxo = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M14 3h5a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-5" />
+    <path d="M3 12h11" />
+    <path d="M10 8l4 4-4 4" />
+  </Svg>
+)
+
+/** Oportunidades: alvo. */
+export const IconOportunidades = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <circle cx="12" cy="12" r="5" />
+    <circle cx="12" cy="12" r="1" />
+  </Svg>
+)
+
+/** Crianças: adulto e criança. */
+export const IconCriancas = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="8" cy="5" r="2" />
+    <path d="M5 21v-6l-1-1v-3a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3l-1 1v6" />
+    <circle cx="17" cy="11" r="1.6" />
+    <path d="M15 21v-4l-.5-.5V15a1.5 1.5 0 0 1 1.5-1.5h2a1.5 1.5 0 0 1 1.5 1.5v1.5L19 17v4" />
+  </Svg>
+)
+
+export const IconCalendar = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3" y="5" width="18" height="16" rx="2" />
+    <path d="M3 10h18M8 3v4M16 3v4" />
+  </Svg>
+)

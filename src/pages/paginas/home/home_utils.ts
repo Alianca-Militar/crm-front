@@ -31,3 +31,9 @@ export function delta(now: number, before: number, base: string): { text: string
     tone: pct > 0 ? 'good' : pct < 0 ? 'bad' : 'neutral',
   }
 }
+
+/** "2026-11" → "30/nov" (último dia do mês). */
+export function lastDayLabel(month: string) {
+  const [y, m] = month.split('-').map(Number)
+  return `${new Date(y, m, 0).getDate()}/${MONTHS[m - 1]}`
+}

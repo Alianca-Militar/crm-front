@@ -184,19 +184,22 @@ export default function Campanhas() {
               </th>
               <th>Criada</th>
               <th>Status</th>
+              <th>
+                <span className="sr-only">Ações</span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {campaigns.isPending && (
               <tr>
-                <td colSpan={9} className="muted">
+                <td colSpan={10} className="muted">
                   Carregando…
                 </td>
               </tr>
             )}
             {campaigns.isSuccess && rows.length === 0 && (
               <tr>
-                <td colSpan={9} className="muted">
+                <td colSpan={10} className="muted">
                   {all.length === 0
                     ? 'Nenhuma campanha ainda. Crie a primeira em “Nova campanha”.'
                     : 'Nenhuma campanha neste filtro.'}
@@ -237,6 +240,11 @@ export default function Campanhas() {
                   >
                     {CAMPAIGN_STATUS_LABEL[c.status]}
                   </span>
+                </td>
+                <td className="nowrap">
+                  <Link to={`/campanhas/${c.id}/resultados`} className="btn sm">
+                    Resultado
+                  </Link>
                 </td>
               </tr>
             ))}

@@ -65,6 +65,8 @@ export type Campaign = {
   exported_at: string | null
   sent_at: string | null
   frequency_cap_days: number
+  /** Dias depois do envio em que a compra conta para a campanha. */
+  attribution_window_days: number
   notes: string | null
   is_locked: boolean
   audience_included: number | null
@@ -319,5 +321,31 @@ export function useDeleteContacts() {
   return useMutation({
     mutationFn: (id: number) => api<void>(`/campaigns/${id}/contacts/`, { method: 'DELETE' }),
     onSuccess: invalidate,
+  })
+}
+
+/** Vendas de todas as lojas x vendas atribuídas à campanha, dia a dia. */
+export type CampaignDay = { day: string; total: string; campaign: string }
+
+export function useCampaignDaily(id: number | null) {
+  return useQuery({
+    queryKey: [...key, 'daily', id],
+    queryFn: () => api<CampaignDay[]>(`/campaigns/${id}/daily/`),
+    enabled: id !== null,
+  })
+}
+
+/** Cliques nos links curtos da mensagem (clicks = total, people = aparelhos diferentes). */
+export type CampaignClicks = {
+  links: { id: number; code: string; name: string }[]
+  clicks: number
+  people: number
+}
+
+export function useCampaignClicks(id: number | null) {
+  return useQuery({
+    queryKey: [...key, 'clicks', id],
+    queryFn: () => api<CampaignClicks>(`/campaigns/${id}/clicks/`),
+    enabled: id !== null,
   })
 }

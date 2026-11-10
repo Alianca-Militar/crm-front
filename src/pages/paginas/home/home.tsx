@@ -1,14 +1,28 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import MsgNok from '../../../components/msg_nok/msg_nok'
-import { IconPlus } from '../../../components/menu/icons'
+import {
+  IconCriancas,
+  IconFluxo,
+  IconOportunidades,
+  IconPlus,
+} from '../../../components/menu/icons'
 import { api } from '../../../lib/api'
 import { useMe } from '../../../lib/auth'
 import { formatLastAccess, formatMoney, initials, titleCase } from '../../../lib/format'
-import { delta, MONTHS, periodLabel } from './home_utils'
+import { delta, lastDayLabel, MONTHS, periodLabel } from './home_utils'
+import MonthChart, { type MonthTrend } from './month_chart'
+import YearChart from './year_chart'
 import './home.css'
 
-type Period = { revenue: string; orders: number; avg_ticket: string | null; buyers: number }
+type Period = {
+  revenue: string
+  orders: number
+  avg_ticket: string | null
+  buyers: number
+  /** Vendas com cliente identificado (fora o consumidor final). */
+  identified: number
+}
 
 type Dashboard = {
   month: string
@@ -21,8 +35,12 @@ type Dashboard = {
     previous_year_period: { start: string; end: string }
   }
   customers: { total: number; with_phone: number; active_12m: number; new_this_month: number }
+  /** Vendas por dia do mês e a tendência até o último dia. */
+  daily: MonthTrend
   series: { month: string; stores: Record<string, string> }[]
   stores: ({ id: number; code: string; name: string } & Period)[]
+  /** Vendas do mês por grupo de produto: os 7 maiores e "Outros". */
+  groups: { group: string; amount: string; share: string }[]
   campaigns: {
     id: number
     name: string
@@ -32,7 +50,14 @@ type Dashboard = {
   }[]
   conversations_waiting: {
     total: number
-    items: { id: number; name: string | null; number_label: string; last_message_at: string }[]
+    /** As 5 que esperam há mais tempo (aba Aguardando de Conversas, lojas do usuário). */
+    items: {
+      id: number
+      name: string | null
+      number_label: string
+      last_message_at: string
+      waiting_since: string
+    }[]
   }
 }
 
@@ -107,10 +132,6 @@ export default function Home() {
         ]
       : []
 
-  const storeIds = d?.stores.map((s) => String(s.id)) ?? []
-  const totals = d?.series.map((m) => storeIds.reduce((t, id) => t + Number(m.stores[id] ?? 0), 0))
-  const max = Math.max(1, ...(totals ?? [0]))
-
   return (
     <div className="page page-home">
       <div className="page-head">
@@ -142,7 +163,7 @@ export default function Home() {
       <div className="row">
         <section className="card home-chart-card">
           <div className="card-head">
-            <h2 className="card-title">Faturamento por mês · últimos 12 meses</h2>
+            <h2 className="card-title">Vendas do mês · {d ? monthLabel(d.month) : ''}</h2>
             <div className="legend">
               {d?.stores.map((s, i) => (
                 <span key={s.id} className="legend-item">
@@ -150,41 +171,38 @@ export default function Home() {
                   {s.name}
                 </span>
               ))}
+              <span className="legend-item">
+                <span className="legend-line" />
+                Acumulado
+              </span>
+              <span className="legend-item">
+                <span className="legend-line trend" />
+                Tendência
+              </span>
             </div>
           </div>
-
-          <div
-            className="home-chart"
-            role="img"
-            aria-label="Gráfico de barras empilhadas com o faturamento mensal de cada loja"
-          >
-            {d?.series.map((m) => (
-              <div
-                key={m.month}
-                className="home-bar"
-                title={d.stores
-                  .map((s) => `${s.name}: ${formatMoney(m.stores[String(s.id)] ?? 0)}`)
-                  .join(' · ')}
-              >
-                {[...d.stores].reverse().map((s) => {
-                  const value = Number(m.stores[String(s.id)] ?? 0)
-                  const index = d.stores.indexOf(s)
-                  return value > 0 ? (
-                    <div
-                      key={s.id}
-                      className={`home-series-${index % 3}`}
-                      style={{ height: `${(value / max) * 100}%` }}
-                    />
-                  ) : null
-                })}
+          {d && (
+            <div className="month-summary">
+              <div className="month-summary-item">
+                <span className="month-summary-label">Vendido até ontem</span>
+                <span className="month-summary-value display-num">
+                  {formatMoney(d.daily.realized)}
+                </span>
               </div>
-            ))}
-          </div>
-          <div className="home-chart-labels">
-            {d?.series.map((m) => (
-              <div key={m.month}>{monthLabel(m.month)}</div>
-            ))}
-          </div>
+              <div className="month-summary-item">
+                <span className="month-summary-label">Tendência até {lastDayLabel(d.month)}</span>
+                <span className="month-summary-value display-num">
+                  {formatMoney(d.daily.trend)}
+                </span>
+              </div>
+              <p className="month-summary-note">
+                Ritmo de cada loja no mês, com o peso de cada dia da semana nas últimas 8 semanas,
+                nos {d.daily.open_days_left} dias de loja aberta que faltam (segunda a sábado, sem
+                feriados). Passe o mouse nas barras para ver cada dia.
+              </p>
+            </div>
+          )}
+          {d && <MonthChart data={d.daily} stores={d.stores} />}
         </section>
 
         <section className="card-dark home-stores">
@@ -198,6 +216,23 @@ export default function Home() {
                   ? `${n(s.orders)} vendas · ticket médio ${formatMoney(s.avg_ticket)}`
                   : 'Sem vendas no mês (ou dados ainda não carregados)'}
               </div>
+              <div className="home-store-stats">
+                <div>
+                  <span>Previsão do mês</span>
+                  <strong>{formatMoney(d.daily.trend_by_store[String(s.id)] ?? 0)}</strong>
+                </div>
+                <div>
+                  <span>Cliente identificado</span>
+                  <strong>
+                    {s.orders ? `${Math.round((s.identified / s.orders) * 100)}%` : '—'}
+                  </strong>
+                  {s.orders > 0 && (
+                    <small>
+                      {n(s.identified)} de {n(s.orders)} vendas
+                    </small>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
           <Link to="/relatorios" className="home-stores-link">
@@ -205,6 +240,22 @@ export default function Home() {
           </Link>
         </section>
       </div>
+
+      <section className="card home-year-card">
+        <div className="card-head">
+          <h2 className="card-title">Faturamento por mês · últimos 12 meses</h2>
+          <div className="legend">
+            {d?.stores.map((s, i) => (
+              <span key={s.id} className="legend-item">
+                <span className={`legend-swatch home-series-${i % 3}`} />
+                {s.name}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {d && <YearChart series={d.series} stores={d.stores} current={d.month} />}
+      </section>
 
       <div className="home-lists">
         <section className="card home-list">
@@ -248,9 +299,70 @@ export default function Home() {
                 <span className="home-chat-name">{titleCase(m.name) || 'Sem nome'}</span>
                 <span className="home-chat-msg">{m.number_label}</span>
               </span>
-              <span className="home-chat-when">{formatLastAccess(m.last_message_at)}</span>
+              <span className="home-chat-when">{formatLastAccess(m.waiting_since)}</span>
             </Link>
           ))}
+        </section>
+      </div>
+
+      <div className="home-lists">
+        <section className="card home-list">
+          <div className="card-head home-list-head">
+            <h2 className="card-title">Vendas por grupo · {d ? monthLabel(d.month) : ''}</h2>
+          </div>
+          {d?.groups.length === 0 && <div className="home-empty">Sem vendas no mês.</div>}
+          {d?.groups.map((g) => (
+            <div key={g.group} className="home-group">
+              <div className="home-group-top">
+                <span className="home-group-name">
+                  {titleCase(g.group)}{' '}
+                  <span className="home-group-value">({formatMoney(g.amount)})</span>
+                </span>
+                <span className="home-group-share">
+                  {Number(g.share).toLocaleString('pt-BR', { minimumFractionDigits: 1 })}%
+                </span>
+              </div>
+              <div className="home-group-bar">
+                <span
+                  style={{ width: `${(Number(g.share) / Number(d.groups[0].share)) * 100}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <section className="card home-list">
+          <div className="card-head home-list-head">
+            <h2 className="card-title">Conversão de vendas</h2>
+            <span className="badge sm tone-orange">em breve</span>
+          </div>
+          <div className="home-conversion">
+            <div className="home-conversion-rate display-num">—%</div>
+            <div className="home-conversion-goal">
+              <span>Meta: —</span>
+              <span>Realizado: —</span>
+            </div>
+          </div>
+          {(
+            [
+              ['Fluxo', IconFluxo],
+              ['Oportunidades', IconOportunidades],
+              ['Crianças', IconCriancas],
+            ] as const
+          ).map(([label, Icon]) => (
+            <div key={label} className="home-conversion-row">
+              <span className="home-conversion-label">
+                <span className="home-conversion-icon">
+                  <Icon size={16} />
+                </span>
+                {label}
+              </span>
+              <strong>—</strong>
+            </div>
+          ))}
+          <div className="home-empty">
+            Em breve: o fluxo de pessoas nas lojas ainda não chega ao CRM.
+          </div>
         </section>
       </div>
     </div>
