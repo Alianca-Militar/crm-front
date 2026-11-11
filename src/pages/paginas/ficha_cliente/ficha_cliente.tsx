@@ -359,19 +359,40 @@ export default function FichaCliente() {
                 {conversations.data?.map((conv) => (
                   <div key={conv.id} className="ficha-conversation">
                     <div className="ficha-conversation-head">
-                      <strong>
-                        {conv.store} · {conv.number}
-                      </strong>
-                      <span className="muted">
-                        {formatDate(conv.started_at)}
-                        {conv.status === 'open'
-                          ? ' · em andamento'
-                          : `${conv.close_reason ? ` · ${conv.close_reason}` : ''}`}
-                        {conv.assignee ? ` · ${conv.assignee}` : ''}
+                      <span className="ficha-conversation-avatar" aria-hidden="true">
+                        {initials(c.name)}
+                      </span>
+                      <div className="ficha-conversation-title">
+                        <strong>
+                          {conv.store} · {conv.number}
+                        </strong>
+                        <span>
+                          Iniciada em {formatDateTime(conv.started_at)}
+                          {conv.assignee ? ` · ${conv.assignee}` : ''}
+                        </span>
+                      </div>
+                      <span
+                        className={
+                          conv.status === 'open'
+                            ? 'ficha-conversation-status open'
+                            : 'ficha-conversation-status'
+                        }
+                      >
+                        {conv.status === 'open' ? 'Em andamento' : 'Encerrada'}
                       </span>
                     </div>
                     <div className="conversas-messages ficha-conversation-messages">
+                      {conv.messages.length === 0 && (
+                        <div className="conversas-day">Sem mensagens</div>
+                      )}
                       <MessageList messages={conv.messages} now={now} />
+                      {conv.status === 'closed' && (
+                        <div className="conversas-divider">
+                          Encerrada
+                          {conv.closed_at ? ` em ${formatDateTime(conv.closed_at)}` : ''}
+                          {conv.close_reason ? ` · ${conv.close_reason}` : ''}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

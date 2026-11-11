@@ -271,31 +271,212 @@
   font-style: italic;
 }
 
-/* Conversas (só leitura) */
+/* Conversas (só leitura), no visual do WhatsApp. Só vale dentro da ficha. */
+
+/* Altura fixa com rolagem: muitas conversas não esticam a página. */
 .ficha-conversations {
+  height: min(640px, 70vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .ficha-conversation {
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  flex: none;
   overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(11, 20, 26, 0.06);
 }
 
 .ficha-conversation-head {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 4px 12px;
+  align-items: center;
+  gap: 10px;
   padding: 10px 14px;
-  background: var(--bg-muted);
-  font-size: 13px;
+  background: #075e54;
+  color: #fff;
 }
 
-.ficha-conversation-messages {
+.ficha-conversation-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #dfe5e7;
+  color: #075e54;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ficha-conversation-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.ficha-conversation-title strong {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ficha-conversation-title span {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.ficha-conversation-status {
+  flex: none;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.ficha-conversation-status.open {
+  background: #25d366;
+  color: #06331d;
+}
+
+/* Fundo bege do WhatsApp com textura leve de pontinhos. */
+.ficha-conversation-messages.conversas-messages {
   flex: none;
   overflow: visible;
-  padding: 12px 14px;
+  gap: 2px;
+  padding: 14px 16px 16px;
+  background-color: #efeae2;
+  background-image:
+    radial-gradient(rgba(84, 101, 111, 0.08) 1px, transparent 1.5px),
+    radial-gradient(rgba(84, 101, 111, 0.05) 1px, transparent 1.5px);
+  background-size:
+    22px 22px,
+    22px 22px;
+  background-position:
+    0 0,
+    11px 11px;
+}
+
+.ficha-conversation-messages .conversas-day,
+.ficha-conversation-messages .conversas-divider {
+  margin: 10px 0 8px;
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+  font-size: 12px;
+  font-weight: 500;
+  color: #54656f;
+}
+
+.ficha-conversation-messages .conversas-divider {
+  background: #fff5c4;
+  color: #54656f;
+}
+
+.ficha-conversation-messages .conversas-msg {
+  margin-top: 2px;
+}
+
+/* Nova sequência (troca de lado): mais espaço e o "rabinho" do balão. */
+.ficha-conversation-messages .conversas-msg.in + .conversas-msg.out,
+.ficha-conversation-messages .conversas-msg.out + .conversas-msg.in {
+  margin-top: 10px;
+}
+
+.ficha-conversation-messages .conversas-bubble {
+  position: relative;
+  max-width: min(78%, 520px);
+  padding: 6px 9px 7px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+  font-size: 14px;
+  line-height: 19px;
+  color: #111b21;
+}
+
+.ficha-conversation-messages .conversas-msg.out .conversas-bubble,
+.ficha-conversation-messages .conversas-msg.app .conversas-bubble,
+.ficha-conversation-messages .conversas-msg.campaign .conversas-bubble {
+  background: #d9fdd3;
+  color: #111b21;
+}
+
+.ficha-conversation-messages
+  .conversas-msg:not(.conversas-msg.in + .conversas-msg.in):not(
+    .conversas-msg.out + .conversas-msg.out
+  )
+  .conversas-bubble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 13px;
+}
+
+.ficha-conversation-messages
+  .conversas-msg.in:not(.conversas-msg.in + .conversas-msg.in)
+  .conversas-bubble {
+  border-top-left-radius: 0;
+}
+
+.ficha-conversation-messages
+  .conversas-msg.out:not(.conversas-msg.out + .conversas-msg.out)
+  .conversas-bubble {
+  border-top-right-radius: 0;
+}
+
+.ficha-conversation-messages .conversas-msg.in .conversas-bubble::before {
+  left: -8px;
+  background: #fff;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.ficha-conversation-messages .conversas-msg.out .conversas-bubble::before {
+  right: -8px;
+  background: #d9fdd3;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.ficha-conversation-messages .conversas-template-tag {
+  margin-bottom: 3px;
+  color: #008069;
+  opacity: 1;
+}
+
+.ficha-conversation-messages .conversas-time {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #667781;
+  opacity: 1;
+}
+
+.ficha-conversation-messages .conversas-ticks {
+  color: #8696a0;
+}
+
+.ficha-conversation-messages .conversas-ticks.read {
+  color: #53bdeb;
+}
+
+.ficha-conversation-messages .conversas-failed {
+  color: #ea0038;
+}
+
+.ficha-conversation-messages .conv-link {
+  color: #027eb5;
 }
