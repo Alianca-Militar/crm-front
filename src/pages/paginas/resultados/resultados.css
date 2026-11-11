@@ -71,3 +71,12 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+.resultados-check {
+  min-height: 44px;
+  font-size: 14px;
+}
+
+.resultados-more {
+  align-self: center;
+}

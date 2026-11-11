@@ -29,6 +29,7 @@ import {
   useSaveCampaign,
 } from '../campanhas/campanhas_api'
 import { FieldErrors } from '../templates/editor_parts'
+import TesteEquipe from './teste_equipe'
 import { variableInfo } from '../templates/template_utils'
 import {
   CATEGORY_LABEL,
@@ -905,6 +906,15 @@ export default function NovaCampanha() {
                   </p>
                 )}
                 {notApprovedNotice}
+                {campaign.status === 'audience_ready' && approved && (
+                  <TesteEquipe
+                    campaign={campaign}
+                    canWrite={canWrite}
+                    disabled={busy}
+                    onSaved={setSaved}
+                    onError={showError}
+                  />
+                )}
                 {canWrite && campaign.status !== 'cancelled' && (
                   <div className="nova-export-actions">
                     <button
@@ -913,13 +923,15 @@ export default function NovaCampanha() {
                       disabled={
                         busy ||
                         campaign.send_channel === 'platform' ||
-                        (!campaign.exported_at && !approved) ||
+                        (!campaign.exported_at && (!approved || !campaign.test_checked_at)) ||
                         !campaign.audience_included
                       }
                       title={
                         campaign.send_channel === 'platform'
                           ? 'Esta campanha é enviada pela plataforma.'
-                          : undefined
+                          : !campaign.exported_at && !campaign.test_checked_at
+                            ? 'Faça o teste com a equipe e confira o checklist antes.'
+                            : undefined
                       }
                       onClick={() => (campaign.exported_at ? onExport() : setConfirm('export'))}
                     >

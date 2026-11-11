@@ -28,6 +28,13 @@ const schema = z
     skip_sundays_holidays: z.boolean(),
     attribution_window_days: int(1, 90),
     campaign_close_after_days: int(1, 365),
+    campaign_test_phones: z
+      .string()
+      .refine((v) => splitList(v).length <= 10, 'Informe até 10 telefones.')
+      .refine(
+        (v) => splitList(v).every((p) => /^\d{10,13}$/.test(p.replace(/\D/g, ''))),
+        'Use DDD + número em cada telefone.',
+      ),
     consent_text: z.string().trim().min(1, 'Informe o texto de consentimento.'),
     optout_keywords: z
       .string()
@@ -46,6 +53,13 @@ const schema = z
 
 type FormValues = z.infer<typeof schema>
 type Key = keyof FormValues
+
+function splitList(text: string): string[] {
+  return text
+    .split(',')
+    .map((w) => w.trim())
+    .filter(Boolean)
+}
 
 function splitKeywords(text: string): string[] {
   return text
@@ -66,6 +80,9 @@ function toForm(rows: Setting[]): FormValues {
     skip_sundays_holidays: Boolean(v.skip_sundays_holidays),
     attribution_window_days: Number(v.attribution_window_days),
     campaign_close_after_days: Number(v.campaign_close_after_days),
+    campaign_test_phones: Array.isArray(v.campaign_test_phones)
+      ? v.campaign_test_phones.join(', ')
+      : '',
     consent_text: String(v.consent_text ?? ''),
     optout_keywords: Array.isArray(v.optout_keywords) ? v.optout_keywords.join(', ') : '',
     anonymize_inactive_after_months: Number(v.anonymize_inactive_after_months),
@@ -84,6 +101,7 @@ function toApi(values: FormValues): Record<Key, unknown> {
     ...values,
     consent_text: values.consent_text.trim(),
     optout_keywords: splitKeywords(values.optout_keywords),
+    campaign_test_phones: splitList(values.campaign_test_phones),
   }
 }
 
@@ -267,6 +285,19 @@ function ConfiguracoesForm({ rows, canEdit }: { rows: Setting[]; canEdit: boolea
               />
               {fieldError('campaign_close_after_days')}
             </div>
+          </div>
+          <div className="field">
+            <label htmlFor="cfg-test">Telefones da equipe para o envio de teste</label>
+            <input
+              id="cfg-test"
+              placeholder="(32) 98888-0001, (31) 97777-0002"
+              {...register('campaign_test_phones')}
+            />
+            <span className="cfg-hint">
+              Separe por vírgula. Toda campanha manda um teste para esses números antes de exportar
+              a lista para a FastZap.
+            </span>
+            {fieldError('campaign_test_phones')}
           </div>
           <label className="check">
             <input type="checkbox" {...register('skip_sundays_holidays')} />

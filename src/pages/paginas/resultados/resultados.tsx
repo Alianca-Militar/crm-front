@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import MsgNok from '../../../components/msg_nok/msg_nok'
 import { formatMoney } from '../../../lib/format'
@@ -9,6 +10,7 @@ import {
   useCampaigns,
 } from '../campanhas/campanhas_api'
 import { AreaChart, Funil } from '../relatorios/desempenho_campanhas'
+import { Envios, Falhas } from './envios'
 import '../relatorios/relatorios.css'
 import './resultados.css'
 
@@ -17,10 +19,12 @@ const pct = (v: number, digits = 1) =>
   `${v.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits })}%`
 const dateFormat = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' })
 
-/** Resultado de uma campanha: indicadores, funil e vendas x vendas da campanha. */
+/** Resultado de uma campanha: indicadores, funil, falhas e envios. */
 export default function Resultados() {
   const { id } = useParams()
   const navigate = useNavigate()
+  // Código de erro escolhido em "Falhas" filtra os envios (vale só para a campanha aberta).
+  const [picked, setPicked] = useState<{ campaign: number; code: number | null } | null>(null)
   const list = useCampaigns()
   // Só campanhas que já saíram têm resultado.
   const sent = (list.data ?? []).filter((c) => c.exported_at || c.sent_at)
@@ -43,13 +47,22 @@ export default function Resultados() {
   // Sem preço nenhum cadastrado no número, o investimento fica em aberto.
   const investment = r && (Number(r.cost) > 0 || !r.unpriced) ? Number(r.cost) : null
   const roi = investment ? (revenue - investment) / investment : null
+  const roas = investment ? revenue / investment : null
   const conversion = r?.sent ? (r.orders / r.sent) * 100 : null
 
   const kpis = [
     {
-      label: 'Valor de vendas',
+      label: 'Receita influenciada',
       valor: formatMoney(revenue),
       sub: r ? `${int(r.orders)} vendas de ${int(r.buyers)} clientes` : 'sem envios ainda',
+    },
+    {
+      label: 'ROAS',
+      valor:
+        roas === null
+          ? '—'
+          : `${roas.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}x`,
+      sub: 'receita ÷ custo Meta',
     },
     {
       label: 'ROI',
@@ -60,7 +73,7 @@ export default function Resultados() {
       sub: '(vendas − investimento) ÷ investimento',
     },
     {
-      label: 'Investimento da campanha',
+      label: 'Custo Meta',
       valor: investment === null ? '—' : formatMoney(investment),
       sub: !r
         ? 'sem envios ainda'
@@ -73,7 +86,22 @@ export default function Resultados() {
       valor: conversion === null ? '—' : pct(conversion, 2),
       sub: r ? `${int(r.orders)} vendas ÷ ${int(r.sent)} disparos` : 'vendas ÷ disparos',
     },
+    {
+      label: 'Saídas',
+      valor: r ? int(r.optouts) : '—',
+      sub:
+        r?.sent && r.optouts
+          ? `${pct((r.optouts / r.sent) * 100, 2)} dos enviados pediram para sair`
+          : 'pediram para sair do marketing na janela',
+    },
   ]
+
+  const errorCode = picked && picked.campaign === campaign?.id ? picked.code : null
+  const pickError = (code: number | null) => {
+    if (campaign) setPicked({ campaign: campaign.id, code })
+    if (code === null) return
+    document.getElementById('envios')?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   return (
     <div className="page page-resultados">
@@ -167,7 +195,6 @@ export default function Resultados() {
           <h2 className="card-title">Funil da campanha</h2>
           <Funil
             etapas={[
-              { etapa: 'Disponibilizados', valor: campaign?.audience_included ?? null },
               { etapa: 'Enviados', valor: r?.sent ?? 0 },
               { etapa: 'Entregues', valor: r?.delivered ?? 0 },
               { etapa: 'Lidos', valor: r?.read ?? 0 },
@@ -176,6 +203,7 @@ export default function Resultados() {
                 valor: hasLink ? (clicks?.people ?? 0) : null,
                 nota: clicks ? 'A mensagem não tem link curto (/l/…)' : 'Carregando…',
               },
+              { etapa: 'Responderam', valor: r?.replied ?? 0 },
               { etapa: 'Comprados', valor: r?.orders ?? 0 },
             ]}
           />
@@ -207,12 +235,20 @@ export default function Resultados() {
               </dd>
             </div>
             <div>
+              <dt>Falharam</dt>
+              <dd>{r ? int(r.failed) : '—'}</dd>
+            </div>
+            <div>
               <dt>Taxa de entrega</dt>
               <dd>{r?.sent ? pct((r.delivered / r.sent) * 100) : '—'}</dd>
             </div>
             <div>
               <dt>Taxa de leitura</dt>
               <dd>{r?.sent ? pct((r.read / r.sent) * 100) : '—'}</dd>
+            </div>
+            <div>
+              <dt>Taxa de resposta</dt>
+              <dd>{r?.sent ? pct((r.replied / r.sent) * 100) : '—'}</dd>
             </div>
             <div>
               <dt>Ticket médio</dt>
@@ -229,6 +265,14 @@ export default function Resultados() {
           </dl>
         </section>
       </div>
+
+      <Falhas campaignId={campaign?.id ?? null} onPick={pickError} />
+      <Envios
+        key={campaign?.id}
+        campaignId={campaign?.id ?? null}
+        errorCode={errorCode}
+        onErrorCode={pickError}
+      />
     </div>
   )
 }

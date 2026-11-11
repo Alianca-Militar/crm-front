@@ -1,4 +1,10 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { api, ApiError } from '../../../lib/api'
 
 export type CampaignStatus =
@@ -74,6 +80,10 @@ export type Campaign = {
   sent_at: string | null
   send_channel: SendChannel | null
   finished_at: string | null
+  /** Envio de teste para a equipe: obrigatório (e conferido) antes da exportação real. */
+  test_exported_at: string | null
+  test_checked_at: string | null
+  test_checked_by_name: string | null
   frequency_cap_days: number
   /** Dias depois do envio em que a compra conta para a campanha. */
   attribution_window_days: number
@@ -91,6 +101,11 @@ export type CampaignResults = {
   sent: number
   delivered: number
   read: number
+  failed: number
+  /** Responderam à mensagem da campanha. */
+  replied: number
+  /** Pediram para sair do marketing dentro da janela, depois de receber. */
+  optouts: number
   orders: number
   buyers: number
   revenue: string
@@ -269,10 +284,10 @@ function getCookie(name: string): string {
   return match ? decodeURIComponent(match.split('=')[1]) : ''
 }
 
-/** Baixa o CSV da FastZap (POST: a primeira exportação trava a campanha). */
-async function downloadExport(id: number): Promise<void> {
+/** Baixa o CSV da FastZap (POST: a primeira exportação trava a campanha; o teste não trava). */
+async function downloadExport(id: number, action: 'export' | 'export-test' = 'export') {
   if (!getCookie('csrftoken')) await fetch('/api/auth/csrf/', { credentials: 'same-origin' })
-  const response = await fetch(`/api/campaigns/${id}/export/`, {
+  const response = await fetch(`/api/campaigns/${id}/${action}/`, {
     method: 'POST',
     credentials: 'same-origin',
     headers: { 'X-CSRFToken': getCookie('csrftoken') },
@@ -293,7 +308,41 @@ async function downloadExport(id: number): Promise<void> {
 
 export function useExportCampaign() {
   const invalidate = useInvalidate()
-  return useMutation({ mutationFn: downloadExport, onSuccess: invalidate })
+  return useMutation({ mutationFn: (id: number) => downloadExport(id), onSuccess: invalidate })
+}
+
+/** CSV só com os telefones da equipe (Admin › Configurações), com dados de clientes do público. */
+export function useExportTest() {
+  const invalidate = useInvalidate()
+  return useMutation({
+    mutationFn: (id: number) => downloadExport(id, 'export-test'),
+    onSuccess: invalidate,
+  })
+}
+
+export type TestChecklist = { text: boolean; link: boolean; buttons: boolean }
+
+export const TEST_CHECKLIST: { key: keyof TestChecklist; label: string; hint: string }[] = [
+  {
+    key: 'text',
+    label: 'Texto',
+    hint: 'Sem erro de digitação, variáveis trocadas certo (nome, corporação, valores).',
+  },
+  {
+    key: 'link',
+    label: 'Link com UTM',
+    hint: 'O link abre a página certa e leva utm_source, utm_medium e utm_campaign.',
+  },
+  { key: 'buttons', label: 'Botões', hint: 'Cada botão aparece e faz o que promete.' },
+]
+
+export function useConfirmTest() {
+  const invalidate = useInvalidate()
+  return useMutation({
+    mutationFn: ({ id, checklist }: { id: number; checklist: TestChecklist }) =>
+      api<Campaign>(`/campaigns/${id}/confirm-test/`, { method: 'POST', body: checklist }),
+    onSuccess: invalidate,
+  })
 }
 
 // ---------- Base externa (arquivo) ----------
@@ -360,6 +409,85 @@ export function useCampaignClicks(id: number | null) {
   return useQuery({
     queryKey: [...key, 'clicks', id],
     queryFn: () => api<CampaignClicks>(`/campaigns/${id}/clicks/`),
+    enabled: id !== null,
+  })
+}
+
+/** Falhas de envio por código de erro da Meta, com a explicação em português. */
+export type CampaignFailure = {
+  code: number | null
+  title: string | null
+  description: string
+  total: number
+}
+
+export function useCampaignFailures(id: number | null) {
+  return useQuery({
+    queryKey: [...key, 'failures', id],
+    queryFn: () => api<CampaignFailure[]>(`/campaigns/${id}/failures/`),
+    enabled: id !== null,
+  })
+}
+
+export type SendStatus = 'queued' | 'sent' | 'delivered' | 'read' | 'failed'
+
+export const SEND_STATUS_LABEL: Record<SendStatus, string> = {
+  queued: 'Aguardando a Meta',
+  sent: 'Enviada',
+  delivered: 'Entregue',
+  read: 'Lida',
+  failed: 'Falhou',
+}
+
+export const SEND_STATUS_TONE: Record<SendStatus, string> = {
+  queued: 'tone-gray',
+  sent: 'tone-blue',
+  delivered: 'tone-blue',
+  read: 'tone-green',
+  failed: 'tone-red',
+}
+
+export type CampaignSendRow = {
+  id: number
+  customer: number | null
+  customer_name: string | null
+  phone_normalized: string
+  current_status: SendStatus
+  sent_at: string | null
+  delivered_at: string | null
+  read_at: string | null
+  failed_at: string | null
+  error_code: number | null
+  error_description: string | null
+  replied_at: string | null
+}
+
+export type SendFilters = {
+  current_status?: SendStatus
+  error_code?: number
+  replied?: boolean
+  q?: string
+}
+
+type SendsPage = { next: string | null; previous: string | null; results: CampaignSendRow[] }
+
+/** Envios da campanha, 100 por vez (cursor do backend). */
+export function useCampaignSends(id: number | null, filters: SendFilters) {
+  return useInfiniteQuery({
+    queryKey: [...key, 'sends', id, filters],
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams()
+      if (filters.current_status) params.set('current_status', filters.current_status)
+      if (filters.error_code !== undefined) params.set('error_code', String(filters.error_code))
+      if (filters.replied) params.set('replied', 'true')
+      if (filters.q) params.set('q', filters.q)
+      if (pageParam) params.set('cursor', pageParam)
+      return api<SendsPage>(`/campaigns/${id}/sends/?${params}`)
+    },
+    initialPageParam: '',
+    getNextPageParam: (page) =>
+      page.next ? (new URL(page.next).searchParams.get('cursor') ?? undefined) : undefined,
+    placeholderData: keepPreviousData,
     enabled: id !== null,
   })
 }
