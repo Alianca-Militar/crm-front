@@ -263,8 +263,8 @@ export default function NumeroForm({ number, storeId, onClose, onSaved }: Props)
         <fieldset className="canais-fieldset">
           <legend>Custo por mensagem (R$)</legend>
           <p className="muted canais-hint">
-            Preço de cada mensagem de template enviada por este número, conforme a tabela da Meta
-            ou do parceiro. É o investimento nos resultados e relatórios das campanhas.
+            Preço de cada mensagem de template enviada por este número, conforme a tabela da Meta ou
+            do parceiro. É o investimento nos resultados e relatórios das campanhas.
           </p>
           <div className="form-grid tighter">
             {PRICES.map((p) => (

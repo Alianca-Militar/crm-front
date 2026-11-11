@@ -78,7 +78,9 @@ export default function DesempenhoCampanhas({ range }: { range: DateRange }) {
       <div className="row">
         <section className="card campanhas-area-card">
           <div className="card-head">
-            <h2 className="card-title">Vendas totais x vendas das campanhas · {rangeText(range)}</h2>
+            <h2 className="card-title">
+              Vendas totais x vendas das campanhas · {rangeText(range)}
+            </h2>
             <div className="legend">
               <span className="legend-item">
                 <span className="legend-swatch campanhas-swatch-total" />

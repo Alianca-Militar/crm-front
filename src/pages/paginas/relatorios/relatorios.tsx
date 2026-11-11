@@ -65,9 +65,7 @@ export default function Relatorios() {
         />
       )}
 
-      {nome === 'Desempenho de campanhas' && (
-        <DesempenhoCampanhas range={periodo} />
-      )}
+      {nome === 'Desempenho de campanhas' && <DesempenhoCampanhas range={periodo} />}
 
       {nome === 'Base de clientes' && (
         <BaseClientes
