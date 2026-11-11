@@ -1,48 +1,11 @@
 // Dados de exemplo do design. Trocar pela API quando o banco estiver pronto.
 
-import type { ProductLeaf } from './vendas_produto_utils'
-
 export const relatorios = [
   { nome: 'Vendas por produto', desc: 'Peças vendidas por loja' },
   { nome: 'Desempenho de campanhas', desc: 'Envios, respostas, conversão' },
   { nome: 'Base de clientes', desc: 'Novos, recorrentes, inativos' },
   { nome: 'Atendimento e SAC', desc: 'NPS, conversas, protocolos' },
 ]
-
-// Vendas por produto: [grupo, categoria, subcategoria, valor, peças, % desconto, markup, estoque].
-const LINHAS: [string, string, string, number, number, number, number, number][] = [
-  ['Fardamento', 'Gandola', 'PMMG novo fardamento', 68400, 228, 4.5, 2.1, 140],
-  ['Fardamento', 'Gandola', 'Camuflada', 21300, 92, 6, 2.0, 110],
-  ['Fardamento', 'Calça', 'Tática', 49800, 312, 5.2, 2.2, 260],
-  ['Fardamento', 'Calça', 'Cargo', 18700, 134, 7.8, 2.0, 190],
-  ['Fardamento', 'Farda', 'Safari', 9600, 53, 3.1, 2.3, 75],
-  ['Calçados', 'Coturno', 'Cano alto', 58200, 166, 3.8, 1.9, 120],
-  ['Calçados', 'Coturno', 'Cano curto', 22100, 79, 4.4, 1.9, 95],
-  ['Calçados', 'Tênis', 'Tático', 27300, 105, 6.5, 2.0, 140],
-  ['Camisetas', 'Combat Shirt', 'Manga longa', 30500, 254, 5.0, 2.4, 300],
-  ['Camisetas', 'Camiseta', 'Algodão', 24050, 481, 8.2, 2.6, 620],
-  ['Camisetas', 'Camiseta', 'Dry fit', 15400, 220, 7.1, 2.5, 280],
-  ['Acessórios', 'Boina', 'Lã', 8900, 148, 2.4, 2.8, 210],
-  ['Acessórios', 'Cinto', 'Tático', 7700, 121, 4.0, 2.7, 160],
-  ['Acessórios', 'Bolso', 'Multiuso', 6100, 98, 5.5, 2.5, 140],
-  ['Acessórios', 'Meia', 'Tática', 4300, 215, 9.0, 3.0, 480],
-  ['Equipamentos', 'Mochila', 'Assalto', 19800, 44, 3.2, 1.8, 60],
-  ['Equipamentos', 'Colete', 'Modular', 16200, 27, 2.9, 1.7, 35],
-  ['Equipamentos', 'Coldre', 'Velado', 5400, 36, 4.8, 2.2, 70],
-]
-
-export const vendasProduto: ProductLeaf[] = LINHAS.map(
-  ([grupo, categoria, subcategoria, valor, qtd, desconto, markup, estoque]) => ({
-    grupo,
-    categoria,
-    subcategoria,
-    valor,
-    bruto: valor / (1 - desconto / 100),
-    custo: valor / markup,
-    qtd,
-    estoque,
-  }),
-)
 
 export const nps = {
   geral: '77',

@@ -562,7 +562,7 @@ function WindowBar({ win }: { win: ReturnType<typeof windowState> }) {
   )
 }
 
-function MessageList({ messages, now }: { messages: Message[]; now: number }) {
+export function MessageList({ messages, now }: { messages: Message[]; now: number }) {
   const days = messages.map((m) => formatDay(m.at, now))
   return (
     <>

@@ -1,5 +1,7 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../../lib/api'
+import type { OptoutRow } from '../bloqueios/bloqueios_api'
+import type { PastConversation } from '../conversas/conversas_api'
 
 export type Page<T> = { count: number; next: string | null; previous: string | null; results: T[] }
 
@@ -38,6 +40,10 @@ export type CustomerDetails = {
   favorite_category: string | null
   rfm_segment: string | null
   last_campaign_sent_at: string | null
+  /** Campanhas diferentes recebidas nos últimos 30 dias (recalculado 1 vez por dia). */
+  campaigns_received_30d: number
+  last_message_in_at: string | null
+  last_message_out_at: string | null
   tags: string[]
 }
 
@@ -68,7 +74,12 @@ export type Customer = {
   phones: CustomerPhone[]
   details: CustomerDetails | null
   marketing_status: BlocklistRow[]
+  /** Pedidos de bloqueio e liberações dos telefones do cliente. */
+  optout_history: OptoutRow[]
 }
+
+/** Conversa na ficha: a do histórico, com a loja e se ainda está aberta. */
+export type CustomerConversation = PastConversation & { store: string; status: 'open' | 'closed' }
 
 export type OrderLine = {
   nmr_seq: number
@@ -171,6 +182,28 @@ export function useCustomerSends(id: number) {
     queryKey: [...key, 'sends', id],
     queryFn: () => api<Page<CustomerSend>>(`/customers/${id}/campaign-sends/`),
     enabled: Number.isFinite(id),
+  })
+}
+
+/** Linha do tempo das conversas (só leitura), das lojas do usuário. */
+export function useCustomerConversations(id: number, enabled: boolean) {
+  return useQuery({
+    queryKey: [...key, 'conversations', id],
+    queryFn: () => api<CustomerConversation[]>(`/customers/${id}/conversations/`),
+    enabled: enabled && Number.isFinite(id),
+  })
+}
+
+/** "Cliente pediu para não receber": bloqueia todos os telefones do cliente nas campanhas. */
+export function useCustomerOptout(id: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (reason: string) =>
+      api<OptoutRow[]>(`/customers/${id}/optout/`, { method: 'POST', body: { reason } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: key })
+      queryClient.invalidateQueries({ queryKey: ['optouts'] })
+    },
   })
 }
 

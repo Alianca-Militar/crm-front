@@ -8,9 +8,10 @@ const leaf = (grupo: string, categoria: string, subcategoria: string, valor: num
     subcategoria,
     valor,
     bruto: valor * 1.25,
-    custo: valor / 2,
+    desconto: valor * 0.25,
     qtd: valor / 100,
-    estoque: valor / 50,
+    valorComCusto: valor,
+    custo: valor / 2,
   }) satisfies ProductLeaf
 
 describe('buildTree', () => {
@@ -39,16 +40,23 @@ describe('buildTree', () => {
 })
 
 describe('metrics', () => {
-  it('calcula PMV, desconto, markup e giro', () => {
-    const m = metrics({ valor: 800, bruto: 1000, custo: 400, qtd: 4, estoque: 8 })
+  it('calcula PMV, desconto e o markup só com os produtos que têm custo', () => {
+    const m = metrics({
+      valor: 800,
+      bruto: 1000,
+      desconto: 200,
+      qtd: 4,
+      valorComCusto: 600,
+      custo: 300,
+    })
     expect(m.pmv).toBe(200)
     expect(m.desconto).toBe(20)
     expect(m.markup).toBe(2)
-    expect(m.giro).toBe(0.5)
+    expect(m.coberturaCusto).toBe(75)
   })
 
-  it('sem peças, custo ou estoque o indicador fica vazio', () => {
-    const m = metrics({ valor: 0, bruto: 0, custo: 0, qtd: 0, estoque: 0 })
-    expect([m.pmv, m.desconto, m.markup, m.giro]).toEqual([null, null, null, null])
+  it('sem peças, valor ou custo o indicador fica vazio', () => {
+    const m = metrics({ valor: 0, bruto: 0, desconto: 0, qtd: 0, valorComCusto: 0, custo: 0 })
+    expect([m.pmv, m.desconto, m.markup, m.coberturaCusto]).toEqual([null, null, null, null])
   })
 })

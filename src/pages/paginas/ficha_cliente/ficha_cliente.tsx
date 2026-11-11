@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
+import Modal from '../../../components/modal/modal'
 import MsgNok from '../../../components/msg_nok/msg_nok'
 import BackLink from '../../../components/back_link/back_link'
 import {
   formatCep,
   formatDate,
+  formatDateTime,
   formatMoney,
   initials,
   titleCase,
@@ -13,12 +15,17 @@ import {
 import {
   type Customer,
   useCustomer,
+  useCustomerConversations,
+  useCustomerOptout,
   useCustomerOrders,
   useCustomerSends,
 } from '../clientes/clientes_api'
+import { SOURCE_LABEL } from '../bloqueios/bloqueios_api'
+import { MessageList } from '../conversas/conversas'
+import '../conversas/conversas.css'
 import './ficha_cliente.css'
 
-const ABAS = ['Compras', 'Campanhas'] as const
+const ABAS = ['Compras', 'Campanhas', 'Conversas'] as const
 type Aba = (typeof ABAS)[number]
 
 const SEND_STATUS: Record<string, string> = {
@@ -52,6 +59,9 @@ export default function FichaCliente() {
   const customer = useCustomer(id)
   const orders = useCustomerOrders(id, page)
   const sends = useCustomerSends(id)
+  const conversations = useCustomerConversations(id, aba === 'Conversas')
+  const [now] = useState(() => Date.now())
+  const [optoutOpen, setOptoutOpen] = useState(false)
 
   if (customer.isPending) return <div className="page">Carregando…</div>
   if (customer.isError) {
@@ -92,6 +102,12 @@ export default function FichaCliente() {
     { label: 'CEP', value: c.cep ? formatCep(c.cep) : '—', mono: true },
     { label: 'Cliente desde', value: formatDate(d?.first_order_at ?? c.created_at) },
     { label: 'Categoria favorita', value: d?.favorite_category ?? '—' },
+  ]
+  const contato = [
+    { label: 'Campanhas (30 dias)', value: String(d?.campaigns_received_30d ?? 0) },
+    { label: 'Última campanha', value: formatDateTime(d?.last_campaign_sent_at) },
+    { label: 'Última mensagem do cliente', value: formatDateTime(d?.last_message_in_at) },
+    { label: 'Última mensagem da loja', value: formatDateTime(d?.last_message_out_at) },
   ]
   const ordersPage = orders.data
   const pages = ordersPage ? Math.max(1, Math.ceil(ordersPage.count / 50)) : 1
@@ -144,6 +160,18 @@ export default function FichaCliente() {
           </section>
 
           <section className="card ficha-card">
+            <h2 className="card-title sm">Contato</h2>
+            <dl className="dl">
+              {contato.map((x) => (
+                <div key={x.label} className="ficha-dl-row">
+                  <dt>{x.label}</dt>
+                  <dd>{x.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          <section className="card ficha-card">
             <h2 className="card-title sm">Telefones</h2>
             {c.phones.length === 0 && <p className="muted">Nenhum telefone válido.</p>}
             {c.phones.map((p) => (
@@ -172,11 +200,33 @@ export default function FichaCliente() {
                 Só sai das campanhas. O vendedor pode falar com o cliente normalmente.
               </p>
             )}
-            {d?.last_campaign_sent_at && (
-              <div className="ficha-consent">
-                <span>Última campanha</span>
-                <span className="muted">{formatDate(d.last_campaign_sent_at)}</span>
-              </div>
+            {!blocked && c.phones.length > 0 && (
+              <button
+                type="button"
+                className="btn sm ficha-optout-btn"
+                onClick={() => setOptoutOpen(true)}
+              >
+                Cliente pediu para não receber
+              </button>
+            )}
+            {c.optout_history.length > 0 && (
+              <ul className="ficha-optout-history">
+                {[...c.optout_history]
+                  .sort((a, b) => b.occurred_at.localeCompare(a.occurred_at))
+                  .map((h) => (
+                    <li key={h.id}>
+                      <span className={h.status === 'blocked' ? 'ficha-consent-blocked' : ''}>
+                        {h.status === 'blocked' ? 'Bloqueado' : 'Liberado'}
+                      </span>{' '}
+                      <span className="muted">
+                        {formatDate(h.occurred_at)} · {SOURCE_LABEL[h.source] ?? h.source}
+                        {h.created_by_name ? ` · ${h.created_by_name}` : ''}
+                        {h.scope === 'store' && h.store_name ? ` · só ${h.store_name}` : ''}
+                      </span>
+                      {h.origin_text && <div className="ficha-optout-reason">{h.origin_text}</div>}
+                    </li>
+                  ))}
+              </ul>
             )}
           </section>
         </aside>
@@ -293,9 +343,91 @@ export default function FichaCliente() {
                 ))}
               </>
             )}
+
+            {aba === 'Conversas' && (
+              <div className="ficha-scroll ficha-conversations">
+                {conversations.isPending && <p className="muted">Carregando…</p>}
+                {conversations.isError && (
+                  <MsgNok
+                    titulo="Não foi possível carregar as conversas"
+                    mensagem={conversations.error.message}
+                  />
+                )}
+                {conversations.data?.length === 0 && (
+                  <p className="muted">Nenhuma conversa no WhatsApp das suas lojas.</p>
+                )}
+                {conversations.data?.map((conv) => (
+                  <div key={conv.id} className="ficha-conversation">
+                    <div className="ficha-conversation-head">
+                      <strong>
+                        {conv.store} · {conv.number}
+                      </strong>
+                      <span className="muted">
+                        {formatDate(conv.started_at)}
+                        {conv.status === 'open'
+                          ? ' · em andamento'
+                          : `${conv.close_reason ? ` · ${conv.close_reason}` : ''}`}
+                        {conv.assignee ? ` · ${conv.assignee}` : ''}
+                      </span>
+                    </div>
+                    <div className="conversas-messages ficha-conversation-messages">
+                      <MessageList messages={conv.messages} now={now} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </div>
+
+      {optoutOpen && <OptoutModal customerId={c.id} onClose={() => setOptoutOpen(false)} />}
     </div>
+  )
+}
+
+/** Confirma o bloqueio: todos os telefones saem das campanhas (o 1:1 com o vendedor continua). */
+function OptoutModal({ customerId, onClose }: { customerId: number; onClose: () => void }) {
+  const optout = useCustomerOptout(customerId)
+  const [reason, setReason] = useState('')
+  return (
+    <Modal
+      open
+      titulo="Cliente pediu para não receber"
+      onClose={onClose}
+      footer={
+        <>
+          <button type="button" className="btn sm" onClick={onClose}>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="btn sm primary"
+            disabled={optout.isPending}
+            onClick={() => optout.mutate(reason.trim(), { onSuccess: onClose })}
+          >
+            {optout.isPending ? 'Bloqueando…' : 'Bloquear campanhas'}
+          </button>
+        </>
+      }
+    >
+      {optout.isError && (
+        <MsgNok titulo="Não foi possível bloquear" mensagem={optout.error.message} />
+      )}
+      <p>
+        Os telefones do cliente saem de todas as campanhas, em todas as lojas. O vendedor continua
+        podendo conversar com ele normalmente.
+      </p>
+      <div className="field">
+        <label htmlFor="optout-reason">Como o cliente pediu (opcional)</label>
+        <textarea
+          id="optout-reason"
+          rows={3}
+          placeholder="Ex.: pediu no balcão da loja"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
+      </div>
+    </Modal>
   )
 }

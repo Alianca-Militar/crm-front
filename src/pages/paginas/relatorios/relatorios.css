@@ -698,3 +698,10 @@
   border-radius: 4px 4px 0 0;
   background: var(--accent);
 }
+
+/* Markup calculado só com parte do valor (produtos sem custo na planilha). */
+.produto-markup.parcial {
+  font-style: italic;
+  color: var(--text-muted);
+  cursor: help;
+}

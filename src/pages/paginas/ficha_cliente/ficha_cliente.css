@@ -247,3 +247,55 @@
   margin: 4px 0 0;
   font-size: 13px;
 }
+
+/* Marketing: botão de bloqueio e histórico */
+.ficha-optout-btn {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.ficha-optout-history {
+  margin: 12px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--divider);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.ficha-optout-reason {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Conversas (só leitura) */
+.ficha-conversations {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ficha-conversation {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.ficha-conversation-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 10px 14px;
+  background: var(--bg-muted);
+  font-size: 13px;
+}
+
+.ficha-conversation-messages {
+  flex: none;
+  overflow: visible;
+  padding: 12px 14px;
+}

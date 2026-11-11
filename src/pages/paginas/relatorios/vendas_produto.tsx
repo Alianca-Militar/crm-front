@@ -3,6 +3,7 @@ import { IconChevronRight } from '../../../components/menu/icons'
 import { formatMoney } from '../../../lib/format'
 import {
   buildTree,
+  type Metrics,
   metrics,
   totalOf,
   type ProductLeaf,
@@ -12,14 +13,39 @@ import {
 const LEVEL = ['Grupo', 'Categoria', 'Subcategoria']
 
 const int = (v: number) => Math.round(v).toLocaleString('pt-BR')
-const dec = (v: number | null, suffix = '') =>
+const dec = (v: number | null, suffix = '', digits = 1) =>
   v === null
     ? '—'
-    : `${v.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${suffix}`
+    : `${v.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits })}${suffix}`
+
+/** Markup com 2 casas; em itálico quando só parte do valor tem custo (a dica mostra quanto). */
+function Markup({ m }: { m: Metrics }) {
+  const parcial = m.coberturaCusto !== null && m.coberturaCusto < 99.95
+  return (
+    <span
+      className={parcial ? 'produto-markup parcial' : 'produto-markup'}
+      title={
+        m.coberturaCusto === null
+          ? undefined
+          : `Calculado sobre ${dec(m.coberturaCusto, '%')} do valor (produtos com custo)`
+      }
+    >
+      {dec(m.markup, '', 2)}
+    </span>
+  )
+}
 const money = (v: number | null) => (v === null ? '—' : formatMoney(v))
 
 /** Vendas por grupo, abrindo em categoria e subcategoria. Começa fechado. */
-export default function VendasProduto({ leaves, title }: { leaves: ProductLeaf[]; title: string }) {
+export default function VendasProduto({
+  leaves,
+  title,
+  loading = false,
+}: {
+  leaves: ProductLeaf[]
+  title: string
+  loading?: boolean
+}) {
   const tree = useMemo(() => buildTree(leaves), [leaves])
   const [open, setOpen] = useState<Set<string>>(() => new Set())
 
@@ -67,9 +93,11 @@ export default function VendasProduto({ leaves, title }: { leaves: ProductLeaf[]
             <td className="num">{int(m.qtd)}</td>
             <td className="num">{money(m.pmv)}</td>
             <td className="num">{dec(m.desconto, '%')}</td>
-            <td className="num">{dec(m.markup)}</td>
-            <td className="num">{int(m.estoque)}</td>
-            <td className="num">{dec(m.giro, '×')}</td>
+            <td className="num">
+              <Markup m={m} />
+            </td>
+            <td className="num muted">—</td>
+            <td className="num muted">—</td>
           </tr>
           {isOpen && rows(node.filhos)}
         </Fragment>
@@ -102,16 +130,27 @@ export default function VendasProduto({ leaves, title }: { leaves: ProductLeaf[]
               <th className="num" title="Desconto sobre o preço de tabela">
                 % desconto
               </th>
-              <th className="num" title="Valor vendido ÷ custo das peças">
+              <th className="num" title="Valor vendido ÷ custo, só dos produtos com custo">
                 Markup
               </th>
-              <th className="num">Estoque</th>
-              <th className="num" title="Peças vendidas ÷ estoque, no período">
+              <th className="num" title="Em breve">
+                Estoque
+              </th>
+              <th className="num" title="Em breve">
                 Giro
               </th>
             </tr>
           </thead>
-          <tbody>{rows(tree)}</tbody>
+          <tbody>
+            {rows(tree)}
+            {tree.length === 0 && (
+              <tr>
+                <td colSpan={8} className="muted">
+                  {loading ? 'Carregando…' : 'Nenhuma venda no período.'}
+                </td>
+              </tr>
+            )}
+          </tbody>
           <tfoot>
             <tr className="produto-row produto-total">
               <td>Total</td>
@@ -119,16 +158,19 @@ export default function VendasProduto({ leaves, title }: { leaves: ProductLeaf[]
               <td className="num">{int(total.qtd)}</td>
               <td className="num">{money(total.pmv)}</td>
               <td className="num">{dec(total.desconto, '%')}</td>
-              <td className="num">{dec(total.markup)}</td>
-              <td className="num">{int(total.estoque)}</td>
-              <td className="num">{dec(total.giro, '×')}</td>
+              <td className="num">
+                <Markup m={total} />
+              </td>
+              <td className="num muted">—</td>
+              <td className="num muted">—</td>
             </tr>
           </tfoot>
         </table>
       </div>
       <p className="relatorios-note">
-        PMV = valor ÷ peças · Markup = valor vendido ÷ custo · Giro = peças vendidas ÷ estoque
-        atual. Dados de exemplo.
+        PMV = valor ÷ peças · Markup = valor vendido ÷ custo, só com os produtos que têm custo na
+        planilha de produtos (em itálico quando parte do valor ficou sem custo; passe o mouse para
+        ver quanto) · Estoque e giro: em breve.
       </p>
     </section>
   )

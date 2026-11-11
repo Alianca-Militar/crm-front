@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import DateRangePicker from '../../../components/date_range/date_range'
-import { presetRange, rangeText } from '../../../components/date_range/date_range_utils'
+import {
+  type DateRange,
+  presetRange,
+  rangeText,
+} from '../../../components/date_range/date_range_utils'
+import MsgNok from '../../../components/msg_nok/msg_nok'
 import AtendimentoSac from './atendimento_sac'
 import BaseClientes from './base_clientes'
 import DesempenhoCampanhas from './desempenho_campanhas'
@@ -18,10 +23,26 @@ import {
   relatorios,
   rfm,
   semIdentificacao,
-  vendasProduto,
 } from './mocks'
+import { useProductsReport } from './relatorios_api'
 import VendasProduto from './vendas_produto'
 import './relatorios.css'
+
+function VendasProdutoReal({ range }: { range: DateRange }) {
+  const report = useProductsReport(range)
+  return (
+    <>
+      {report.isError && (
+        <MsgNok titulo="Não foi possível carregar o relatório" mensagem={report.error.message} />
+      )}
+      <VendasProduto
+        leaves={report.data ?? []}
+        loading={report.isPending}
+        title={`Vendas por produto · ${rangeText(range)}`}
+      />
+    </>
+  )
+}
 
 export default function Relatorios() {
   const [selecionado, setSelecionado] = useState(0)
@@ -58,12 +79,7 @@ export default function Relatorios() {
         ))}
       </div>
 
-      {nome === 'Vendas por produto' && (
-        <VendasProduto
-          leaves={vendasProduto}
-          title={`Vendas por produto · ${rangeText(periodo)}`}
-        />
-      )}
+      {nome === 'Vendas por produto' && <VendasProdutoReal range={periodo} />}
 
       {nome === 'Desempenho de campanhas' && <DesempenhoCampanhas range={periodo} />}
 

@@ -1,4 +1,6 @@
-/** Vendas por produto: soma das subcategorias em categorias e grupos, e os indicadores. */
+/** Vendas por produto: soma das subcategorias em categorias e grupos, e os indicadores.
+ *
+ * Estoque e giro ainda não existem no CRM (aparecem como "em breve"). */
 
 export type ProductLeaf = {
   grupo: string
@@ -6,17 +8,19 @@ export type ProductLeaf = {
   subcategoria: string
   /** Valor vendido (já com desconto). */
   valor: number
-  /** Valor de tabela, antes do desconto. */
+  /** Valor dos itens antes do desconto. */
   bruto: number
-  /** Custo das peças vendidas. */
-  custo: number
+  /** Desconto dado nos itens. */
+  desconto: number
   /** Peças vendidas. */
   qtd: number
-  /** Peças em estoque hoje. */
-  estoque: number
+  /** Valor vendido só dos produtos com custo na planilha. */
+  valorComCusto: number
+  /** Custo das peças desses produtos. */
+  custo: number
 }
 
-type Totals = Pick<ProductLeaf, 'valor' | 'bruto' | 'custo' | 'qtd' | 'estoque'>
+type Totals = Omit<ProductLeaf, 'grupo' | 'categoria' | 'subcategoria'>
 
 export type ProductNode = Totals & {
   id: string
@@ -32,21 +36,28 @@ export type Metrics = {
   pmv: number | null
   /** Desconto sobre o valor de tabela, em %. */
   desconto: number | null
-  /** Valor vendido ÷ custo. */
+  /** Valor vendido ÷ custo, só dos produtos com custo. */
   markup: number | null
-  estoque: number
-  /** Peças vendidas ÷ estoque (vezes no período). */
-  giro: number | null
+  /** Parte do valor vendido que tem custo, em %. */
+  coberturaCusto: number | null
 }
 
-const empty = (): Totals => ({ valor: 0, bruto: 0, custo: 0, qtd: 0, estoque: 0 })
+const empty = (): Totals => ({
+  valor: 0,
+  bruto: 0,
+  desconto: 0,
+  qtd: 0,
+  valorComCusto: 0,
+  custo: 0,
+})
 
 function add(into: Totals, from: Totals) {
   into.valor += from.valor
   into.bruto += from.bruto
-  into.custo += from.custo
+  into.desconto += from.desconto
   into.qtd += from.qtd
-  into.estoque += from.estoque
+  into.valorComCusto += from.valorComCusto
+  into.custo += from.custo
 }
 
 /** Grupo › categoria › subcategoria, cada nível ordenado pelo valor vendido. */
@@ -71,9 +82,10 @@ export function buildTree(leaves: ProductLeaf[]): ProductNode[] {
       filhos: [],
       valor: leaf.valor,
       bruto: leaf.bruto,
-      custo: leaf.custo,
+      desconto: leaf.desconto,
       qtd: leaf.qtd,
-      estoque: leaf.estoque,
+      valorComCusto: leaf.valorComCusto,
+      custo: leaf.custo,
     })
     add(cat, leaf)
     add(group, leaf)
@@ -96,9 +108,8 @@ export function metrics(t: Totals): Metrics {
     valor: t.valor,
     qtd: t.qtd,
     pmv: t.qtd ? t.valor / t.qtd : null,
-    desconto: t.bruto ? ((t.bruto - t.valor) / t.bruto) * 100 : null,
-    markup: t.custo ? t.valor / t.custo : null,
-    estoque: t.estoque,
-    giro: t.estoque ? t.qtd / t.estoque : null,
+    desconto: t.bruto ? (t.desconto / t.bruto) * 100 : null,
+    markup: t.custo ? t.valorComCusto / t.custo : null,
+    coberturaCusto: t.valor ? (t.valorComCusto / t.valor) * 100 : null,
   }
 }

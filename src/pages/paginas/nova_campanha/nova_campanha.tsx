@@ -7,6 +7,7 @@ import { IconChevronLeft } from '../../../components/menu/icons'
 import MsgOk from '../../../components/msg_ok/msg_ok'
 import { ApiError, type FieldErrors as ApiFieldErrors } from '../../../lib/api'
 import { useMe } from '../../../lib/auth'
+import { formatMoney } from '../../../lib/format'
 import { useWhatsappNumbers } from '../../admin/canais/canais_api'
 import {
   type AudienceFilters,
@@ -29,6 +30,7 @@ import {
 import { FieldErrors } from '../templates/editor_parts'
 import { variableInfo } from '../templates/template_utils'
 import {
+  CATEGORY_LABEL,
   type MessageTemplate,
   STATUS_LABEL,
   useMessageTemplates,
@@ -397,6 +399,17 @@ export default function NovaCampanha() {
 
   // ---------- Partes reaproveitadas ----------
 
+  // Custo = incluídos × preço da categoria do template no número (Admin › Canais).
+  const costCount = showFrozen ? (campaign?.audience_included ?? 0) : (summary?.included ?? 0)
+  const rawPrice = template
+    ? {
+        MARKETING: number?.price_marketing,
+        UTILITY: number?.price_utility,
+        AUTHENTICATION: number?.price_authentication,
+      }[template.category]
+    : null
+  const price = rawPrice ? Number(rawPrice) : null
+
   const estimateCard = (
     <section className="card-dark nova-estimate">
       <div className="nova-estimate-label">{showFrozen ? 'Lista gerada' : 'Público estimado'}</div>
@@ -440,6 +453,22 @@ export default function NovaCampanha() {
             )}
           </ul>
         )}
+      {template && (showFrozen || summary) && (
+        <div className="nova-estimate-cost">
+          <span>Custo estimado</span>
+          {price === null ? (
+            <small>Sem preço por mensagem no número (Admin › Canais).</small>
+          ) : (
+            <>
+              <strong>{formatMoney(costCount * price)}</strong>
+              <small>
+                {costCount.toLocaleString('pt-BR')} × {formatMoney(price)} (
+                {CATEGORY_LABEL[template.category] ?? template.category})
+              </small>
+            </>
+          )}
+        </div>
+      )}
     </section>
   )
 
