@@ -47,6 +47,10 @@ export type WhatsappNumber = {
   app_subscribed_at: string | null
   connected_at: string | null
   last_webhook_at: string | null
+  /** Preço de uma mensagem de template, em reais (decimal em texto), por categoria. */
+  price_marketing: string | null
+  price_utility: string | null
+  price_authentication: string | null
   templates_count: number
   updated_at: string
 }
@@ -64,6 +68,9 @@ export type WhatsappNumberInput = Pick<
   | 'phone_number_id'
   | 'business_portfolio_id'
   | 'active'
+  | 'price_marketing'
+  | 'price_utility'
+  | 'price_authentication'
 >
 
 export const PURPOSE_LABEL: Record<NumberPurpose, string> = {

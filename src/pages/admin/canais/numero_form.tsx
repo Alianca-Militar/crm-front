@@ -17,6 +17,23 @@ import {
   type WhatsappNumber,
 } from './canais_api'
 
+const price = z
+  .string()
+  .trim()
+  .regex(/^(\d{1,6}([.,]\d{1,4})?)?$/, 'Use um valor como 0,54.')
+
+/** "0,54" → "0.54"; vazio → null. */
+const toPrice = (v: string) => (v ? v.replace(',', '.') : null)
+/** "0.5400" → "0,54". */
+const fromPrice = (v: string | null | undefined) =>
+  v ? Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 4 }).replace(/\./g, '') : ''
+
+const PRICES = [
+  { name: 'price_marketing', label: 'Marketing' },
+  { name: 'price_utility', label: 'Utilidade' },
+  { name: 'price_authentication', label: 'Autenticação' },
+] as const
+
 const schema = z.object({
   store: z.string().min(1, 'Escolha a loja.'),
   label: z.string().trim().min(1, 'Informe um apelido.'),
@@ -31,6 +48,9 @@ const schema = z.object({
   waba_id: z.string().trim().regex(/^\d*$/, 'Só números.'),
   phone_number_id: z.string().trim().regex(/^\d*$/, 'Só números.'),
   business_portfolio_id: z.string().trim().regex(/^\d*$/, 'Só números.'),
+  price_marketing: price,
+  price_utility: price,
+  price_authentication: price,
 })
 
 type FormValues = z.infer<typeof schema>
@@ -48,6 +68,9 @@ function toForm(n: WhatsappNumber | null, storeId: number | null): FormValues {
     waba_id: n?.waba_id ?? '',
     phone_number_id: n?.phone_number_id ?? '',
     business_portfolio_id: n?.business_portfolio_id ?? '',
+    price_marketing: fromPrice(n?.price_marketing),
+    price_utility: fromPrice(n?.price_utility),
+    price_authentication: fromPrice(n?.price_authentication),
   }
 }
 
@@ -84,6 +107,9 @@ export default function NumeroForm({ number, storeId, onClose, onSaved }: Props)
       waba_id: values.waba_id || null,
       phone_number_id: values.phone_number_id || null,
       business_portfolio_id: values.business_portfolio_id || null,
+      price_marketing: toPrice(values.price_marketing),
+      price_utility: toPrice(values.price_utility),
+      price_authentication: toPrice(values.price_authentication),
     }
     save.mutate(
       { id: number?.id, data },
@@ -231,6 +257,28 @@ export default function NumeroForm({ number, storeId, onClose, onSaved }: Props)
               <input id="num-bp" inputMode="numeric" {...register('business_portfolio_id')} />
               {fieldError('business_portfolio_id')}
             </div>
+          </div>
+        </fieldset>
+
+        <fieldset className="canais-fieldset">
+          <legend>Custo por mensagem (R$)</legend>
+          <p className="muted canais-hint">
+            Preço de cada mensagem de template enviada por este número, conforme a tabela da Meta
+            ou do parceiro. É o investimento nos resultados e relatórios das campanhas.
+          </p>
+          <div className="form-grid tighter">
+            {PRICES.map((p) => (
+              <div key={p.name} className="field">
+                <label htmlFor={`num-${p.name}`}>{p.label}</label>
+                <input
+                  id={`num-${p.name}`}
+                  inputMode="decimal"
+                  placeholder="0,00"
+                  {...register(p.name)}
+                />
+                {fieldError(p.name)}
+              </div>
+            ))}
           </div>
         </fieldset>
 

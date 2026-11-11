@@ -84,6 +84,10 @@ export type CampaignResults = {
   orders: number
   buyers: number
   revenue: string
+  /** Envios cobrados × preço por categoria cadastrado no número (Admin › Canais). */
+  cost: string
+  /** Envios cobrados sem preço no número (ficam fora do custo). */
+  unpriced: number
 }
 
 export type CampaignListFilters = {

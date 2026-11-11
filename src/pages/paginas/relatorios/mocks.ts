@@ -56,37 +56,6 @@ export const nps = {
   ],
 }
 
-// Desempenho de campanhas.
-export const campanhasResumo = {
-  campanhas: 12,
-  vendas: 48_620.5,
-  pedidos: 96,
-  disparos: 18_450,
-  investimento: 7_380,
-}
-
-/** Vendas por dia: total das lojas e a parte atribuída às campanhas. */
-export const campanhasPorDia = Array.from({ length: 30 }, (_, i) => {
-  const day = new Date(2026, 9, 12 + i)
-  const sunday = day.getDay() === 0
-  const wave = 1 + 0.35 * Math.sin(i / 2.2)
-  const total = sunday ? 0 : Math.round(9_000 * wave + (i % 5) * 900)
-  return {
-    dia: `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`,
-    total,
-    campanhas: Math.round(total * (0.12 + ((i * 7) % 10) / 100)),
-  }
-})
-
-export const campanhasFunil = [
-  { etapa: 'Disponibilizados', valor: 21_300 },
-  { etapa: 'Enviados', valor: 18_450 },
-  { etapa: 'Entregues', valor: 17_380 },
-  { etapa: 'Lidos', valor: 9_940 },
-  { etapa: 'Clicados', valor: 1_220 },
-  { etapa: 'Comprados', valor: 96 },
-]
-
 // Base de clientes.
 export const baseResumo = {
   total: 14_820,

@@ -1,16 +1,10 @@
 import { useState } from 'react'
+import MsgNok from '../../../components/msg_nok/msg_nok'
+import { type DateRange, rangeText } from '../../../components/date_range/date_range_utils'
 import { formatMoney } from '../../../lib/format'
+import { useCampaignsReport } from './relatorios_api'
 import { useWidth } from './use_width'
 
-type Resumo = {
-  campanhas: number
-  vendas: number
-  /** Vendas atribuídas às campanhas (quantidade). */
-  pedidos: number
-  /** Mensagens enviadas (sent, delivered ou read). */
-  disparos: number
-  investimento: number
-}
 export type Dia = { dia: string; total: number; campanhas: number }
 /** valor null = etapa que ainda não é medida. */
 export type Etapa = { etapa: string; valor: number | null; nota?: string }
@@ -19,34 +13,32 @@ const int = (v: number) => Math.round(v).toLocaleString('pt-BR')
 const pct = (v: number, digits = 1) =>
   `${v.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits })}%`
 
-/** Indicadores, vendas totais x campanhas por dia e o funil dos envios. */
-export default function DesempenhoCampanhas({
-  resumo,
-  dias,
-  funil,
-  periodo,
-}: {
-  resumo: Resumo
-  dias: Dia[]
-  funil: Etapa[]
-  periodo: string
-}) {
-  const conversao = resumo.disparos ? (resumo.pedidos / resumo.disparos) * 100 : null
-  const roi = resumo.investimento
-    ? (resumo.vendas - resumo.investimento) / resumo.investimento
-    : null
+/** Indicadores, vendas totais x campanhas por dia e o funil dos envios, no período. */
+export default function DesempenhoCampanhas({ range }: { range: DateRange }) {
+  const report = useCampaignsReport(range)
+  const r = report.data
+  const revenue = Number(r?.revenue ?? 0)
+  // Sem preço nenhum cadastrado nos números, o investimento fica em aberto.
+  const investment = r && (Number(r.cost) > 0 || !r.unpriced) ? Number(r.cost) : null
+  const conversao = r?.sent ? (r.orders / r.sent) * 100 : null
+  const roi = investment ? (revenue - investment) / investment : null
+  const dias: Dia[] = (r?.daily ?? []).map((d) => ({
+    dia: d.day,
+    total: Number(d.total),
+    campanhas: Number(d.campaign),
+  }))
 
   const kpis = [
-    { label: 'Campanhas', valor: int(resumo.campanhas), sub: 'enviadas no período' },
+    { label: 'Campanhas', valor: r ? int(r.campaigns) : '—', sub: 'com disparos no período' },
     {
       label: 'Vendas das campanhas',
-      valor: formatMoney(resumo.vendas),
-      sub: `${int(resumo.pedidos)} vendas atribuídas`,
+      valor: formatMoney(revenue),
+      sub: r ? `${int(r.orders)} vendas de ${int(r.buyers)} clientes` : '',
     },
     {
       label: 'Conversão',
       valor: conversao === null ? '—' : pct(conversao, 2),
-      sub: `${int(resumo.pedidos)} vendas ÷ ${int(resumo.disparos)} disparos`,
+      sub: r ? `${int(r.orders)} vendas ÷ ${int(r.sent)} disparos` : 'vendas ÷ disparos',
     },
     {
       label: 'ROI',
@@ -54,12 +46,25 @@ export default function DesempenhoCampanhas({
         roi === null
           ? '—'
           : roi.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-      sub: `investimento ${formatMoney(resumo.investimento)}`,
+      sub:
+        investment === null
+          ? 'sem preço por mensagem nos números'
+          : `investimento ${formatMoney(investment)}`,
     },
   ]
 
   return (
     <>
+      {report.isError && (
+        <MsgNok titulo="Não foi possível carregar o relatório" mensagem={report.error.message} />
+      )}
+      {r && r.unpriced > 0 && (
+        <p className="relatorios-note">
+          {int(r.unpriced)} disparos do período saíram por números sem preço por mensagem: ficaram
+          fora do investimento. Cadastre o preço em Admin › Canais.
+        </p>
+      )}
+
       <div className="kpi-grid">
         {kpis.map((k) => (
           <div key={k.label} className="kpi">
@@ -73,7 +78,7 @@ export default function DesempenhoCampanhas({
       <div className="row">
         <section className="card campanhas-area-card">
           <div className="card-head">
-            <h2 className="card-title">Vendas totais x vendas das campanhas · {periodo}</h2>
+            <h2 className="card-title">Vendas totais x vendas das campanhas · {rangeText(range)}</h2>
             <div className="legend">
               <span className="legend-item">
                 <span className="legend-swatch campanhas-swatch-total" />
@@ -85,12 +90,24 @@ export default function DesempenhoCampanhas({
               </span>
             </div>
           </div>
-          <AreaChart dias={dias} />
+          {report.isPending ? <p className="muted">Carregando…</p> : <AreaChart dias={dias} />}
         </section>
 
         <section className="card campanhas-funil-card">
           <h2 className="card-title">Funil das campanhas</h2>
-          <Funil etapas={funil} />
+          <Funil
+            etapas={[
+              { etapa: 'Enviados', valor: r?.sent ?? 0 },
+              { etapa: 'Entregues', valor: r?.delivered ?? 0 },
+              { etapa: 'Lidos', valor: r?.read ?? 0 },
+              {
+                etapa: 'Clicados',
+                valor: r?.links ? r.people : null,
+                nota: r ? 'As campanhas do período não têm link curto (/l/…)' : 'Carregando…',
+              },
+              { etapa: 'Comprados', valor: r?.orders ?? 0 },
+            ]}
+          />
         </section>
       </div>
     </>

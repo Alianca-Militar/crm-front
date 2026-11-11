@@ -9,7 +9,6 @@ import {
   useCampaigns,
 } from '../campanhas/campanhas_api'
 import { AreaChart, Funil } from '../relatorios/desempenho_campanhas'
-import { PRECO_DISPARO } from './precos'
 import '../relatorios/relatorios.css'
 import './resultados.css'
 
@@ -41,8 +40,8 @@ export default function Resultados() {
   })()
 
   const revenue = Number(r?.revenue ?? 0)
-  const price = campaign ? PRECO_DISPARO[campaign.store_code] : undefined
-  const investment = r && price !== undefined ? r.sent * price : null
+  // Sem preço nenhum cadastrado no número, o investimento fica em aberto.
+  const investment = r && (Number(r.cost) > 0 || !r.unpriced) ? Number(r.cost) : null
   const roi = investment ? (revenue - investment) / investment : null
   const conversion = r?.sent ? (r.orders / r.sent) * 100 : null
 
@@ -63,10 +62,11 @@ export default function Resultados() {
     {
       label: 'Investimento da campanha',
       valor: investment === null ? '—' : formatMoney(investment),
-      sub:
-        price === undefined
-          ? 'sem preço por disparo para a loja'
-          : `${int(r?.sent ?? 0)} disparos × ${formatMoney(price)}`,
+      sub: !r
+        ? 'sem envios ainda'
+        : r.unpriced
+          ? `${int(r.unpriced)} envios sem preço no número (Admin › Canais)`
+          : `${int(r.sent)} disparos, preço por mensagem do número`,
     },
     {
       label: 'Conversão',

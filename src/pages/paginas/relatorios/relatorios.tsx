@@ -7,9 +7,6 @@ import DesempenhoCampanhas from './desempenho_campanhas'
 import {
   atendimentoResumo,
   baseResumo,
-  campanhasFunil,
-  campanhasPorDia,
-  campanhasResumo,
   clientesPorLoja,
   completude,
   conversasPorDia,
@@ -69,12 +66,7 @@ export default function Relatorios() {
       )}
 
       {nome === 'Desempenho de campanhas' && (
-        <DesempenhoCampanhas
-          resumo={campanhasResumo}
-          dias={campanhasPorDia}
-          funil={campanhasFunil}
-          periodo={rangeText(periodo)}
-        />
+        <DesempenhoCampanhas range={periodo} />
       )}
 
       {nome === 'Base de clientes' && (
