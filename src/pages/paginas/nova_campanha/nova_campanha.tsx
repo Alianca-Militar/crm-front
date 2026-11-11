@@ -14,6 +14,7 @@ import {
   type AudienceSource,
   CAMPAIGN_STATUS_LABEL,
   CAMPAIGN_STATUS_TONE,
+  CANCELLABLE,
   type Campaign,
   type CampaignInput,
   type EstimateInput,
@@ -512,7 +513,7 @@ export default function NovaCampanha() {
         </div>
         {canWrite && campaign && (
           <div className="page-actions">
-            {!closed && (
+            {CANCELLABLE.includes(status) && (
               <button type="button" className="btn sm" onClick={() => setConfirm('cancel')}>
                 Cancelar campanha
               </button>
@@ -880,8 +881,13 @@ export default function NovaCampanha() {
           {step === 5 && campaign && (
             <>
               <section className="card">
-                <h2 className="card-title">5 · Exportar para a FastZap</h2>
-                {campaign.exported_at ? (
+                <h2 className="card-title">5 · Enviar</h2>
+                {campaign.status === 'cancelled' ? (
+                  <p>
+                    Campanha cancelada. Quem já recebeu continua registrado; quem ainda não recebeu
+                    está livre para outra campanha.
+                  </p>
+                ) : campaign.exported_at ? (
                   <p>
                     Lista exportada em{' '}
                     {new Date(campaign.exported_at).toLocaleString('pt-BR', {
@@ -894,7 +900,8 @@ export default function NovaCampanha() {
                   <p>
                     A lista está pronta com{' '}
                     <strong>{(campaign.audience_included ?? 0).toLocaleString('pt-BR')}</strong>{' '}
-                    contatos. Confira abaixo e exporte o arquivo para importar na FastZap.
+                    contatos. Exporte o arquivo para enviar por outro sistema (FastZap) ou envie
+                    pela plataforma. Depois de escolher um, o outro fica bloqueado.
                   </p>
                 )}
                 {notApprovedNotice}
@@ -904,7 +911,15 @@ export default function NovaCampanha() {
                       type="button"
                       className="btn primary"
                       disabled={
-                        busy || (!campaign.exported_at && !approved) || !campaign.audience_included
+                        busy ||
+                        campaign.send_channel === 'platform' ||
+                        (!campaign.exported_at && !approved) ||
+                        !campaign.audience_included
+                      }
+                      title={
+                        campaign.send_channel === 'platform'
+                          ? 'Esta campanha é enviada pela plataforma.'
+                          : undefined
                       }
                       onClick={() => (campaign.exported_at ? onExport() : setConfirm('export'))}
                     >
@@ -914,9 +929,34 @@ export default function NovaCampanha() {
                           ? 'Baixar CSV de novo'
                           : 'Exportar CSV para a FastZap'}
                     </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      disabled
+                      title={
+                        campaign.send_channel === 'export'
+                          ? 'A lista já foi exportada: esta campanha sai pelo outro sistema.'
+                          : 'Em breve: envio direto pela plataforma.'
+                      }
+                    >
+                      Enviar pela plataforma
+                      {campaign.send_channel !== 'export' && (
+                        <span className="badge sm tone-gray nova-soon">em breve</span>
+                      )}
+                    </button>
                     {!closed && (
                       <button type="button" className="btn" disabled={busy} onClick={() => goTo(3)}>
                         Mudar o público
+                      </button>
+                    )}
+                    {CANCELLABLE.includes(campaign.status) && (
+                      <button
+                        type="button"
+                        className="btn nova-cancel"
+                        disabled={busy}
+                        onClick={() => setConfirm('cancel')}
+                      >
+                        Cancelar campanha
                       </button>
                     )}
                   </div>
@@ -1034,11 +1074,14 @@ export default function NovaCampanha() {
           </>
         }
       >
-        <p>
-          A campanha fica como cancelada e não pode mais ser alterada.
-          {campaign?.exported_at &&
-            ' A lista já foi exportada: se a FastZap ainda não enviou, cancele lá também.'}
-        </p>
+        <p>A campanha fica como cancelada e não pode mais ser alterada.</p>
+        {campaign?.exported_at && (
+          <ul className="nova-cancel-notes">
+            <li>Quem já recebeu a mensagem continua registrado e conta no limite de frequência.</li>
+            <li>Quem ainda não recebeu fica livre para entrar em outra campanha.</li>
+            <li>A lista já foi exportada: se a FastZap ainda não enviou, cancele lá também.</li>
+          </ul>
+        )}
       </Modal>
 
       <Modal

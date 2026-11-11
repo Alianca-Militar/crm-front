@@ -17,7 +17,8 @@ import './campanhas.css'
 const TABS: { label: string; statuses: CampaignStatus[] | null }[] = [
   { label: 'Todas', statuses: null },
   { label: 'Rascunho', statuses: ['draft', 'audience_ready'] },
-  { label: 'Exportadas', statuses: ['exported', 'sending', 'sent'] },
+  { label: 'Em andamento', statuses: ['exported', 'sending', 'sent'] },
+  { label: 'Finalizadas', statuses: ['finished'] },
   { label: 'Canceladas', statuses: ['cancelled'] },
 ]
 

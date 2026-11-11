@@ -358,6 +358,24 @@
   gap: 8px;
 }
 
+.nova-soon {
+  margin-left: 8px;
+}
+
+/* Cancelar fica no fim da linha, separado das ações de envio. */
+.nova-cancel {
+  margin-left: auto;
+  color: var(--danger);
+}
+
+.nova-cancel-notes {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 /* Base externa */
 .nova-upload {
   display: flex;

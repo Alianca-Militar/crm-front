@@ -2,7 +2,13 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { api, ApiError } from '../../../lib/api'
 
 export type CampaignStatus =
-  'draft' | 'audience_ready' | 'exported' | 'sending' | 'sent' | 'cancelled'
+  'draft' | 'audience_ready' | 'exported' | 'sending' | 'sent' | 'finished' | 'cancelled'
+
+/** Como a lista sai: exportada (CSV para outro sistema) ou pela plataforma. Um exclui o outro. */
+export type SendChannel = 'export' | 'platform'
+
+/** Ainda pode ser cancelada (enquanto pode sair mensagem). */
+export const CANCELLABLE: CampaignStatus[] = ['draft', 'audience_ready', 'exported', 'sending']
 
 export const CAMPAIGN_STATUS_LABEL: Record<CampaignStatus, string> = {
   draft: 'Rascunho',
@@ -10,6 +16,7 @@ export const CAMPAIGN_STATUS_LABEL: Record<CampaignStatus, string> = {
   exported: 'Exportada',
   sending: 'Enviando',
   sent: 'Enviada',
+  finished: 'Finalizada',
   cancelled: 'Cancelada',
 }
 
@@ -19,6 +26,7 @@ export const CAMPAIGN_STATUS_TONE: Record<CampaignStatus, string> = {
   exported: 'tone-blue',
   sending: 'tone-blue',
   sent: 'tone-green',
+  finished: 'tone-gray',
   cancelled: 'tone-red',
 }
 
@@ -64,6 +72,8 @@ export type Campaign = {
   status: CampaignStatus
   exported_at: string | null
   sent_at: string | null
+  send_channel: SendChannel | null
+  finished_at: string | null
   frequency_cap_days: number
   /** Dias depois do envio em que a compra conta para a campanha. */
   attribution_window_days: number
