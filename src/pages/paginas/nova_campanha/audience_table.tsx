@@ -72,8 +72,8 @@ export default function AudienceTable({
                 </td>
               </tr>
             )}
-            {data?.results.map((r) => (
-              <tr key={r.phone}>
+            {data?.results.map((r, i) => (
+              <tr key={i}>
                 <td>{r.name || <span className="muted">Sem nome</span>}</td>
                 <td className="mono nowrap">{formatPhone(r.phone)}</td>
                 {included ? (

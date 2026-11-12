@@ -82,6 +82,11 @@ export type MessageTemplate = {
   category: TemplateCategory
   status: TemplateStatus
   quality_score: string | null
+  /** Pausa da Meta por baixa qualidade (3 h na 1ª, 6 h na 2ª). */
+  paused_until: string | null
+  pause_reason: string | null
+  /** Números da Meta dos últimos 30 dias (só na lista; null sem estatística). */
+  stats_30d?: TemplateStats | null
   header_type: HeaderType | null
   header_content: string | null
   header_media_name: string | null
@@ -395,6 +400,55 @@ export function useSyncTemplates() {
       api<SyncResult>('/message-templates/sync/', {
         method: 'POST',
         body: { whatsapp_number: whatsappNumber },
+      }),
+    onSuccess: invalidate,
+  })
+}
+
+// ---------- Desempenho (estatísticas da Meta e histórico) ----------
+
+export type TemplateStats = {
+  sent: number
+  delivered: number
+  read: number
+  clicked: number
+  /** Custo aproximado na moeda da conta (BRL), decimal em texto. */
+  cost: string | null
+}
+
+export type TemplateEventRow = {
+  id: number
+  occurred_at: string
+  event: 'STATUS' | 'QUALITY' | 'CATEGORY'
+  old_value: string | null
+  new_value: string | null
+  detail: string | null
+}
+
+export type TemplatePerformance = {
+  since: string
+  synced_at: string | null
+  totals: TemplateStats
+  daily: ({ day: string } & TemplateStats)[]
+  buttons: { button: string; count: number }[]
+  events: TemplateEventRow[]
+}
+
+export function useTemplatePerformance(id: number | null) {
+  return useQuery({
+    queryKey: [...waKey, 'performance', id],
+    queryFn: () => api<TemplatePerformance>(`/message-templates/${id}/performance/`),
+    enabled: id !== null,
+  })
+}
+
+/** Busca agora na Meta as estatísticas dos templates (a Meta só lê; roda sozinho às 8h). */
+export function useSyncTemplateAnalytics() {
+  const invalidate = useInvalidate(waKey)
+  return useMutation({
+    mutationFn: () =>
+      api<{ days: number; errors: string[] }>('/message-templates/sync-analytics/', {
+        method: 'POST',
       }),
     onSuccess: invalidate,
   })

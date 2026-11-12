@@ -83,3 +83,13 @@ export function titleCase(name: string | null | undefined): string {
     .map((w, i) => (i > 0 && small.has(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)))
     .join(' ')
 }
+
+/** CPF (11) ou CNPJ (14) só com dígitos → com pontuação; mascarado passa como veio. */
+export function formatCpf(cpf: string | null): string {
+  if (!cpf) return '—'
+  if (cpf.length === 11) return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+  if (cpf.length === 14) {
+    return cpf.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
+  }
+  return cpf
+}

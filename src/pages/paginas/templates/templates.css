@@ -835,3 +835,140 @@
 .tpl-sync .field {
   min-width: 240px;
 }
+
+/* Buscar templates + atualizar estatísticas */
+.tpl-sync-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tpl-sync-row .tpl-sync {
+  margin-bottom: 0;
+}
+
+.tpl-sync-analytics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.templates-stats {
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+
+/* Desempenho do template */
+.tpl-perf {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tpl-perf-sub {
+  margin: 0;
+  font-size: 13px;
+}
+
+.tpl-perf-alert {
+  padding: 12px 16px;
+  border-left: 4px solid var(--danger);
+  border-radius: 8px;
+  background: var(--nok-bg);
+  color: var(--nok-title);
+  font-size: 14px;
+}
+
+.tpl-perf-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr));
+  gap: 12px;
+}
+
+.tpl-perf-kpis div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.tpl-perf-kpis span,
+.tpl-perf-kpis small {
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+
+.tpl-perf-kpis strong {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tpl-perf-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 120px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.tpl-perf-day {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.tpl-perf-day span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 2px 2px 0 0;
+}
+
+.tpl-perf-day .sent,
+.tpl-swatch-sent {
+  background: var(--border-strong);
+}
+
+.tpl-perf-day .read,
+.tpl-swatch-read {
+  background: var(--accent);
+}
+
+.tpl-perf-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tpl-perf-block h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.tpl-perf-buttons {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.tpl-perf-buttons li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-top: 1px solid var(--divider);
+  font-size: 14px;
+}
+
+.tpl-perf-detail {
+  font-size: 12px;
+}

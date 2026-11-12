@@ -14,8 +14,14 @@ export type Message = {
   type: string
   text: string | null
   template: string | null
+  /** Abre o arquivo (o backend confere a permissão e manda para o R2). */
   media_url: string | null
+  /** Chegou com mídia, mas o arquivo ainda não foi copiado da Meta. */
+  media_pending: boolean
+  /** Apagada pelo prazo de retenção (Admin › Configurações). */
+  media_removed: boolean
   media_mime_type: string | null
+  media_filename: string | null
   at: string
   status: MsgStatus | null
   error_code: string | null

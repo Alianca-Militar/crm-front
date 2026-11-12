@@ -47,7 +47,15 @@ type Dashboard = {
     status: string
     status_label: string
     store_name: string | null
+    /** Mesmos números da tela de Resultados. */
+    sent: number
+    delivered: number
+    read: number
+    orders: number
+    revenue: string
   }[]
+  /** Só para Admin e Gerente (null nos outros perfis). */
+  alerts: Alert[] | null
   conversations_waiting: {
     total: number
     /** As 5 que esperam há mais tempo (aba Aguardando de Conversas, lojas do usuário). */
@@ -59,6 +67,14 @@ type Dashboard = {
       waiting_since: string
     }[]
   }
+}
+
+type Alert = {
+  type: 'number_quality' | 'optout_review' | 'webhook_silence'
+  level: 'warn' | 'danger'
+  title: string
+  text: string
+  link: string | null
 }
 
 const n = (value: number) => value.toLocaleString('pt-BR')
@@ -149,6 +165,24 @@ export default function Home() {
       </div>
 
       {dash.isError && <MsgNok titulo="Não foi possível carregar" mensagem={dash.error.message} />}
+
+      {d?.alerts && d.alerts.length > 0 && (
+        <section className="home-alerts" aria-label="Alertas">
+          {d.alerts.map((a, i) => (
+            <div key={`${a.type}-${i}`} className={`home-alert ${a.level}`}>
+              <div className="home-alert-body">
+                <strong>{a.title}</strong>
+                <span>{a.text}</span>
+              </div>
+              {a.link && (
+                <Link to={a.link} className="btn sm">
+                  Ver
+                </Link>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
 
       <div className="kpi-grid">
         {kpis.map((k) => (
@@ -274,6 +308,26 @@ export default function Home() {
                 {c.status_label}
                 {c.store_name ? ` · ${c.store_name}` : ''}
               </div>
+              {c.sent > 0 && (
+                <dl className="home-campaign-stats">
+                  <div>
+                    <dt>Enviadas</dt>
+                    <dd>{n(c.sent)}</dd>
+                  </div>
+                  <div>
+                    <dt>Entregues</dt>
+                    <dd>{n(c.delivered)}</dd>
+                  </div>
+                  <div>
+                    <dt>Lidas</dt>
+                    <dd>{n(c.read)}</dd>
+                  </div>
+                  <div>
+                    <dt>Vendas</dt>
+                    <dd title={formatMoney(c.revenue)}>{n(c.orders)}</dd>
+                  </div>
+                </dl>
+              )}
             </Link>
           ))}
         </section>

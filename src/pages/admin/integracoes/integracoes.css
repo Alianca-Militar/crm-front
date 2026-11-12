@@ -101,3 +101,127 @@
   font-size: 13px;
   color: var(--text-muted);
 }
+
+/* Saúde do sistema (topo da tela) */
+.saude {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.saude-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.saude-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.saude-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+
+.saude-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 12px;
+}
+
+.saude-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-left: 4px solid #2e7d32;
+  border-radius: 8px;
+  background: var(--bg-muted);
+}
+
+.saude-card.warn {
+  border-left-color: #c77700;
+}
+
+.saude-card.bad {
+  border-left-color: var(--danger);
+  background: var(--nok-bg);
+}
+
+.saude-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.saude-card-title {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.saude-card-value {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.saude-card-sub {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.saude-alert {
+  padding: 12px 16px;
+  border-left: 4px solid var(--danger);
+  border-radius: 8px;
+  background: var(--nok-bg);
+  color: var(--nok-title);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.saude-alert code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  font-size: 13px;
+}
+
+.saude-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
+  gap: 16px;
+}
+
+.saude-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.saude-block-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.saude-empty {
+  margin: 0;
+  font-size: 14px;
+}
+
+.saude-error {
+  font-size: 13px;
+  word-break: break-word;
+}

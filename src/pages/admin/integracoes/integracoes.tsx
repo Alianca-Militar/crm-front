@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 import Modal from '../../../components/modal/modal'
 import MsgNok from '../../../components/msg_nok/msg_nok'
 import { formatLastAccess } from '../../../lib/format'
@@ -10,6 +11,7 @@ import {
   useSetIntegrationActive,
 } from './integracoes_api'
 import IntegrationLogTable from './integration_log_table'
+import Saude from './saude'
 import './integracoes.css'
 
 function statusOf(i: Integration): { label: string; tone: string } {
@@ -56,6 +58,8 @@ export default function Integracoes() {
   const [logsOf, setLogsOf] = useState<Integration | null>(null)
   const [configOf, setConfigOf] = useState<Integration | null>(null)
   const integrations = useIntegrations()
+  const [params, setParams] = useSearchParams()
+  const aba = params.get('aba') === 'saude' ? 'saude' : 'integracoes'
 
   const real = integrations.data ?? []
   const realCodes = new Set(real.map((i) => i.code))
@@ -72,14 +76,39 @@ export default function Integracoes() {
         </p>
       </div>
 
-      {integrations.isError && (
+      <div role="tablist" aria-label="Visão" className="seg-tabs">
+        {(
+          [
+            ['integracoes', 'Integrações'],
+            ['saude', 'Saúde'],
+          ] as const
+        ).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={aba === key}
+            className="seg-tab"
+            onClick={() => setParams(key === 'saude' ? { aba: key } : {})}
+          >
+            {label}
+            {key === 'integracoes' && problems.length > 0 && (
+              <span className="seg-tab-count">{problems.length}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {aba === 'saude' && <Saude />}
+
+      {aba === 'integracoes' && integrations.isError && (
         <MsgNok
           titulo="Não foi possível carregar as integrações"
           mensagem={integrations.error.message}
         />
       )}
 
-      {mostrarAlerta && alerta && (
+      {aba === 'integracoes' && mostrarAlerta && alerta && (
         <MsgNok
           titulo={alerta.titulo}
           mensagem={alerta.mensagem}
@@ -87,18 +116,20 @@ export default function Integracoes() {
         />
       )}
 
-      <div className="integracoes-grid">
-        {real.map((i) => (
-          <RealCard
-            key={i.id}
-            integration={i}
-            info={planejadas.find((p) => p.code === i.code)}
-            onLogs={() => setLogsOf(i)}
-            onConfig={() => setConfigOf(i)}
-          />
-        ))}
-        {!integrations.isPending && offline.map((p) => <OfflineCard key={p.code} info={p} />)}
-      </div>
+      {aba === 'integracoes' && (
+        <div className="integracoes-grid">
+          {real.map((i) => (
+            <RealCard
+              key={i.id}
+              integration={i}
+              info={planejadas.find((p) => p.code === i.code)}
+              onLogs={() => setLogsOf(i)}
+              onConfig={() => setConfigOf(i)}
+            />
+          ))}
+          {!integrations.isPending && offline.map((p) => <OfflineCard key={p.code} info={p} />)}
+        </div>
+      )}
 
       {logsOf && <LogsModal integration={logsOf} onClose={() => setLogsOf(null)} />}
       {configOf && <ConfigModal integration={configOf} onClose={() => setConfigOf(null)} />}

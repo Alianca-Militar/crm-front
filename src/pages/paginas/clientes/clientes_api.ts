@@ -1,4 +1,10 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { api } from '../../../lib/api'
 import type { OptoutRow } from '../bloqueios/bloqueios_api'
 import type { PastConversation } from '../conversas/conversas_api'
@@ -190,6 +196,45 @@ export function useCustomerConversations(id: number, enabled: boolean) {
   return useQuery({
     queryKey: [...key, 'conversations', id],
     queryFn: () => api<CustomerConversation[]>(`/customers/${id}/conversations/`),
+    enabled: enabled && Number.isFinite(id),
+  })
+}
+
+export type AttachmentKind = 'image' | 'audio' | 'video' | 'document'
+
+export type Attachment = {
+  id: number
+  conversation: number
+  type: string
+  direction: 'in' | 'out'
+  at: string
+  number_label: string
+  store_code: string
+  caption: string | null
+  /** Abre o arquivo (o backend confere a permissão e manda para o R2). */
+  media_url: string | null
+  media_pending: boolean
+  media_removed: boolean
+  media_mime_type: string | null
+  media_filename: string | null
+}
+
+export type AttachmentsPage = {
+  counts: Record<AttachmentKind, number>
+  kind: AttachmentKind
+  page: number
+  has_more: boolean
+  items: Attachment[]
+}
+
+/** Aba Anexos: fotos, áudios, vídeos e documentos das conversas (lojas do usuário). */
+export function useCustomerAttachments(id: number, kind: AttachmentKind, enabled: boolean) {
+  return useInfiniteQuery({
+    queryKey: [...key, 'attachments', id, kind],
+    queryFn: ({ pageParam }) =>
+      api<AttachmentsPage>(`/customers/${id}/attachments/?kind=${kind}&page=${pageParam}`),
+    initialPageParam: 1,
+    getNextPageParam: (last) => (last.has_more ? last.page + 1 : undefined),
     enabled: enabled && Number.isFinite(id),
   })
 }

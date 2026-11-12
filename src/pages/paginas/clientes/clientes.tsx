@@ -1,6 +1,13 @@
 import { Link, useSearchParams } from 'react-router'
 import MsgNok from '../../../components/msg_nok/msg_nok'
-import { formatDate, formatMoney, initials, titleCase } from '../../../lib/format'
+import {
+  formatCpf,
+  formatDate,
+  formatMoney,
+  formatPhone,
+  initials,
+  titleCase,
+} from '../../../lib/format'
 import { PAGE_SIZE, useCustomerOptions, useCustomers } from './clientes_api'
 import './clientes.css'
 
@@ -234,7 +241,7 @@ export default function Clientes() {
                     </span>
                   </Link>
                 </td>
-                <td className="mono clientes-cpf">{c.cpf ?? '—'}</td>
+                <td className="mono clientes-cpf">{formatCpf(c.cpf)}</td>
                 <td>{c.corp_tipo ?? '—'}</td>
                 <td>{c.store_name ?? '—'}</td>
                 <td>{formatDate(c.last_order_at)}</td>
@@ -243,7 +250,9 @@ export default function Clientes() {
                 <td>
                   {c.primary_phone || c.has_email ? (
                     <>
-                      {c.primary_phone && <span className="mono">{c.primary_phone}</span>}
+                      {c.primary_phone && (
+                        <span className="mono">{formatPhone(c.primary_phone)}</span>
+                      )}
                       {c.primary_phone && c.has_email && ' · '}
                       {c.has_email && 'e-mail'}
                     </>

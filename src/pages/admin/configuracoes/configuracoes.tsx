@@ -40,6 +40,7 @@ const schema = z
       .string()
       .refine((v) => splitKeywords(v).length > 0, 'Informe ao menos uma palavra.'),
     anonymize_inactive_after_months: int(1, 120),
+    media_retention_months: int(1, 120),
     mask_data_for_seller: z.boolean(),
     conversation_timeout_hours: int(1, 168),
     conversation_autoclose: z.boolean(),
@@ -86,6 +87,8 @@ function toForm(rows: Setting[]): FormValues {
     consent_text: String(v.consent_text ?? ''),
     optout_keywords: Array.isArray(v.optout_keywords) ? v.optout_keywords.join(', ') : '',
     anonymize_inactive_after_months: Number(v.anonymize_inactive_after_months),
+    // Sem a linha no banco vale o padrão do backend: 12 meses.
+    media_retention_months: Number(v.media_retention_months ?? 12),
     mask_data_for_seller: Boolean(v.mask_data_for_seller),
     conversation_timeout_hours: Number(v.conversation_timeout_hours),
     // Sem a linha no banco vale o padrão do backend: encerra sozinha, sem rodízio.
@@ -107,6 +110,7 @@ function toApi(values: FormValues): Record<Key, unknown> {
 
 const VOUCHER_OPTIONS = [30, 60, 90]
 const ANONYMIZE_OPTIONS = [24, 36, 60]
+const MEDIA_RETENTION_OPTIONS = [3, 6, 12, 24, 36]
 const SEGURANCA = [
   'Exigir verificação em duas etapas para Administradores e Gerentes',
   'Bloquear usuário após 5 tentativas de login',
@@ -330,6 +334,26 @@ function ConfiguracoesForm({ rows, canEdit }: { rows: Setting[]; canEdit: boolea
                   ),
                 )}
               </select>
+            </div>
+          </div>
+          <div className="form-grid tight">
+            <div className="field">
+              <label htmlFor="cfg-media">
+                Apagar fotos, áudios e documentos das conversas após
+              </label>
+              <select id="cfg-media" {...num('media_retention_months')}>
+                {withCurrent(MEDIA_RETENTION_OPTIONS, initial.media_retention_months).map((m) => (
+                  <option key={m} value={m}>
+                    {m} meses
+                  </option>
+                ))}
+              </select>
+              <span className="cfg-hint">
+                As mídias ficam no armazenamento (Cloudflare R2). Depois do prazo, o arquivo é
+                apagado e a conversa mostra “apagado pelo prazo de retenção”. O texto das mensagens
+                não é apagado.
+              </span>
+              {fieldError('media_retention_months')}
             </div>
           </div>
           <label className="check">

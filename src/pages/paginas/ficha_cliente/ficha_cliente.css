@@ -480,3 +480,135 @@
 .ficha-conversation-messages .conv-link {
   color: #027eb5;
 }
+
+/* Aba Anexos */
+.ficha-anexos {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ficha-anexos-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ficha-anexos-kind {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ficha-anexos-kind.on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.ficha-anexos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr));
+  gap: 12px;
+}
+
+.ficha-anexo-foto {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ficha-anexo-foto img,
+.ficha-anexo-vazio {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--bg-muted);
+}
+
+.ficha-anexo-vazio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  text-align: center;
+}
+
+.ficha-anexo-foto figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ficha-anexos-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.ficha-anexos-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 0;
+  border-top: 1px solid var(--divider);
+}
+
+.ficha-anexos-list audio {
+  width: min(320px, 100%);
+}
+
+.ficha-anexos-list video {
+  max-width: min(360px, 100%);
+  max-height: 240px;
+  border-radius: 8px;
+}
+
+.ficha-anexo-doc {
+  font-weight: 600;
+}
+
+.ficha-anexo-caption {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.ficha-anexo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+
+.ficha-anexo-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ficha-anexo-off {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-subtle);
+}
+
+.ficha-anexos-more {
+  align-self: center;
+}

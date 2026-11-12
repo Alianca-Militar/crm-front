@@ -24,6 +24,10 @@ export const SOURCE_LABEL: Record<OptoutSource, string> = {
 export type Scope = 'all_stores' | 'store'
 
 export type BlockedRow = {
+  id: number
+  /** Pedido que gerou o bloqueio (usado para ver o telefone completo). */
+  optout: number
+  /** Mascarado para quem não é Admin. */
   phone_normalized: string
   customer_id: number | null
   customer_name: string | null
@@ -71,6 +75,30 @@ export type ManualOptout = {
 }
 
 const key = ['optouts'] as const
+
+/** A lista mostra o telefone mascarado (só o Admin vê completo). */
+export const isMasked = (phone: string) => phone.includes('*')
+
+/** Telefone completo de um bloqueio. Fica registrado no log. */
+export async function revealPhone(optoutId: number): Promise<string> {
+  return (await api<{ phone: string }>(`/optouts/${optoutId}/phone/`)).phone
+}
+
+/** O telefone completo: o da lista, ou pedido ao backend se veio mascarado. */
+export function fullPhone(phone: string, optoutId: number): Promise<string> {
+  return isMasked(phone) ? revealPhone(optoutId) : Promise.resolve(phone)
+}
+
+/** Abre o histórico do telefone completo (pede ao backend se a lista veio mascarada). */
+export function openFullHistory(
+  phone: string,
+  optoutId: number,
+  onHistory: (phone: string) => void,
+) {
+  fullPhone(phone, optoutId)
+    .then(onHistory)
+    .catch(() => undefined)
+}
 
 export function query(params: Record<string, string | number | undefined>): string {
   const search = new URLSearchParams()

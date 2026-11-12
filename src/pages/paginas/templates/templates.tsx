@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router'
 import MsgNok from '../../../components/msg_nok/msg_nok'
 import MsgOk from '../../../components/msg_ok/msg_ok'
 import { useMe } from '../../../lib/auth'
-import { formatDate } from '../../../lib/format'
+import { formatDate, formatDateTime, formatMoney } from '../../../lib/format'
 import { useWhatsappNumbers } from '../../admin/canais/canais_api'
 import {
   ConfirmDeleteModal,
@@ -29,8 +29,10 @@ import {
   useDuplicateEmailTemplate,
   useEmailTemplates,
   useMessageTemplates,
+  useSyncTemplateAnalytics,
   useSyncTemplates,
 } from './templates_api'
+import { DesempenhoModal } from './template_desempenho'
 import WhatsappPreview from './whatsapp_preview'
 import './templates.css'
 
@@ -155,8 +157,36 @@ function SyncFromMeta({ onDone }: { onDone: (message: string) => void }) {
   )
 }
 
+/** Busca agora na Meta as estatísticas dos templates (roda sozinho todo dia às 8h). */
+function SyncAnalytics({ onDone }: { onDone: (message: string) => void }) {
+  const sync = useSyncTemplateAnalytics()
+  return (
+    <div className="tpl-sync-analytics">
+      <button
+        type="button"
+        className="btn"
+        disabled={sync.isPending}
+        title="Enviadas, lidas, cliques e custo dos últimos 30 dias, direto da Meta"
+        onClick={() =>
+          sync.mutate(undefined, {
+            onSuccess: (r) =>
+              onDone(
+                r.errors.length
+                  ? `Estatísticas: ${r.days} dia(s) atualizados; ${r.errors.join(' · ')}`
+                  : `Estatísticas atualizadas: ${r.days} dia(s) de template.`,
+              ),
+          })
+        }
+      >
+        {sync.isPending ? 'Atualizando…' : 'Atualizar estatísticas'}
+      </button>
+      {sync.isError && <MsgNok titulo="Não foi possível atualizar" mensagem={sync.error.message} />}
+    </div>
+  )
+}
+
 type Dialog = {
-  kind: 'duplicate' | 'status' | 'payload' | 'delete'
+  kind: 'duplicate' | 'status' | 'payload' | 'delete' | 'performance'
   template: MessageTemplate
 } | null
 
@@ -186,8 +216,24 @@ const QUALITY: Record<string, [string, string]> = {
   RED: ['Baixa', 'tone-red'],
 }
 
-/** Motivo da rejeição, devolução do admin ou uso em campanhas. */
+/** "1.234 enviadas · 68% lidas · 45 cliques" (números da Meta, 30 dias). */
+function statsText(t: MessageTemplate): string | null {
+  const s = t.stats_30d
+  if (!s || !s.sent) return null
+  const read = Math.round((s.read / s.sent) * 100)
+  return `${s.sent.toLocaleString('pt-BR')} enviadas · ${read}% lidas · ${s.clicked.toLocaleString('pt-BR')} cliques`
+}
+
+/** Pausa da Meta, motivo da rejeição, devolução do admin ou uso em campanhas. */
 function FootNote({ t, short = false }: { t: MessageTemplate; short?: boolean }) {
+  if (t.status === 'PAUSED') {
+    return (
+      <span className="templates-reason">
+        Pausado pela Meta{t.paused_until ? ` até ${formatDateTime(t.paused_until)}` : ''}
+        {t.pause_reason ? `: ${t.pause_reason}` : ' (qualidade baixa)'}
+      </span>
+    )
+  }
   if (t.status === 'REJECTED' && t.rejection_reason) {
     return <span className="templates-reason">Motivo: {t.rejection_reason}</span>
   }
@@ -240,6 +286,15 @@ function WhatsappList({ canWrite, isAdmin }: { canWrite: boolean; isAdmin: boole
         >
           {canWrite && t.editable ? 'Editar' : 'Ver'}
         </button>
+        {t.meta_template_id && (
+          <button
+            type="button"
+            className="btn xs"
+            onClick={() => setDialog({ kind: 'performance', template: t })}
+          >
+            Desempenho
+          </button>
+        )}
         {canWrite && (
           <button
             type="button"
@@ -288,7 +343,12 @@ function WhatsappList({ canWrite, isAdmin }: { canWrite: boolean; isAdmin: boole
       )}
       {done && <MsgOk mensagem={done} onClose={() => setDone(null)} />}
 
-      {canWrite && <SyncFromMeta onDone={setDone} />}
+      {canWrite && (
+        <div className="tpl-sync-row">
+          <SyncFromMeta onDone={setDone} />
+          <SyncAnalytics onDone={setDone} />
+        </div>
+      )}
 
       <div className="filter-bar">
         <div className="field wide">
@@ -433,6 +493,7 @@ function WhatsappList({ canWrite, isAdmin }: { canWrite: boolean; isAdmin: boole
               </div>
               <div className="templates-foot">
                 <FootNote t={t} />
+                {statsText(t) && <span className="templates-stats">30 dias: {statsText(t)}</span>}
               </div>
               <div className="templates-buttons">{actions(t)}</div>
             </article>
@@ -449,6 +510,7 @@ function WhatsappList({ canWrite, isAdmin }: { canWrite: boolean; isAdmin: boole
                   <th>Categoria</th>
                   <th>Status</th>
                   <th>Qualidade</th>
+                  <th>Últimos 30 dias (Meta)</th>
                   <th>Uso</th>
                   <th>Atualizado</th>
                   <th aria-label="Ações" />
@@ -484,6 +546,20 @@ function WhatsappList({ canWrite, isAdmin }: { canWrite: boolean; isAdmin: boole
                         <span className="muted">—</span>
                       )}
                     </td>
+                    <td>
+                      {statsText(t) ? (
+                        <>
+                          <div className="nowrap">{statsText(t)}</div>
+                          {t.stats_30d?.cost && (
+                            <div className="templates-table-sub">
+                              custo {formatMoney(t.stats_30d.cost)}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
+                    </td>
                     <td className="nowrap">
                       {t.usage.campaigns + t.usage.triggers > 0 ? (
                         usageText(t).replace('Usado em ', '')
@@ -504,6 +580,9 @@ function WhatsappList({ canWrite, isAdmin }: { canWrite: boolean; isAdmin: boole
       )}
 
       {dialog?.kind === 'payload' && <MetaPayloadModal id={dialog.template.id} onClose={close} />}
+      {dialog?.kind === 'performance' && (
+        <DesempenhoModal template={dialog.template} onClose={close} />
+      )}
       {dialog?.kind === 'duplicate' && (
         <DuplicateModal
           template={dialog.template}

@@ -86,3 +86,15 @@
 .page-bloqueios .badge + .badge {
   margin-left: 6px;
 }
+
+.bloqueios-masked {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.bloqueios-masked .bloqueios-link {
+  font-family: inherit;
+  font-size: 13px;
+}

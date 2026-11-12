@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import Modal from '../../../components/modal/modal'
 import MsgNok from '../../../components/msg_nok/msg_nok'
 import BackLink from '../../../components/back_link/back_link'
 import {
   formatCep,
+  formatCpf,
   formatDate,
   formatDateTime,
   formatMoney,
@@ -23,9 +24,10 @@ import {
 import { SOURCE_LABEL } from '../bloqueios/bloqueios_api'
 import { MessageList } from '../conversas/conversas'
 import '../conversas/conversas.css'
+import Anexos from './anexos'
 import './ficha_cliente.css'
 
-const ABAS = ['Compras', 'Campanhas', 'Conversas'] as const
+const ABAS = ['Compras', 'Campanhas', 'Conversas', 'Anexos'] as const
 type Aba = (typeof ABAS)[number]
 
 const SEND_STATUS: Record<string, string> = {
@@ -34,15 +36,6 @@ const SEND_STATUS: Record<string, string> = {
   delivered: 'Entregue',
   read: 'Lida',
   failed: 'Falhou',
-}
-
-function formatCpf(cpf: string | null): string {
-  if (!cpf) return '—'
-  if (cpf.length === 11) return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
-  if (cpf.length === 14) {
-    return cpf.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
-  }
-  return cpf
 }
 
 function address(c: Customer): string {
@@ -62,6 +55,18 @@ export default function FichaCliente() {
   const conversations = useCustomerConversations(id, aba === 'Conversas')
   const [now] = useState(() => Date.now())
   const [optoutOpen, setOptoutOpen] = useState(false)
+  // "ver na conversa" (aba Anexos): abre Conversas e rola até a mensagem.
+  const [focus, setFocus] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (focus === null || aba !== 'Conversas' || !conversations.data) return
+    const el = document.getElementById(`msg-${focus}`)
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    el.classList.add('conversas-msg-focus')
+    const id = window.setTimeout(() => el.classList.remove('conversas-msg-focus'), 2500)
+    return () => window.clearTimeout(id)
+  }, [focus, aba, conversations.data])
 
   if (customer.isPending) return <div className="page">Carregando…</div>
   if (customer.isError) {
@@ -342,6 +347,18 @@ export default function FichaCliente() {
                   </Link>
                 ))}
               </>
+            )}
+
+            {aba === 'Anexos' && (
+              <div className="ficha-scroll">
+                <Anexos
+                  customerId={id}
+                  onShow={(messageId) => {
+                    setFocus(messageId)
+                    setAba('Conversas')
+                  }}
+                />
+              </div>
             )}
 
             {aba === 'Conversas' && (

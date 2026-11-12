@@ -8,7 +8,9 @@ import { formatDateTime, formatPhone, onlyDigits, titleCase } from '../../../lib
 import { useCustomerOptions } from '../clientes/clientes_api'
 import {
   EXPORT_URL,
+  isMasked,
   type ManualOptout,
+  openFullHistory,
   type OptoutRow,
   PAGE_SIZE,
   type Scope,
@@ -19,6 +21,7 @@ import {
   useReviewAction,
   useReviewQueue,
 } from './bloqueios_api'
+import { PhoneCell } from './phone_cell'
 import './bloqueios.css'
 
 type Aba = 'atuais' | 'historico' | 'revisao'
@@ -228,8 +231,10 @@ function BlockedTab({ onHistory }: { onHistory: (phone: string) => void }) {
           </thead>
           <tbody>
             {list.data?.results.map((row) => (
-              <tr key={`${row.phone_normalized}-${row.scope}-${row.store_id ?? ''}`}>
-                <td className="mono">{formatPhone(row.phone_normalized)}</td>
+              <tr key={row.id}>
+                <td className="mono">
+                  <PhoneCell phone={row.phone_normalized} optoutId={row.optout} />
+                </td>
                 <td>
                   {row.customer_id ? (
                     <Link to={`/clientes/${row.customer_id}`}>
@@ -251,7 +256,7 @@ function BlockedTab({ onHistory }: { onHistory: (phone: string) => void }) {
                   <button
                     type="button"
                     className="btn xs"
-                    onClick={() => onHistory(row.phone_normalized)}
+                    onClick={() => openFullHistory(row.phone_normalized, row.optout, onHistory)}
                   >
                     Histórico
                   </button>
@@ -461,13 +466,17 @@ function ReviewTab({
               <tr key={row.id}>
                 <td>{formatDateTime(row.occurred_at)}</td>
                 <td className="mono">
-                  <button
-                    type="button"
-                    className="bloqueios-link"
-                    onClick={() => onHistory(row.phone_normalized)}
-                  >
-                    {formatPhone(row.phone_normalized)}
-                  </button>
+                  {isMasked(row.phone_normalized) ? (
+                    <PhoneCell phone={row.phone_normalized} optoutId={row.id} />
+                  ) : (
+                    <button
+                      type="button"
+                      className="bloqueios-link"
+                      onClick={() => onHistory(row.phone_normalized)}
+                    >
+                      {formatPhone(row.phone_normalized)}
+                    </button>
+                  )}
                 </td>
                 <td>
                   {row.customer ? (

@@ -588,18 +588,11 @@ function Bubble({ m }: { m: Message }) {
   const out = m.direction === 'out'
   const who = m.author === 'customer' ? null : AUTHOR_LABEL[m.author]
   return (
-    <div className={`conversas-msg ${out ? 'out' : 'in'} ${m.author}`}>
+    <div id={`msg-${m.id}`} className={`conversas-msg ${out ? 'out' : 'in'} ${m.author}`}>
       <div className="conversas-bubble">
         {m.template && <span className="conversas-template-tag">Template · {m.template}</span>}
-        {messageText(m)}
-        {m.media_url && (
-          <>
-            {' '}
-            <a href={m.media_url} target="_blank" rel="noreferrer" className="conv-link">
-              abrir
-            </a>
-          </>
-        )}
+        <MediaContent m={m} />
+        {m.media_url || m.media_pending || m.media_removed ? m.text : messageText(m)}
         <div className="conversas-time">
           {who && <span>{who} · </span>}
           {formatTime(m.at)}
@@ -607,6 +600,48 @@ function Bubble({ m }: { m: Message }) {
         </div>
       </div>
     </div>
+  )
+}
+
+/** Foto, figurinha, áudio, vídeo ou documento dentro da bolha. */
+function MediaContent({ m }: { m: Message }) {
+  if (m.media_removed) {
+    return (
+      <span className="conversas-media-pending">
+        {MEDIA_LABEL[m.type] ?? 'Arquivo'} · apagado pelo prazo de retenção
+      </span>
+    )
+  }
+  if (m.media_pending) {
+    return (
+      <span className="conversas-media-pending">
+        {MEDIA_LABEL[m.type] ?? 'Arquivo'} · arquivo ainda não disponível
+      </span>
+    )
+  }
+  if (!m.media_url) return null
+  if (m.type === 'image' || m.type === 'sticker') {
+    return (
+      <a href={m.media_url} target="_blank" rel="noreferrer" className="conversas-media">
+        <img
+          src={m.media_url}
+          alt={m.type === 'sticker' ? 'Figurinha' : 'Foto'}
+          loading="lazy"
+          className={m.type === 'sticker' ? 'conversas-sticker' : 'conversas-photo'}
+        />
+      </a>
+    )
+  }
+  if (m.type === 'audio' || m.type === 'voice') {
+    return <audio className="conversas-audio" controls preload="none" src={m.media_url} />
+  }
+  if (m.type === 'video') {
+    return <video className="conversas-video" controls preload="metadata" src={m.media_url} />
+  }
+  return (
+    <a href={m.media_url} target="_blank" rel="noreferrer" className="conversas-doc">
+      📄 {m.media_filename || 'Documento'} · abrir
+    </a>
   )
 }
 

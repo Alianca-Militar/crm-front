@@ -5,6 +5,7 @@ import { z } from 'zod'
 import Modal from '../../../components/modal/modal'
 import MsgNok from '../../../components/msg_nok/msg_nok'
 import { ApiError } from '../../../lib/api'
+import { useMe } from '../../../lib/auth'
 import { useStores } from '../lojas/lojas_api'
 import {
   MODE_LABEL,
@@ -16,6 +17,8 @@ import {
   useSaveWhatsappNumber,
   type WhatsappNumber,
 } from './canais_api'
+import NumeroPerfil from './numero_perfil'
+import NumeroQualidade from './numero_qualidade'
 
 const price = z
   .string()
@@ -83,8 +86,20 @@ type Props = {
   onSaved: (n: WhatsappNumber) => void
 }
 
-/** Cadastro e edição de um número de WhatsApp. */
+type Tab = 'config' | 'perfil' | 'qualidade'
+
+const TABS: { key: Tab; label: string }[] = [
+  { key: 'config', label: 'Configurações' },
+  { key: 'perfil', label: 'Perfil' },
+  { key: 'qualidade', label: 'Qualidade' },
+]
+
+/** Cadastro e edição de um número. Na edição, também as abas Perfil e Qualidade (da Meta). */
 export default function NumeroForm({ number, storeId, onClose, onSaved }: Props) {
+  const [tab, setTab] = useState<Tab>('config')
+  const canEdit = useMe().data?.role === 'admin'
+  // Perfil e Qualidade só no editar, e só com o número ligado à Meta.
+  const onMeta = Boolean(number?.phone_number_id)
   const stores = useStores()
   const save = useSaveWhatsappNumber()
   const [error, setError] = useState<string | null>(null)
@@ -144,22 +159,60 @@ export default function NumeroForm({ number, storeId, onClose, onSaved }: Props)
       titulo={number ? `Editar ${number.label}` : 'Novo número de WhatsApp'}
       onClose={onClose}
       footer={
-        <>
+        tab !== 'config' ? (
           <button type="button" className="btn sm" onClick={onClose}>
-            Cancelar
+            Fechar
           </button>
-          <button
-            type="submit"
-            form="numero-form"
-            className="btn sm primary"
-            disabled={save.isPending}
-          >
-            {save.isPending ? 'Salvando…' : 'Salvar'}
-          </button>
-        </>
+        ) : (
+          <>
+            <button type="button" className="btn sm" onClick={onClose}>
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              form="numero-form"
+              className="btn sm primary"
+              disabled={save.isPending}
+            >
+              {save.isPending ? 'Salvando…' : 'Salvar'}
+            </button>
+          </>
+        )
       }
     >
-      <form id="numero-form" className="canais-form" onSubmit={handleSubmit(onSubmit)} noValidate>
+      {number && (
+        <div role="tablist" aria-label="Número" className="seg-tabs canais-dialog-tabs">
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.key}
+              className="seg-tab"
+              disabled={t.key !== 'config' && !onMeta}
+              title={
+                t.key !== 'config' && !onMeta
+                  ? 'Preencha o ID do número na Meta para ver o perfil e a qualidade.'
+                  : undefined
+              }
+              onClick={() => setTab(t.key)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
+      {number && tab === 'perfil' && <NumeroPerfil numberId={number.id} canEdit={canEdit} />}
+      {number && tab === 'qualidade' && <NumeroQualidade numberId={number.id} />}
+
+      {/* Fica montado (escondido) nas outras abas para não perder o que já foi digitado. */}
+      <form
+        id="numero-form"
+        className="canais-form"
+        hidden={tab !== 'config'}
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
         {error && <MsgNok titulo="Não foi possível salvar" mensagem={error} />}
 
         <fieldset className="canais-fieldset">

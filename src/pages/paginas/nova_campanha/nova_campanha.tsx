@@ -859,8 +859,8 @@ export default function NovaCampanha() {
                 <h2 className="card-title sm">Como a mensagem vai chegar</h2>
                 {summary && summary.sample.length > 0 ? (
                   <div className="nova-samples">
-                    {summary.sample.slice(0, 3).map((row) => (
-                      <figure key={row.phone} className="nova-sample">
+                    {summary.sample.slice(0, 3).map((row, i) => (
+                      <figure key={i} className="nova-sample">
                         {preview(row.values)}
                         <figcaption className="muted">{row.name || row.phone}</figcaption>
                       </figure>
