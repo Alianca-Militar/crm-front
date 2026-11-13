@@ -21,9 +21,9 @@ function getCookie(name: string): string | null {
   return match ? decodeURIComponent(match.split('=')[1]) : null
 }
 
-const UNSAFE = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
+export const UNSAFE = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
 
-async function ensureCsrf(): Promise<string> {
+export async function ensureCsrf(): Promise<string> {
   let token = getCookie('csrftoken')
   if (!token) {
     await fetch('/api/auth/csrf/', { credentials: 'same-origin' })
@@ -32,7 +32,10 @@ async function ensureCsrf(): Promise<string> {
   return token ?? ''
 }
 
-function messageFor(status: number, body: unknown): { message: string; fields: FieldErrors } {
+export function messageFor(
+  status: number,
+  body: unknown,
+): { message: string; fields: FieldErrors } {
   const fields: FieldErrors = {}
   let message = ''
   if (body && typeof body === 'object' && !Array.isArray(body)) {

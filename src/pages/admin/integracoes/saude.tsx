@@ -1,6 +1,7 @@
 import MsgNok from '../../../components/msg_nok/msg_nok'
 import { formatDateTime, formatLastAccess } from '../../../lib/format'
 import { FIELD_LABEL, JOB_LABEL, useHealth, useHealthAction } from './saude_api'
+import Reprocessar from './reprocessar'
 
 type Tone = 'ok' | 'warn' | 'bad'
 
@@ -249,6 +250,8 @@ export default function Saude() {
           </div>
         )}
       </div>
+
+      <Reprocessar />
 
       <div className="saude-block">
         <h3 className="saude-block-title">Jobs com falha ({h.failed_jobs.total})</h3>

@@ -75,16 +75,51 @@ export function useHealthAction(kind: 'reprocess' | 'retry') {
   })
 }
 
+export type ReprocessInput = {
+  start: string
+  end: string
+  /** Tipos de evento (campo do webhook); vazio = todos. */
+  types: string[]
+  simulate: boolean
+}
+
+export type ReprocessResult = {
+  total: number
+  by_field: Record<string, number>
+  /** Job do worker que vai reprocessar; null quando só contou. */
+  job: number | null
+}
+
+/** Reprocessa eventos da Meta de um período (simulate = só conta). */
+export function useReprocessPeriod() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: (input: ReprocessInput) =>
+      api<ReprocessResult>('/system-health/webhooks/reprocess/', { method: 'POST', body: input }),
+    onSuccess: (data) => {
+      if (data.job) void client.invalidateQueries({ queryKey: key })
+    },
+  })
+}
+
 export const JOB_LABEL: Record<string, string> = {
   refresh_campaign_counts: 'Campanhas dos 30 dias (clientes)',
   sync_numbers: 'Qualidade dos números na Meta',
   sync_template_analytics: 'Estatísticas dos templates na Meta',
   download_media: 'Copiar mídia da conversa (Meta → R2)',
   purge_old_media: 'Apagar mídias antigas (prazo de retenção)',
+  reprocess_webhooks: 'Reprocessar eventos da Meta',
 }
 
 export const FIELD_LABEL: Record<string, string> = {
   messages: 'Mensagem / status',
   statuses: 'Status de envio',
+  smb_message_echoes: 'Mensagem pelo app (coexistência)',
+  user_preferences: 'Preferência de marketing',
+  phone_number_quality_update: 'Qualidade do número',
+  business_capability_update: 'Limite de mensagens',
+  phone_number_name_update: 'Nome do número',
   message_template_status_update: 'Status de template',
+  message_template_quality_update: 'Qualidade de template',
+  template_category_update: 'Categoria de template',
 }

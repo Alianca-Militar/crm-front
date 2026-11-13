@@ -225,3 +225,29 @@
   font-size: 13px;
   word-break: break-word;
 }
+
+.saude-reprocess {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.saude-reprocess .field {
+  width: 170px;
+}
+
+.saude-reprocess .field:has(select) {
+  width: 280px;
+}
+
+.saude-reprocess .btn {
+  height: 44px;
+}
+
+@media (max-width: 600px) {
+  .saude-reprocess .field,
+  .saude-reprocess .field:has(select) {
+    width: 100%;
+  }
+}
