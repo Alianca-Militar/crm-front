@@ -128,9 +128,6 @@ export default function MediaViewer({ items, index, onIndex, onClose, actions }:
             </div>
             <div className="viewer-actions">
               {actions?.(item)}
-              <a className="btn sm" href={item.url} target="_blank" rel="noreferrer">
-                Abrir em nova aba
-              </a>
               <a className="btn sm primary" href={downloadUrl(item.url)}>
                 Baixar
               </a>

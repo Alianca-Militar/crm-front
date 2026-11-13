@@ -414,6 +414,8 @@ function Chat({
   const isMine = c.tab === 'open' && meId !== undefined && c.assignee?.id === meId
   // Vendedor só mexe nas próprias; admin e gerente em qualquer uma.
   const canHandle = canAct && (isMine || canSupervise)
+  // Encerrar não fala com a Meta: admin e gerente encerram mesmo com o envio pelo CRM desligado.
+  const canEnd = c.tab !== 'closed' && (canSupervise || (canAct && (c.tab === 'waiting' || isMine)))
   const badge = STATUS_BADGE[c.tab]
   // A API manda do mais recente para o mais antigo; na tela, em ordem de conversa.
   const history = [...c.history].reverse()
@@ -467,12 +469,14 @@ function Chat({
                       Devolver
                     </button>
                   )}
-                  <button type="button" className="btn xs dark" disabled={busy} onClick={onClose}>
-                    Encerrar
-                  </button>
                 </>
               )}
             </>
+          )}
+          {canEnd && (
+            <button type="button" className="btn xs dark" disabled={busy} onClick={onClose}>
+              Encerrar
+            </button>
           )}
         </div>
       </div>
