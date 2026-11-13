@@ -2,7 +2,8 @@ import { Fragment, useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { IconCheck, IconChevronLeft, IconSearch } from '../../../components/menu/icons'
 import { useMe } from '../../../lib/auth'
-import { formatPhone, initials } from '../../../lib/format'
+import MediaViewer, { type ViewerItem } from '../../../components/media_viewer/media_viewer'
+import { formatDateTime, formatPhone, initials } from '../../../lib/format'
 import {
   type ConversationDetail,
   type ConversationRow,
@@ -562,16 +563,39 @@ function WindowBar({ win }: { win: ReturnType<typeof windowState> }) {
   )
 }
 
+/** Anexo da mensagem para o visualizador (só os que já estão no armazenamento). */
+function viewerItem(m: Message): ViewerItem | null {
+  if (!m.media_url) return null
+  return {
+    id: m.id,
+    type: m.type,
+    url: m.media_url,
+    mime: m.media_mime_type,
+    filename: m.media_filename,
+    caption: m.text,
+    info: `${m.direction === 'in' ? 'Cliente' : 'Loja'} · ${formatDateTime(m.at)}`,
+  }
+}
+
 export function MessageList({ messages, now }: { messages: Message[]; now: number }) {
   const days = messages.map((m) => formatDay(m.at, now))
+  const media = messages.map(viewerItem).filter((v): v is ViewerItem => v !== null)
+  const [viewing, setViewing] = useState<number | null>(null)
+  const open = (id: number) => setViewing(media.findIndex((v) => v.id === id))
   return (
     <>
       {messages.map((m, i) => (
         <Fragment key={m.id}>
           {days[i] !== days[i - 1] && <div className="conversas-day">{days[i]}</div>}
-          <Bubble m={m} />
+          <Bubble m={m} onOpen={open} />
         </Fragment>
       ))}
+      <MediaViewer
+        items={media}
+        index={viewing}
+        onIndex={setViewing}
+        onClose={() => setViewing(null)}
+      />
     </>
   )
 }
@@ -584,14 +608,14 @@ const AUTHOR_LABEL: Record<Exclude<Message['author'], 'customer'>, string> = {
   system: 'automática',
 }
 
-function Bubble({ m }: { m: Message }) {
+function Bubble({ m, onOpen }: { m: Message; onOpen: (id: number) => void }) {
   const out = m.direction === 'out'
   const who = m.author === 'customer' ? null : AUTHOR_LABEL[m.author]
   return (
     <div id={`msg-${m.id}`} className={`conversas-msg ${out ? 'out' : 'in'} ${m.author}`}>
       <div className="conversas-bubble">
         {m.template && <span className="conversas-template-tag">Template · {m.template}</span>}
-        <MediaContent m={m} />
+        <MediaContent m={m} onOpen={onOpen} />
         {m.media_url || m.media_pending || m.media_removed ? m.text : messageText(m)}
         <div className="conversas-time">
           {who && <span>{who} · </span>}
@@ -604,7 +628,7 @@ function Bubble({ m }: { m: Message }) {
 }
 
 /** Foto, figurinha, áudio, vídeo ou documento dentro da bolha. */
-function MediaContent({ m }: { m: Message }) {
+function MediaContent({ m, onOpen }: { m: Message; onOpen: (id: number) => void }) {
   if (m.media_removed) {
     return (
       <span className="conversas-media-pending">
@@ -622,26 +646,33 @@ function MediaContent({ m }: { m: Message }) {
   if (!m.media_url) return null
   if (m.type === 'image' || m.type === 'sticker') {
     return (
-      <a href={m.media_url} target="_blank" rel="noreferrer" className="conversas-media">
+      <button type="button" className="conversas-media" onClick={() => onOpen(m.id)}>
         <img
           src={m.media_url}
           alt={m.type === 'sticker' ? 'Figurinha' : 'Foto'}
           loading="lazy"
           className={m.type === 'sticker' ? 'conversas-sticker' : 'conversas-photo'}
         />
-      </a>
+      </button>
     )
   }
   if (m.type === 'audio' || m.type === 'voice') {
     return <audio className="conversas-audio" controls preload="none" src={m.media_url} />
   }
   if (m.type === 'video') {
-    return <video className="conversas-video" controls preload="metadata" src={m.media_url} />
+    return (
+      <>
+        <video className="conversas-video" controls preload="metadata" src={m.media_url} />
+        <button type="button" className="conversas-media-open" onClick={() => onOpen(m.id)}>
+          Ampliar
+        </button>
+      </>
+    )
   }
   return (
-    <a href={m.media_url} target="_blank" rel="noreferrer" className="conversas-doc">
+    <button type="button" className="conversas-doc" onClick={() => onOpen(m.id)}>
       📄 {m.media_filename || 'Documento'} · abrir
-    </a>
+    </button>
   )
 }
 

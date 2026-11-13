@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import MediaViewer, { type ViewerItem } from '../../../components/media_viewer/media_viewer'
 import MsgNok from '../../../components/msg_nok/msg_nok'
 import { formatDateTime } from '../../../lib/format'
 import {
@@ -22,14 +23,28 @@ function Unavailable({ a }: { a: Attachment }) {
   )
 }
 
+function who(a: Attachment): string {
+  return `${a.direction === 'in' ? 'Cliente' : 'Loja'} · ${formatDateTime(a.at)} · ${a.store_code} ${a.number_label}`
+}
+
+function viewerItem(a: Attachment): ViewerItem | null {
+  if (!a.media_url) return null
+  return {
+    id: a.id,
+    type: a.type,
+    url: a.media_url,
+    mime: a.media_mime_type,
+    filename: a.media_filename,
+    caption: a.caption,
+    info: who(a),
+  }
+}
+
 /** Quem mandou, quando, por qual número e o link para a conversa. */
 function Meta({ a, onShow }: { a: Attachment; onShow: (id: number) => void }) {
   return (
     <div className="ficha-anexo-meta">
-      <span>
-        {a.direction === 'in' ? 'Cliente' : 'Loja'} · {formatDateTime(a.at)} · {a.store_code}{' '}
-        {a.number_label}
-      </span>
+      <span>{who(a)}</span>
       <button type="button" className="ficha-anexo-link" onClick={() => onShow(a.id)}>
         ver na conversa
       </button>
@@ -50,6 +65,9 @@ export default function Anexos({
   const pages = query.data?.pages ?? []
   const counts = pages[0]?.counts
   const items = pages.flatMap((p) => p.items)
+  const media = items.map(viewerItem).filter((v): v is ViewerItem => v !== null)
+  const [viewing, setViewing] = useState<number | null>(null)
+  const open = (id: number) => setViewing(media.findIndex((v) => v.id === id))
 
   return (
     <div className="ficha-anexos">
@@ -61,7 +79,10 @@ export default function Anexos({
             role="tab"
             aria-selected={kind === k.key}
             className={kind === k.key ? 'ficha-anexos-kind on' : 'ficha-anexos-kind'}
-            onClick={() => setKind(k.key)}
+            onClick={() => {
+              setKind(k.key)
+              setViewing(null)
+            }}
           >
             {k.label}
             {counts ? ` (${counts[k.key]})` : ''}
@@ -82,9 +103,9 @@ export default function Anexos({
           {items.map((a) => (
             <figure key={a.id} className="ficha-anexo-foto">
               {a.media_url ? (
-                <a href={a.media_url} target="_blank" rel="noreferrer">
+                <button type="button" className="ficha-anexo-open" onClick={() => open(a.id)}>
                   <img src={a.media_url} alt={a.caption || 'Foto'} loading="lazy" />
-                </a>
+                </button>
               ) : (
                 <div className="ficha-anexo-vazio">
                   <Unavailable a={a} />
@@ -106,11 +127,20 @@ export default function Anexos({
               ) : kind === 'audio' ? (
                 <audio controls preload="none" src={a.media_url} />
               ) : kind === 'video' ? (
-                <video controls preload="metadata" src={a.media_url} />
+                <>
+                  <video controls preload="metadata" src={a.media_url} />
+                  <button type="button" className="ficha-anexo-link" onClick={() => open(a.id)}>
+                    ampliar
+                  </button>
+                </>
               ) : (
-                <a href={a.media_url} target="_blank" rel="noreferrer" className="ficha-anexo-doc">
+                <button
+                  type="button"
+                  className="ficha-anexo-doc ficha-anexo-link"
+                  onClick={() => open(a.id)}
+                >
                   📄 {a.media_filename || 'Documento'}
-                </a>
+                </button>
               )}
               {a.caption && <span className="ficha-anexo-caption">{a.caption}</span>}
               <Meta a={a} onShow={onShow} />
@@ -118,6 +148,25 @@ export default function Anexos({
           ))}
         </ul>
       )}
+
+      <MediaViewer
+        items={media}
+        index={viewing}
+        onIndex={setViewing}
+        onClose={() => setViewing(null)}
+        actions={(item) => (
+          <button
+            type="button"
+            className="btn sm"
+            onClick={() => {
+              setViewing(null)
+              onShow(item.id)
+            }}
+          >
+            Ver na conversa
+          </button>
+        )}
+      />
 
       {query.hasNextPage && (
         <button
