@@ -90,6 +90,7 @@ export default function VendasProduto({
               </div>
             </td>
             <td className="num">{money(m.valor)}</td>
+            <td className="num">{dec(total.valor ? (m.valor / total.valor) * 100 : null, '%')}</td>
             <td className="num">{int(m.qtd)}</td>
             <td className="num">{money(m.pmv)}</td>
             <td className="num">{dec(m.desconto, '%')}</td>
@@ -123,6 +124,9 @@ export default function VendasProduto({
             <tr>
               <th>Grupo › categoria › subcategoria</th>
               <th className="num">Valor de vendas</th>
+              <th className="num" title="Participação no valor de vendas total do período">
+                % do valor
+              </th>
               <th className="num">Peças</th>
               <th className="num" title="Preço médio de venda: valor ÷ peças">
                 PMV
@@ -145,7 +149,7 @@ export default function VendasProduto({
             {rows(tree)}
             {tree.length === 0 && (
               <tr>
-                <td colSpan={8} className="muted">
+                <td colSpan={9} className="muted">
                   {loading ? 'Carregando…' : 'Nenhuma venda no período.'}
                 </td>
               </tr>
@@ -155,6 +159,7 @@ export default function VendasProduto({
             <tr className="produto-row produto-total">
               <td>Total</td>
               <td className="num">{money(total.valor)}</td>
+              <td className="num">{total.valor ? '100,0%' : '—'}</td>
               <td className="num">{int(total.qtd)}</td>
               <td className="num">{money(total.pmv)}</td>
               <td className="num">{dec(total.desconto, '%')}</td>
@@ -168,9 +173,10 @@ export default function VendasProduto({
         </table>
       </div>
       <p className="relatorios-note">
-        PMV = valor ÷ peças · Markup = valor vendido ÷ custo, só com os produtos que têm custo na
-        planilha de produtos (em itálico quando parte do valor ficou sem custo; passe o mouse para
-        ver quanto) · Estoque e giro: em breve.
+        % do valor = participação no valor de vendas total do período · PMV = valor ÷ peças · Markup
+        = valor vendido ÷ custo, só com os produtos que têm custo na planilha de produtos (em
+        itálico quando parte do valor ficou sem custo; passe o mouse para ver quanto) · Estoque e
+        giro: em breve.
       </p>
     </section>
   )

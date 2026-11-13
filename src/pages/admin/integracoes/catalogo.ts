@@ -26,6 +26,13 @@ export const planejadas: IntegracaoPlanejada[] = [
     desc: 'Convites, senhas e e-mails das campanhas.',
   },
   {
+    code: 'db_backup',
+    sigla: 'BK',
+    nome: 'Backup do banco',
+    tipo: 'Processo nosso · todo dia às 03:00',
+    desc: 'Cópia do banco na VM (14 dias) e no R2 de backup (30 dias). Atrasado: alerta na Home.',
+  },
+  {
     code: 'pegasus_jf',
     sigla: 'JF',
     nome: 'Pegasus · Juiz de Fora',

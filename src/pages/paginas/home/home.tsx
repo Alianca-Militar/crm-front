@@ -38,7 +38,15 @@ type Dashboard = {
   /** Vendas por dia do mês e a tendência até o último dia. */
   daily: MonthTrend
   series: { month: string; stores: Record<string, string> }[]
-  stores: ({ id: number; code: string; name: string } & Period)[]
+  stores: ({
+    id: number
+    code: string
+    name: string
+    /** Vendas de hoje que o coletor da loja já mandou (roda algumas vezes por dia). */
+    today: Period
+    /** Última carga do coletor da loja (null = nunca mandou). */
+    synced_at: string | null
+  } & Period)[]
   /** Vendas do mês por grupo de produto: os 7 maiores e "Outros". */
   groups: { group: string; amount: string; share: string }[]
   campaigns: {
@@ -70,7 +78,7 @@ type Dashboard = {
 }
 
 type Alert = {
-  type: 'number_quality' | 'optout_review' | 'webhook_silence'
+  type: 'number_quality' | 'optout_review' | 'webhook_silence' | 'backup_late'
   level: 'warn' | 'danger'
   title: string
   text: string
@@ -251,6 +259,14 @@ export default function Home() {
                   : 'Sem vendas no mês (ou dados ainda não carregados)'}
               </div>
               <div className="home-store-stats">
+                <div className="home-store-today">
+                  <span>Hoje</span>
+                  <strong>{formatMoney(s.today.revenue)}</strong>
+                  <small>
+                    {s.today.orders === 1 ? '1 venda' : `${n(s.today.orders)} vendas`}
+                    {s.synced_at ? ` · atualizado ${formatLastAccess(s.synced_at)}` : ''}
+                  </small>
+                </div>
                 <div>
                   <span>Previsão do mês</span>
                   <strong>{formatMoney(d.daily.trend_by_store[String(s.id)] ?? 0)}</strong>

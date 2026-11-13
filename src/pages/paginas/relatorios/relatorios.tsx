@@ -9,11 +9,9 @@ import MsgNok from '../../../components/msg_nok/msg_nok'
 import AtendimentoSac from './atendimento_sac'
 import BaseClientes from './base_clientes'
 import DesempenhoCampanhas from './desempenho_campanhas'
+import Indicadores from './indicadores'
 import {
   atendimentoResumo,
-  baseResumo,
-  clientesPorLoja,
-  completude,
   conversasPorDia,
   conversasPorNumero,
   iaAcertos,
@@ -21,8 +19,6 @@ import {
   notasGoogle,
   nps,
   relatorios,
-  rfm,
-  semIdentificacao,
 } from './mocks'
 import { useProductsReport } from './relatorios_api'
 import VendasProduto from './vendas_produto'
@@ -79,19 +75,13 @@ export default function Relatorios() {
         ))}
       </div>
 
+      {nome === 'Indicadores' && <Indicadores range={periodo} />}
+
       {nome === 'Vendas por produto' && <VendasProdutoReal range={periodo} />}
 
       {nome === 'Desempenho de campanhas' && <DesempenhoCampanhas range={periodo} />}
 
-      {nome === 'Base de clientes' && (
-        <BaseClientes
-          resumo={baseResumo}
-          semId={semIdentificacao}
-          completude={completude}
-          porLoja={clientesPorLoja}
-          rfm={rfm}
-        />
-      )}
+      {nome === 'Base de clientes' && <BaseClientes range={periodo} />}
 
       {nome === 'Atendimento e SAC' && (
         <AtendimentoSac

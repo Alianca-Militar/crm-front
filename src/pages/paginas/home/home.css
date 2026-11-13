@@ -333,6 +333,10 @@
   color: #c9c1ba;
 }
 
+.home-store-stats > .home-store-today {
+  grid-column: 1 / -1;
+}
+
 .home-store-stats strong {
   font-size: 18px;
   font-variant-numeric: tabular-nums;

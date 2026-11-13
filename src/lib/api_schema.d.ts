@@ -1615,6 +1615,38 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/reports/customers/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['reports_customers_retrieve']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/reports/indicators/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['reports_indicators_retrieve']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/reports/products/': {
     parameters: {
       query?: never
@@ -2437,6 +2469,15 @@ export interface components {
       readonly marketing_status: components['schemas']['Blocklist'][]
       readonly optout_history: components['schemas']['Optout'][]
     }
+    CustomerBaseReport: {
+      summary: components['schemas']['Summary']
+      unidentified: components['schemas']['Unidentified']
+      completeness: components['schemas']['FieldFill'][]
+      stores: components['schemas']['StoreCount'][]
+      segments: components['schemas']['Segment'][]
+      /** @description Clientes sem compra (fora do RFM) */
+      no_purchase: number
+    }
     CustomerDetail: {
       corp_tipo?: string | null
       patente?: string | null
@@ -2559,6 +2600,16 @@ export interface components {
       }[]
       /** @description CD_CLIENTE do consumidor final (fica fora das campanhas) */
       generic_customers?: string[]
+    }
+    DaySales: {
+      /** Format: date */
+      day: string
+      /** Format: decimal */
+      revenue: string
+      orders: number
+      /** Format: decimal */
+      previous_revenue: string
+      previous_orders: number
     }
     /**
      * @description * `outbound` - Nós chamamos
@@ -2686,6 +2737,43 @@ export interface components {
       campaign?: number | null
       /** @default crm */
       audience_source: components['schemas']['AudienceSourceEnum']
+    }
+    FieldFill: {
+      field: string
+      filled: number
+    }
+    HourSales: {
+      hour: number
+      /** Format: decimal */
+      revenue: string
+      orders: number
+      /** Format: decimal */
+      previous_revenue: string
+      previous_orders: number
+    }
+    Indicators: {
+      orders: number
+      /** Format: decimal */
+      revenue: string
+      /** Format: decimal */
+      pieces: string
+      /** Format: decimal */
+      pa: string | null
+      /** Format: decimal */
+      avg_ticket: string | null
+      /** Format: decimal */
+      pmv: string | null
+      /** Format: decimal */
+      markup: string | null
+    }
+    IndicatorsReport: {
+      period: components['schemas']['Period']
+      previous_period: components['schemas']['Period']
+      current: components['schemas']['Indicators']
+      previous: components['schemas']['Indicators']
+      stores: components['schemas']['StoreIndicators'][]
+      daily: components['schemas']['DaySales'][]
+      hourly: components['schemas']['HourSales'][]
     }
     Integration: {
       readonly id: number
@@ -3340,6 +3428,12 @@ export interface components {
       /** Format: decimal */
       price_authentication?: string | null
     }
+    Period: {
+      /** Format: date */
+      start: string
+      /** Format: date */
+      end: string
+    }
     ProfileOut: {
       id: number
       first_name: string
@@ -3415,6 +3509,12 @@ export interface components {
      * @enum {string}
      */
     RoleEnum: 'admin' | 'gerente' | 'analista' | 'vendedor'
+    Segment: {
+      segment: string
+      customers: number
+      /** Format: decimal */
+      revenue: string
+    }
     /**
      * @description * `export` - Exportação (CSV)
      *     * `platform` - Envio pela plataforma
@@ -3515,6 +3615,17 @@ export interface components {
       /** Format: date-time */
       readonly updated_at: string
     }
+    StoreCount: {
+      store_id: number | null
+      name: string
+      customers: number
+    }
+    StoreIndicators: {
+      store_id: number
+      name: string
+      current: components['schemas']['Indicators']
+      previous: components['schemas']['Indicators']
+    }
     StoreRequest: {
       code: string
       corporate: string
@@ -3529,6 +3640,16 @@ export interface components {
       state?: number | null
       timezone?: string
       active?: boolean
+    }
+    Summary: {
+      total: number
+      with_phone: number
+      /** @description WhatsApp confirmado */
+      whatsapp: number
+      /** @description CPF, telefone, cidade e endereço */
+      complete: number
+      /** @description Com telefone fora da lista de bloqueio */
+      marketing: number
     }
     SyncRequest: {
       whatsapp_number: number
@@ -3645,6 +3766,25 @@ export interface components {
       | 'smb_message_echoes'
       | 'template_category_update'
       | 'user_preferences'
+    Unidentified: {
+      /** Format: decimal */
+      revenue: string
+      orders: number
+      /** Format: decimal */
+      total_revenue: string
+      total_orders: number
+      stores: components['schemas']['UnidentifiedStore'][]
+    }
+    UnidentifiedStore: {
+      /** Format: decimal */
+      revenue: string
+      orders: number
+      /** Format: decimal */
+      total_revenue: string
+      total_orders: number
+      store_id: number
+      name: string
+    }
     UserAccount: {
       readonly id: number
       first_name: string
@@ -6801,6 +6941,50 @@ export interface operations {
           'application/json': {
             [key: string]: unknown
           }
+        }
+      }
+    }
+  }
+  reports_customers_retrieve: {
+    parameters: {
+      query: {
+        end: string
+        start: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CustomerBaseReport']
+        }
+      }
+    }
+  }
+  reports_indicators_retrieve: {
+    parameters: {
+      query: {
+        end: string
+        start: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['IndicatorsReport']
         }
       }
     }

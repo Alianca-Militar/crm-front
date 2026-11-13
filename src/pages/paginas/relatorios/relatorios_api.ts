@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import type { DateRange } from '../../../components/date_range/date_range_utils'
 import { api } from '../../../lib/api'
+import { call, client, type Schemas } from '../../../lib/api_client'
 import type { ProductLeaf } from './vendas_produto_utils'
 
 /** Campanhas num período, independente de quando cada uma começou (valores em texto decimal). */
@@ -63,6 +64,38 @@ export function useProductsReport(range: DateRange) {
         valorComCusto: Number(r.amount_with_cost),
         custo: Number(r.cost),
       })),
+    placeholderData: keepPreviousData,
+  })
+}
+
+export type CustomerBaseReport = Schemas['CustomerBaseReport']
+
+/** Base de clientes: a foto de hoje; o período vale para vendas sem cliente e receita do RFM. */
+export function useCustomerBaseReport(range: DateRange) {
+  return useQuery({
+    queryKey: ['reports', 'customers', range.start, range.end],
+    queryFn: () =>
+      call(
+        client.GET('/api/reports/customers/', {
+          params: { query: { start: range.start, end: range.end } },
+        }),
+      ),
+    placeholderData: keepPreviousData,
+  })
+}
+
+export type IndicatorsReport = Schemas['IndicatorsReport']
+
+/** Indicadores (PA, ticket médio, markup, faturamento) contra os mesmos dias do ano anterior. */
+export function useIndicatorsReport(range: DateRange) {
+  return useQuery({
+    queryKey: ['reports', 'indicators', range.start, range.end],
+    queryFn: () =>
+      call(
+        client.GET('/api/reports/indicators/', {
+          params: { query: { start: range.start, end: range.end } },
+        }),
+      ),
     placeholderData: keepPreviousData,
   })
 }

@@ -1,6 +1,7 @@
 // Dados de exemplo do design. Trocar pela API quando o banco estiver pronto.
 
 export const relatorios = [
+  { nome: 'Indicadores', desc: 'PA, ticket médio, markup x ano anterior' },
   { nome: 'Vendas por produto', desc: 'Peças vendidas por loja' },
   { nome: 'Desempenho de campanhas', desc: 'Envios, respostas, conversão' },
   { nome: 'Base de clientes', desc: 'Novos, recorrentes, inativos' },
@@ -18,114 +19,6 @@ export const nps = {
     { loja: 'Belo Horizonte', nps: 'NPS 74' },
   ],
 }
-
-// Base de clientes.
-export const baseResumo = {
-  total: 14_820,
-  whatsapp: 11_130,
-  completos: 2_240,
-  optin: 10_410,
-}
-
-/** Vendas do período no consumidor final (sem cliente identificado). */
-export const semIdentificacao = {
-  valor: 182_340.9,
-  vendas: 401,
-  totalValor: 309_292.18,
-  totalVendas: 646,
-}
-
-export const completude = [
-  { campo: 'CPF', pct: 77 },
-  { campo: 'Cidade', pct: 77 },
-  { campo: 'Endereço', pct: 77 },
-  { campo: 'Telefone', pct: 75 },
-  { campo: 'Corporação', pct: 18 },
-  { campo: 'Data de nasc.', pct: 4 },
-  { campo: 'E-mail', pct: 1 },
-]
-
-export const clientesPorLoja = [
-  { loja: 'Belo Horizonte', clientes: 9_870 },
-  { loja: 'Juiz de Fora', clientes: 4_310 },
-  { loja: 'Sem loja definida', clientes: 640 },
-]
-
-export type RfmTone = 'best' | 'good' | 'watch' | 'risk' | 'lost'
-
-export const rfm: {
-  perfil: string
-  clientes: number
-  receita: number
-  acao: string
-  tom: RfmTone
-}[] = [
-  {
-    perfil: 'Champions',
-    clientes: 49,
-    receita: 78_672.99,
-    acao: 'Recompensar, VIP, pedir indicação.',
-    tom: 'best',
-  },
-  {
-    perfil: 'Loyal Customers',
-    clientes: 93,
-    receita: 126_335.54,
-    acao: 'Upsell, fidelidade, indicação.',
-    tom: 'best',
-  },
-  {
-    perfil: 'Potential Loyalist',
-    clientes: 183,
-    receita: 210_152.25,
-    acao: 'Incentivar a próxima compra.',
-    tom: 'good',
-  },
-  {
-    perfil: 'New Customers',
-    clientes: 384,
-    receita: 278_564.5,
-    acao: 'Onboarding, garantir a 2ª compra.',
-    tom: 'good',
-  },
-  {
-    perfil: 'Promising',
-    clientes: 381,
-    receita: 227_593.55,
-    acao: 'Nutrir com ofertas leves.',
-    tom: 'good',
-  },
-  {
-    perfil: 'Need Attention',
-    clientes: 82,
-    receita: 86_820.72,
-    acao: 'Oferta com prazo, reengajar.',
-    tom: 'watch',
-  },
-  {
-    perfil: 'About to Sleep',
-    clientes: 24,
-    receita: 10_543.63,
-    acao: 'Reativar logo: lembrete + oferta.',
-    tom: 'watch',
-  },
-  { perfil: 'At Risk', clientes: 0, receita: 0, acao: 'Campanha de reativação.', tom: 'risk' },
-  {
-    perfil: "Can't Lose Them",
-    clientes: 0,
-    receita: 0,
-    acao: 'Resgate urgente, contato pessoal.',
-    tom: 'risk',
-  },
-  {
-    perfil: 'Hibernating',
-    clientes: 0,
-    receita: 0,
-    acao: 'Reengajar ou aceitar a perda.',
-    tom: 'lost',
-  },
-  { perfil: 'Lost', clientes: 0, receita: 0, acao: 'Campanha agressiva ou arquivar.', tom: 'lost' },
-]
 
 // Atendimento e SAC.
 export const notasGoogle = [
