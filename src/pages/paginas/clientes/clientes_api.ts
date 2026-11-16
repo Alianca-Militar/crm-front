@@ -8,7 +8,7 @@ import {
 import { api } from '../../../lib/api'
 import type { OptoutRow } from '../bloqueios/bloqueios_api'
 import type { PastConversation } from '../conversas/conversas_api'
-import type { Schemas } from '../../../lib/api_client'
+import { call, client, type Schemas } from '../../../lib/api_client'
 
 export type Page<T> = { count: number; next: string | null; previous: string | null; results: T[] }
 
@@ -72,11 +72,14 @@ export type Customer = {
   numero: string | null
   complemento: string | null
   cep: string | null
+  city: number | null
+  state: number | null
   city_name: string | null
   state_code: string | null
   store_name: string | null
   is_generic: boolean
   source: string | null
+  anonymized_at: string | null
   created_at: string
   phones: CustomerPhone[]
   details: CustomerDetails | null
@@ -222,6 +225,18 @@ export function useCustomerAttachments(id: number, kind: AttachmentKind, enabled
     initialPageParam: 1,
     getNextPageParam: (last) => (last.has_more ? last.page + 1 : undefined),
     enabled: enabled && Number.isFinite(id),
+  })
+}
+
+export type CustomerEdit = Schemas['PatchedCustomerEditRequest']
+
+/** Lápis do card Dados: salva e atualiza a ficha e a lista. */
+export function useSaveCustomer(id: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (body: CustomerEdit) =>
+      call(client.PATCH('/api/customers/{id}/', { params: { path: { id } }, body })),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: key }),
   })
 }
 

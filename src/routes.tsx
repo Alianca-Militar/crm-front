@@ -20,6 +20,7 @@ import TemplateEditar from './pages/paginas/templates/template_editar'
 import Conversas from './pages/paginas/conversas/conversas'
 import Gatilhos from './pages/paginas/gatilhos/gatilhos'
 import Relatorios from './pages/paginas/relatorios/relatorios'
+import Notificacoes from './pages/paginas/notificacoes/notificacoes'
 
 import Usuarios from './pages/admin/usuarios/usuarios'
 import Perfil from './pages/admin/perfil/perfil'
@@ -60,6 +61,7 @@ export const router = createBrowserRouter([
       { path: 'conversas', element: <Conversas /> },
       { path: 'gatilhos', element: <Gatilhos /> },
       { path: 'relatorios', element: <Relatorios /> },
+      { path: 'notificacoes', element: <Notificacoes /> },
 
       // Administração
       { path: 'admin/usuarios', element: <Usuarios /> },

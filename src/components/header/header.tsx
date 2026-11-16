@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconSearch } from '../menu/icons'
 import { getRouteInfo } from '../menu/nav'
 import Avatar from '../avatar/avatar'
-import Notifications, { type NotificationItem } from '../notifications/notifications'
+import Notifications from '../notifications/notifications'
+import type { Notification } from '../notifications/notifications_api'
 import './header.css'
 
 export type HeaderUser = {
@@ -23,7 +24,9 @@ type HeaderProps = {
   stores: StoreOption[]
   store: string
   onStoreChange: (value: string) => void
-  notifications: NotificationItem[]
+  notifications: Notification[]
+  unread: number
+  onOpenNotification?: (n: Notification) => void
   onMarkAllRead?: () => void
 }
 
@@ -40,6 +43,8 @@ export default function Header({
   store,
   onStoreChange,
   notifications,
+  unread,
+  onOpenNotification,
   onMarkAllRead,
 }: HeaderProps) {
   const { pathname } = useLocation()
@@ -86,7 +91,12 @@ export default function Header({
         </select>
       </label>
 
-      <Notifications items={notifications} onMarkAllRead={onMarkAllRead} />
+      <Notifications
+        items={notifications}
+        unread={unread}
+        onOpen={onOpenNotification}
+        onMarkAllRead={onMarkAllRead}
+      />
 
       <Link to="/admin/perfil" className="app-header-user">
         <Avatar

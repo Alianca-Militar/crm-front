@@ -186,6 +186,13 @@ export const IconClose = (p: IconProps) => (
   </Svg>
 )
 
+export const IconEdit = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z" />
+    <path d="M13.5 6.5l4 4" />
+  </Svg>
+)
+
 export const IconPlus = (p: IconProps) => (
   <Svg strokeWidth={2.2} {...p}>
     <path d="M12 5v14M5 12h14" />

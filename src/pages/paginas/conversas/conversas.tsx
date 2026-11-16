@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { IconCheck, IconChevronLeft, IconSearch } from '../../../components/menu/icons'
 import { useMe } from '../../../lib/auth'
 import MediaViewer, { type ViewerItem } from '../../../components/media_viewer/media_viewer'
@@ -82,6 +82,26 @@ export default function Conversas() {
   const [showChat, setShowChat] = useState(false) // celular: lista ou conversa
   const [modal, setModal] = useState<'transfer' | 'close' | null>(null)
   const [modalKey, setModalKey] = useState(0)
+  // Link de notificação (?aba=waiting&id=12): abre a aba e a conversa, depois limpa a URL.
+  const [params, setParams] = useSearchParams()
+  const linkKey = params.get('aba') || params.get('id') ? params.toString() : ''
+  const [handledLink, setHandledLink] = useState('')
+  if (linkKey !== handledLink) {
+    setHandledLink(linkKey)
+    const linkTab = params.get('aba')
+    const linkId = Number(params.get('id'))
+    if (linkTab === 'waiting' || linkTab === 'open' || linkTab === 'closed') {
+      setTab(linkTab)
+      if (linkTab === 'open') setMine(true)
+    }
+    if (linkId) {
+      setSelId(linkId)
+      setShowChat(true)
+    }
+  }
+  useEffect(() => {
+    if (linkKey) setParams({}, { replace: true })
+  }, [linkKey, setParams])
 
   const numbersQuery = useConversationNumbers()
   const allNumbers = numbersQuery.data ?? []

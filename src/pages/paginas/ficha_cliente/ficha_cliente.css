@@ -105,6 +105,42 @@
   gap: 12px;
 }
 
+.ficha-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Lápis do card Dados */
+.ficha-edit-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-subtle);
+  cursor: pointer;
+}
+
+.ficha-edit-btn:hover {
+  color: var(--text);
+  border-color: var(--text-subtle);
+}
+
+.ficha-edit-error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.ficha-edit-note {
+  margin: 16px 0 0;
+  font-size: 13px;
+}
+
 /* <dl> com linhas agrupadas: cada linha ocupa as duas colunas da grade */
 .ficha-dl-row {
   display: contents;

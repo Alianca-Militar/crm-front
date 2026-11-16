@@ -6,7 +6,11 @@ import { useTemplateReviews } from '../../pages/paginas/templates/templates_api'
 import Header, { type HeaderUser, type StoreOption } from '../header/header'
 import Menu from '../menu/menu'
 import { canAccess } from '../menu/nav'
-import type { NotificationItem } from '../notifications/notifications'
+import {
+  useMarkAllRead,
+  useMarkRead,
+  useRecentNotifications,
+} from '../notifications/notifications_api'
 import './layout.css'
 
 const MENU_KEY = 'crm.menuRecolhido'
@@ -34,8 +38,9 @@ export default function Layout() {
   const [collapsed, setCollapsed] = useState(readCollapsed)
   // null = ainda não mexeu no seletor: vale a loja padrão do perfil.
   const [store, setStore] = useState<string | null>(null)
-  // TODO: alimentar com os alertas do painel (qualidade do número, revisões, falhas, webhooks)
-  const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  const notifications = useRecentNotifications(me.isSuccess)
+  const markRead = useMarkRead()
+  const markAllRead = useMarkAllRead()
 
   // Loja do header: a escolhida, senão a padrão do perfil, senão a única que a pessoa tem.
   const myStores = me.data?.stores ?? []
@@ -102,8 +107,10 @@ export default function Layout() {
         stores={stores}
         store={currentStore}
         onStoreChange={setStore}
-        notifications={notifications}
-        onMarkAllRead={() => setNotifications((list) => list.map((n) => ({ ...n, lida: true })))}
+        notifications={notifications.data?.items ?? []}
+        unread={notifications.data?.unread ?? 0}
+        onOpenNotification={(n) => markRead.mutate(n.id)}
+        onMarkAllRead={() => markAllRead.mutate()}
       />
       <main className="app-content">
         <Outlet />

@@ -1,30 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { IconBell } from '../menu/icons'
+import { type Notification, timeAgo } from './notifications_api'
 import './notifications.css'
 
-export type NotificationItem = {
-  id: string
-  titulo: string
-  texto: string
-  /** Texto pronto para exibir, ex.: "há 4 min". */
-  quando: string
-  /** Tela para onde a notificação leva. */
-  href: string
-  lida: boolean
-  /** Falhas ganham o marcador vermelho. */
-  tipo?: 'info' | 'erro'
-}
-
 type NotificationsProps = {
-  items: NotificationItem[]
+  items: Notification[]
+  /** Não lidas no total (não só as da lista). */
+  unread: number
+  /** Clicou num aviso: marca como lido (a navegação é do Link). */
+  onOpen?: (n: Notification) => void
   onMarkAllRead?: () => void
 }
 
-export default function Notifications({ items, onMarkAllRead }: NotificationsProps) {
+export default function Notifications({
+  items,
+  unread,
+  onOpen,
+  onMarkAllRead,
+}: NotificationsProps) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
-  const unread = items.filter((n) => !n.lida).length
 
   // Fecha ao clicar fora ou apertar Esc.
   useEffect(() => {
@@ -80,30 +76,33 @@ export default function Notifications({ items, onMarkAllRead }: NotificationsPro
             items.map((n) => (
               <Link
                 key={n.id}
-                to={n.href}
-                className={n.lida ? 'notifications-item' : 'notifications-item unread'}
-                onClick={() => setOpen(false)}
+                to={n.link || '/notificacoes'}
+                className={n.read_at ? 'notifications-item' : 'notifications-item unread'}
+                onClick={() => {
+                  setOpen(false)
+                  if (!n.read_at) onOpen?.(n)
+                }}
               >
                 <span
                   className={
-                    n.tipo === 'erro'
+                    n.type === 'error'
                       ? 'notifications-dot error'
-                      : n.lida
+                      : n.read_at
                         ? 'notifications-dot'
                         : 'notifications-dot unread'
                   }
                 />
                 <span className="notifications-item-body">
-                  <span className="notifications-item-title">{n.titulo}</span>
-                  <span className="notifications-item-text">{n.texto}</span>
-                  <span className="notifications-item-when">{n.quando}</span>
+                  <span className="notifications-item-title">{n.title}</span>
+                  {n.body && <span className="notifications-item-text">{n.body}</span>}
+                  <span className="notifications-item-when">{timeAgo(n.created_at)}</span>
                 </span>
               </Link>
             ))
           )}
 
           <div className="notifications-foot">
-            <Link to="/admin/logs" onClick={() => setOpen(false)}>
+            <Link to="/notificacoes" onClick={() => setOpen(false)}>
               Ver todas as notificações
             </Link>
           </div>

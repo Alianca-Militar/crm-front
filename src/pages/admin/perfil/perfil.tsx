@@ -9,6 +9,10 @@ import { ApiError } from '../../../lib/api'
 import { ROLE_LABEL } from '../../../lib/auth'
 import { formatLastAccess } from '../../../lib/format'
 import {
+  useNotificationPreferences,
+  useSaveNotificationPreference,
+} from '../../../components/notifications/notifications_api'
+import {
   type Profile,
   useChangePassword,
   useEndSession,
@@ -19,14 +23,6 @@ import {
   useUploadAvatar,
 } from './perfil_api'
 import './perfil.css'
-
-// Ainda não existem notificações no CRM: a seção fica visível, mas desligada.
-const AVISOS = [
-  'Nova conversa na minha loja',
-  'Campanha concluída',
-  'Template aprovado ou rejeitado',
-  'Resumo diário por e-mail',
-]
 
 const AVATAR_TYPES = 'image/jpeg,image/png,image/webp'
 const AVATAR_MAX_MB = 5
@@ -68,18 +64,7 @@ export default function Perfil() {
       <div className="row">
         <SenhaCard />
 
-        <section className="card perfil-half perfil-avisos">
-          <div className="perfil-card-head">
-            <h2 className="card-title">Me avisar quando</h2>
-            <span className="badge tone-gray">Em breve</span>
-          </div>
-          {AVISOS.map((label) => (
-            <label key={label} className="check">
-              <input type="checkbox" disabled />
-              {label}
-            </label>
-          ))}
-        </section>
+        <AvisosCard />
       </div>
 
       <SessoesCard />
@@ -279,6 +264,37 @@ function DadosForm({ profile, onSaved }: { profile: Profile; onSaved: () => void
         )}
       </div>
     </form>
+  )
+}
+
+// --- Me avisar quando ------------------------------------------------------------------
+
+/** Assuntos do sino que o perfil do usuário recebe; cada clique já salva. */
+function AvisosCard() {
+  const prefs = useNotificationPreferences()
+  const save = useSaveNotificationPreference()
+  return (
+    <section className="card perfil-half perfil-avisos">
+      <div className="perfil-card-head">
+        <h2 className="card-title">Me avisar quando</h2>
+      </div>
+      {prefs.isError && (
+        <MsgNok titulo="Não foi possível carregar" mensagem={prefs.error.message} />
+      )}
+      {save.isError && <MsgNok titulo="Não foi possível salvar" mensagem={save.error.message} />}
+      {prefs.data?.map((p) => (
+        <label key={p.kind} className="check">
+          <input
+            type="checkbox"
+            checked={p.enabled}
+            disabled={save.isPending}
+            onChange={(e) => save.mutate({ kind: p.kind, enabled: e.target.checked })}
+          />
+          {p.text}
+        </label>
+      ))}
+      <span className="perfil-hint">Os avisos aparecem no sino, no topo da tela.</span>
+    </section>
   )
 }
 

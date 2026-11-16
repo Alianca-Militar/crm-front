@@ -157,6 +157,7 @@ const extraCrumbs: { pattern: RegExp; activeKey: string | null; section: string;
       crumb: 'Ficha do cliente',
     },
     { pattern: /^\/admin\/perfil\/?$/, activeKey: null, section: 'Admin', crumb: 'Meu perfil' },
+    { pattern: /^\/notificacoes\/?$/, activeKey: null, section: 'CRM', crumb: 'Notificações' },
   ]
 
 export type RouteInfo = { activeKey: string | null; section: string; crumb: string }

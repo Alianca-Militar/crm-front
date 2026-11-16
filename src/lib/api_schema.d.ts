@@ -710,7 +710,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    /** @description Busca de clientes (nome, CPF ou telefone) e ficha do cliente. */
+    /** @description Busca de clientes (nome, CPF ou telefone), ficha do cliente e edição dos dados. */
     get: operations['customers_list']
     put?: never
     post?: never
@@ -727,14 +727,15 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    /** @description Busca de clientes (nome, CPF ou telefone) e ficha do cliente. */
+    /** @description Busca de clientes (nome, CPF ou telefone), ficha do cliente e edição dos dados. */
     get: operations['customers_retrieve']
     put?: never
     post?: never
     delete?: never
     options?: never
     head?: never
-    patch?: never
+    /** @description Lápis do card Dados. O log guarda só quais campos mudaram, não os valores. */
+    patch: operations['customers_partial_update']
     trace?: never
   }
   '/api/customers/{id}/attachments/': {
@@ -812,7 +813,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    /** @description Busca de clientes (nome, CPF ou telefone) e ficha do cliente. */
+    /** @description Busca de clientes (nome, CPF ou telefone), ficha do cliente e edição dos dados. */
     get: operations['customers_orders_list']
     put?: never
     post?: never
@@ -1340,6 +1341,89 @@ export interface paths {
     put?: never
     /** @description Busca agora na Meta as estatísticas dos templates (só leitura na Meta). */
     post: operations['message_templates_sync_analytics_create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/notifications/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['notifications_list']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/notifications/{id}/read/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['notifications_read_create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/notifications/preferences/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Assuntos do perfil do usuário, ligados ou não (todos começam ligados). */
+    get: operations['notifications_preferences_list']
+    /** @description Assuntos do perfil do usuário, ligados ou não (todos começam ligados). */
+    put: operations['notifications_preferences_update']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/notifications/read-all/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['notifications_read_all_create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/notifications/recent/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Sino: as mais recentes e quantas não foram lidas. */
+    get: operations['notifications_recent_retrieve']
+    put?: never
+    post?: never
     delete?: never
     options?: never
     head?: never
@@ -2190,7 +2274,7 @@ export interface components {
       id: number
       /** Format: date-time */
       occurred_at: string
-      type: components['schemas']['TypeEnum']
+      type: components['schemas']['AuditLogTypeEnum']
       /** @description Quem fez (nome, Sistema...) */
       actor: string
       actor_id: number | null
@@ -2204,6 +2288,15 @@ export interface components {
       before: unknown
       after: unknown
     }
+    /**
+     * @description * `access` - access
+     *     * `change` - change
+     *     * `send` - send
+     *     * `export` - export
+     *     * `error` - error
+     * @enum {string}
+     */
+    AuditLogTypeEnum: 'access' | 'change' | 'send' | 'export' | 'error'
     AvatarUploadRequest: {
       /** Format: binary */
       file: string
@@ -3139,6 +3232,35 @@ export interface components {
      * @enum {string}
      */
     ModeEnum: 'coexistence' | 'cloud_api'
+    Notification: {
+      readonly id: number
+      kind?: string | null
+      type: components['schemas']['NotificationTypeEnum']
+      title: string
+      body?: string | null
+      link?: string | null
+      /** Format: date-time */
+      read_at?: string | null
+      /** Format: date-time */
+      created_at: string
+    }
+    NotificationPreference: {
+      kind: string
+      readonly text: string
+      enabled: boolean
+    }
+    NotificationPreferenceRequest: {
+      kind: string
+      enabled: boolean
+    }
+    /**
+     * @description * `info` - Informação
+     *     * `success` - Sucesso
+     *     * `warning` - Atenção
+     *     * `error` - Erro
+     * @enum {string}
+     */
+    NotificationTypeEnum: 'info' | 'success' | 'warning' | 'error'
     /** @enum {unknown} */
     NullEnum: null
     /**
@@ -3366,6 +3488,21 @@ export interface components {
       previous?: string | null
       results: components['schemas']['IntegrationLog'][]
     }
+    PaginatedNotificationList: {
+      /** @example 123 */
+      count: number
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null
+      results: components['schemas']['Notification'][]
+    }
     PaginatedOptoutList: {
       /** @example 123 */
       count: number
@@ -3441,6 +3578,19 @@ export interface components {
       attribution_window_days?: number
       frequency_cap_days?: number
       notes?: string | null
+    }
+    /** @description Lápis do card Dados da ficha. A UF vem da cidade. */
+    PatchedCustomerEditRequest: {
+      name?: string
+      cpf?: string | null
+      email?: string | null
+      /** Format: date */
+      birth_date?: string | null
+      address?: string | null
+      numero?: string | null
+      complemento?: string | null
+      cep?: string | null
+      city?: number | null
     }
     PatchedEmailSenderRequest: {
       store?: number | null
@@ -3613,6 +3763,10 @@ export interface components {
      * @enum {string}
      */
     QualityEnum: 'GREEN' | 'YELLOW' | 'RED' | 'UNKNOWN'
+    RecentNotifications: {
+      unread: number
+      items: components['schemas']['Notification'][]
+    }
     RejectReviewRequest: {
       comment: string
     }
@@ -3936,15 +4090,6 @@ export interface components {
     TransferRequest: {
       user: number
     }
-    /**
-     * @description * `access` - access
-     *     * `change` - change
-     *     * `send` - send
-     *     * `export` - export
-     *     * `error` - error
-     * @enum {string}
-     */
-    TypeEnum: 'access' | 'change' | 'send' | 'export' | 'error'
     /**
      * @description * `business_capability_update` - business_capability_update
      *     * `message_template_quality_update` - message_template_quality_update
@@ -5365,6 +5510,34 @@ export interface operations {
       }
     }
   }
+  customers_partial_update: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Um valor inteiro único que identifica este customer. */
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCustomerEditRequest']
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCustomerEditRequest']
+        'multipart/form-data': components['schemas']['PatchedCustomerEditRequest']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Customer']
+        }
+      }
+    }
+  }
   customers_attachments_retrieve: {
     parameters: {
       query?: {
@@ -6604,6 +6777,136 @@ export interface operations {
           'application/json': {
             [key: string]: unknown
           }
+        }
+      }
+    }
+  }
+  notifications_list: {
+    parameters: {
+      query?: {
+        /** @description Um número de página dentro do conjunto de resultados paginado. */
+        page?: number
+        /** @description 1 = só não lidas */
+        unread?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PaginatedNotificationList']
+        }
+      }
+    }
+  }
+  notifications_read_create: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description Um valor inteiro único que identifica este notification. */
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Notification']
+        }
+      }
+    }
+  }
+  notifications_preferences_list: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['NotificationPreference'][]
+        }
+      }
+    }
+  }
+  notifications_preferences_update: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['NotificationPreferenceRequest'][]
+        'application/x-www-form-urlencoded': components['schemas']['NotificationPreferenceRequest'][]
+        'multipart/form-data': components['schemas']['NotificationPreferenceRequest'][]
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['NotificationPreference'][]
+        }
+      }
+    }
+  }
+  notifications_read_all_create: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            [key: string]: unknown
+          }
+        }
+      }
+    }
+  }
+  notifications_recent_retrieve: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['RecentNotifications']
         }
       }
     }

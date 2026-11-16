@@ -24,7 +24,9 @@ import {
 import { SOURCE_LABEL } from '../bloqueios/bloqueios_api'
 import { MessageList } from '../conversas/conversas'
 import '../conversas/conversas.css'
+import { IconEdit } from '../../../components/menu/icons'
 import Anexos from './anexos'
+import EditarDados from './editar_dados'
 import './ficha_cliente.css'
 
 const ABAS = ['Compras', 'Campanhas', 'Conversas', 'Anexos'] as const
@@ -55,6 +57,7 @@ export default function FichaCliente() {
   const conversations = useCustomerConversations(id, aba === 'Conversas')
   const [now] = useState(() => Date.now())
   const [optoutOpen, setOptoutOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
   // "ver na conversa" (aba Anexos): abre Conversas e rola até a mensagem.
   const [focus, setFocus] = useState<number | null>(null)
 
@@ -81,6 +84,8 @@ export default function FichaCliente() {
   const c = customer.data
   const d = c.details
   const blocked = c.marketing_status.some((b) => b.status === 'blocked')
+  // O consumidor final do PDV e os anonimizados (LGPD) não se editam.
+  const editable = !c.is_generic && !c.anonymized_at
   const tags = [
     d?.rfm_segment && { label: d.rfm_segment, hot: true },
     d?.corp_tipo && { label: d.corp_tipo, hot: false },
@@ -153,7 +158,20 @@ export default function FichaCliente() {
           </section>
 
           <section className="card ficha-card">
-            <h2 className="card-title sm">Dados</h2>
+            <div className="ficha-card-head">
+              <h2 className="card-title sm">Dados</h2>
+              {editable && (
+                <button
+                  type="button"
+                  className="ficha-edit-btn"
+                  aria-label="Editar dados"
+                  title="Editar dados"
+                  onClick={() => setEditOpen(true)}
+                >
+                  <IconEdit size={18} />
+                </button>
+              )}
+            </div>
             <dl className="dl">
               {dados.map((x) => (
                 <div key={x.label} className="ficha-dl-row">
@@ -436,6 +454,7 @@ export default function FichaCliente() {
       </div>
 
       {optoutOpen && <OptoutModal customerId={c.id} onClose={() => setOptoutOpen(false)} />}
+      {editOpen && <EditarDados customer={c} onClose={() => setEditOpen(false)} />}
     </div>
   )
 }
