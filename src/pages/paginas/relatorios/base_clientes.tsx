@@ -49,6 +49,8 @@ export default function BaseClientes({ range }: { range: DateRange }) {
   const semId = r?.unidentified
   const semIdPct = semId?.total_orders ? (semId.orders / semId.total_orders) * 100 : 0
   const lojaMax = Math.max(1, ...(r?.stores ?? []).map((l) => l.customers))
+  // Backend antigo (antes do deploy) não manda o detalhe por loja.
+  const semIdLojas = semId?.stores ?? []
 
   return (
     <>
@@ -99,8 +101,8 @@ export default function BaseClientes({ range }: { range: DateRange }) {
             </div>
             <div className="base-semid-stores">
               <h3 className="base-semid-sub">Por loja</h3>
-              {semId.stores.length === 0 && <p className="muted">Sem vendas no período.</p>}
-              {semId.stores.map((l) => {
+              {semIdLojas.length === 0 && <p className="muted">Sem vendas no período.</p>}
+              {semIdLojas.map((l) => {
                 const p = l.total_orders ? (l.orders / l.total_orders) * 100 : 0
                 return (
                   <div key={l.store_id} className="base-semid-store">

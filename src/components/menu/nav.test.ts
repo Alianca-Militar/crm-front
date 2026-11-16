@@ -34,6 +34,7 @@ describe('menu por perfil', () => {
       'campanhas',
       'resultados',
       'clientes',
+      'vendas',
       'bloqueios',
       'conversas',
       'templates',
@@ -49,7 +50,7 @@ describe('menu por perfil', () => {
 
   it('admin vê tudo', () => {
     const all = visibleGroups('admin').flatMap((g) => g.items)
-    expect(all).toHaveLength(17)
+    expect(all).toHaveLength(18)
   })
 
   it('sem perfil não vê nada', () => {
@@ -64,6 +65,7 @@ describe('canAccess', () => {
     expect(canAccess('/campanhas/5/resultados', 'vendedor')).toBe(false)
     expect(canAccess('/admin/usuarios', 'vendedor')).toBe(false)
     expect(canAccess('/bloqueios', 'vendedor')).toBe(false)
+    expect(canAccess('/vendas', 'vendedor')).toBe(false)
   })
 
   it('vendedor abre clientes, a ficha, conversas e o próprio perfil', () => {

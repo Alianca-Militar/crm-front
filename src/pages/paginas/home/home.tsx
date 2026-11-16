@@ -42,8 +42,9 @@ type Dashboard = {
     id: number
     code: string
     name: string
-    /** Vendas de hoje que o coletor da loja já mandou (roda algumas vezes por dia). */
-    today: Period
+    /** Vendas de hoje que o coletor da loja já mandou (roda algumas vezes por dia).
+     *  Opcional: backend antigo (antes do deploy) não manda. */
+    today?: Period
     /** Última carga do coletor da loja (null = nunca mandou). */
     synced_at: string | null
   } & Period)[]
@@ -259,14 +260,16 @@ export default function Home() {
                   : 'Sem vendas no mês (ou dados ainda não carregados)'}
               </div>
               <div className="home-store-stats">
-                <div className="home-store-today">
-                  <span>Hoje</span>
-                  <strong>{formatMoney(s.today.revenue)}</strong>
-                  <small>
-                    {s.today.orders === 1 ? '1 venda' : `${n(s.today.orders)} vendas`}
-                    {s.synced_at ? ` · atualizado ${formatLastAccess(s.synced_at)}` : ''}
-                  </small>
-                </div>
+                {s.today && (
+                  <div className="home-store-today">
+                    <span>Hoje</span>
+                    <strong>{formatMoney(s.today.revenue)}</strong>
+                    <small>
+                      {s.today.orders === 1 ? '1 venda' : `${n(s.today.orders)} vendas`}
+                      {s.synced_at ? ` · atualizado ${formatLastAccess(s.synced_at)}` : ''}
+                    </small>
+                  </div>
+                )}
                 <div>
                   <span>Previsão do mês</span>
                   <strong>{formatMoney(d.daily.trend_by_store[String(s.id)] ?? 0)}</strong>

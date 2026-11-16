@@ -18,6 +18,7 @@ import {
   IconResultados,
   IconTemplates,
   IconUsuarios,
+  IconVendas,
 } from './icons'
 
 export type NavItem = {
@@ -67,6 +68,7 @@ export const navGroups: NavGroup[] = [
         roles: OFFICE,
       },
       { key: 'clientes', to: '/clientes', label: 'Clientes', icon: IconClientes, roles: ALL },
+      { key: 'vendas', to: '/vendas', label: 'Vendas', icon: IconVendas, roles: OFFICE },
       {
         key: 'bloqueios',
         to: '/bloqueios',

@@ -621,3 +621,14 @@
 .ficha-anexos-more {
   align-self: center;
 }
+
+.ficha-order-campaign {
+  display: inline-block;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  color: var(--link);
+  font-weight: 600;
+}

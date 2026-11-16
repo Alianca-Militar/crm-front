@@ -266,6 +266,9 @@ export default function FichaCliente() {
                         <th>Data</th>
                         <th>Itens</th>
                         <th>Loja</th>
+                        <th title="Campanha que o cliente recebeu antes da compra (último toque, dentro da janela)">
+                          Campanha
+                        </th>
                         <th>Pagamento</th>
                         <th className="num">Valor</th>
                       </tr>
@@ -294,6 +297,19 @@ export default function FichaCliente() {
                             )}
                           </td>
                           <td>{o.store_name}</td>
+                          <td>
+                            {o.campaign ? (
+                              <Link
+                                to={`/campanhas/${o.campaign.id}`}
+                                className="ficha-order-campaign"
+                                title={`Recebeu em ${formatDate(o.campaign.sent_at)}`}
+                              >
+                                {o.campaign.name}
+                              </Link>
+                            ) : (
+                              <span className="muted">—</span>
+                            )}
+                          </td>
                           <td>{o.cond_pag ?? '—'}</td>
                           <td className="num strong">
                             {formatMoney(o.total_amount)}

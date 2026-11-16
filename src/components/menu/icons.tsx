@@ -47,6 +47,13 @@ export const IconClientes = (p: IconProps) => (
   </Svg>
 )
 
+export const IconVendas = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M6 7h12l-1 13H7L6 7z" />
+    <path d="M9 7a3 3 0 0 1 6 0" />
+  </Svg>
+)
+
 export const IconBloqueios = (p: IconProps) => (
   <Svg {...p}>
     <circle cx="12" cy="12" r="8.5" />

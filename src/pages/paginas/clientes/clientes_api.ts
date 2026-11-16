@@ -8,6 +8,7 @@ import {
 import { api } from '../../../lib/api'
 import type { OptoutRow } from '../bloqueios/bloqueios_api'
 import type { PastConversation } from '../conversas/conversas_api'
+import type { Schemas } from '../../../lib/api_client'
 
 export type Page<T> = { count: number; next: string | null; previous: string | null; results: T[] }
 
@@ -87,25 +88,10 @@ export type Customer = {
 /** Conversa na ficha: a do histórico, com a loja e se ainda está aberta. */
 export type CustomerConversation = PastConversation & { store: string; status: 'open' | 'closed' }
 
-export type OrderLine = {
-  nmr_seq: number
-  sku: string | null
-  product_name: string
-  quantity: string
-  total_price: string
-}
+export type OrderLine = Schemas['OrderItemLine']
 
-export type CustomerOrder = {
-  id: number
-  store_name: string
-  orc_id: string
-  status: string
-  total_amount: string
-  vlr_desc: string
-  cond_pag: string | null
-  ordered_at: string
-  items: OrderLine[]
-}
+/** Compra do cliente; `campaign` = campanha a que a venda foi atribuída (ou null). */
+export type CustomerOrder = Schemas['CustomerOrder']
 
 export type CustomerSend = {
   id: number

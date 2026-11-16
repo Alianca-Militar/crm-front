@@ -1695,6 +1695,91 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/sales/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Vendas pagas (10 por página), com cliente, itens e campanha atribuída. */
+    get: operations['sales_list']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/sales/export/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Excel com as vendas do filtro (até 20 mil). Fica registrado no log. */
+    get: operations['sales_export_retrieve']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/sales/filter-options/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Vendas pagas (10 por página), com cliente, itens e campanha atribuída. */
+    get: operations['sales_filter_options_retrieve']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/sales/imports/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Status da última carga do coletor de cada loja. */
+    get: operations['sales_imports_list']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/sales/summary/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** @description Totais e os gráficos (por vendedor e por pagamento) de todas as vendas do filtro. */
+    get: operations['sales_summary_retrieve']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/settings/': {
     parameters: {
       query?: never
@@ -2065,6 +2150,15 @@ export interface components {
       kind: components['schemas']['AccessLinkKindEnum']
       sent: boolean
       error: string | null
+    }
+    AttributedCampaign: {
+      id: number
+      name: string
+      /**
+       * Format: date-time
+       * @description Quando o cliente recebeu a campanha
+       */
+      sent_at: string
     }
     AudienceRow: {
       customer_id: number | null
@@ -2557,6 +2651,8 @@ export interface components {
       /** Format: date-time */
       ordered_at: string
       readonly items: components['schemas']['OrderItemLine'][]
+      /** @description Campanha a que a venda foi atribuída (último toque dentro da janela) */
+      readonly campaign: components['schemas']['AttributedCampaign'] | null
     }
     /**
      * @description * `paid` - Paga
@@ -2742,6 +2838,12 @@ export interface components {
       field: string
       filled: number
     }
+    Group: {
+      name: string
+      orders: number
+      /** Format: decimal */
+      revenue: string
+    }
     HourSales: {
       hour: number
       /** Format: decimal */
@@ -2750,6 +2852,28 @@ export interface components {
       /** Format: decimal */
       previous_revenue: string
       previous_orders: number
+    }
+    ImportStatus: {
+      store_id: number
+      store_name: string
+      state: components['schemas']['StateEnum']
+      /** Format: date-time */
+      last_success_at: string | null
+      /** @description Vendas novas na última rodada */
+      orders_new: number
+      /** @description Clientes novos na última rodada */
+      customers_new: number
+      /**
+       * Format: date-time
+       * @description Horário de carga que passou e não chegou
+       */
+      missed: string | null
+      /**
+       * Format: date-time
+       * @description Próximo horário do coletor
+       */
+      next_run: string
+      error: string | null
     }
     Indicators: {
       orders: number
@@ -3024,6 +3148,10 @@ export interface components {
      * @enum {string}
      */
     NumberPurposeEnum: 'atendimento' | 'ofertas' | 'misto'
+    Option: {
+      id: number
+      name: string
+    }
     /** @description Mascara os campos de telefone quando o contexto do serializer traz mask=True. */
     Optout: {
       readonly id: number
@@ -3283,6 +3411,21 @@ export interface components {
       previous?: string | null
       results: components['schemas']['PageViewRow'][]
     }
+    PaginatedSaleList: {
+      /** @example 123 */
+      count: number
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null
+      results: components['schemas']['Sale'][]
+    }
     PasswordResetRequestRequest: {
       /** Format: email */
       email: string
@@ -3509,6 +3652,56 @@ export interface components {
      * @enum {string}
      */
     RoleEnum: 'admin' | 'gerente' | 'analista' | 'vendedor'
+    Sale: {
+      readonly id: number
+      /** Format: date-time */
+      ordered_at: string
+      store: number
+      store_name: string
+      orc_id: string
+      /** @description null = consumidor final */
+      readonly customer: components['schemas']['SaleCustomer'] | null
+      seller_name?: string | null
+      payment: string | null
+      /** Format: decimal */
+      discount: string
+      /** Format: decimal */
+      surcharge: string
+      /** Format: decimal */
+      total_amount: string
+      items: components['schemas']['OrderItemLine'][]
+      /** @description Campanha atribuída (ou null) */
+      readonly campaign: components['schemas']['SaleCampaign'] | null
+    }
+    SaleCampaign: {
+      id: number
+      name: string
+      /**
+       * Format: date-time
+       * @description Quando o cliente recebeu a campanha
+       */
+      sent_at: string
+    }
+    SaleCustomer: {
+      id: number
+      name: string | null
+    }
+    SalesOptions: {
+      stores: components['schemas']['Option'][]
+      campaigns: components['schemas']['Option'][]
+    }
+    SalesSummary: {
+      orders: number
+      /** Format: decimal */
+      revenue: string
+      /** Format: decimal */
+      avg_ticket: string | null
+      campaign_orders: number
+      /** Format: decimal */
+      campaign_revenue: string
+      by_seller: components['schemas']['Group'][]
+      by_payment: components['schemas']['Group'][]
+    }
     Segment: {
       segment: string
       customers: number
@@ -3593,6 +3786,14 @@ export interface components {
       code: string
       state: string
     }
+    /**
+     * @description * `ok` - ok
+     *     * `late` - late
+     *     * `error` - error
+     *     * `never` - never
+     * @enum {string}
+     */
+    StateEnum: 'ok' | 'late' | 'error' | 'never'
     Store: {
       readonly id: number
       code: string
@@ -7050,6 +7251,130 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['Role']
+        }
+      }
+    }
+  }
+  sales_list: {
+    parameters: {
+      query: {
+        /** @description with | without | id de uma campanha */
+        campaign?: string
+        end: string
+        /** @description Um número de página dentro do conjunto de resultados paginado. */
+        page?: number
+        /** @description Cliente, CPF, telefone ou nº da venda */
+        q?: string
+        start: string
+        /** @description Loja */
+        store?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['PaginatedSaleList']
+        }
+      }
+    }
+  }
+  sales_export_retrieve: {
+    parameters: {
+      query: {
+        /** @description with | without | id de uma campanha */
+        campaign?: string
+        end: string
+        /** @description Cliente, CPF, telefone ou nº da venda */
+        q?: string
+        start: string
+        /** @description Loja */
+        store?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/octet-stream': string
+        }
+      }
+    }
+  }
+  sales_filter_options_retrieve: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['SalesOptions']
+        }
+      }
+    }
+  }
+  sales_imports_list: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ImportStatus'][]
+        }
+      }
+    }
+  }
+  sales_summary_retrieve: {
+    parameters: {
+      query: {
+        /** @description with | without | id de uma campanha */
+        campaign?: string
+        end: string
+        /** @description Cliente, CPF, telefone ou nº da venda */
+        q?: string
+        start: string
+        /** @description Loja */
+        store?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['SalesSummary']
         }
       }
     }

@@ -1,0 +1,205 @@
+/* Status das importações */
+.vendas-imports {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.vendas-import {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 10px;
+  min-width: 0;
+}
+
+.vendas-import.state-ok {
+  border-left-color: var(--ok-icon);
+}
+
+.vendas-import.state-late {
+  border-left-color: #c58a00;
+}
+
+.vendas-import.state-error {
+  border-left-color: var(--danger);
+}
+
+.vendas-import-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.vendas-import-store {
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vendas-import-when {
+  font-size: 15px;
+}
+
+.vendas-import-info {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.vendas-import-warn {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #7a5200;
+}
+
+.vendas-import-warn.error {
+  color: var(--danger);
+}
+
+.vendas-import.state-never {
+  border-left-color: var(--border-strong);
+}
+
+/* Totais e lista */
+.vendas-kpi-value {
+  font-size: 32px;
+}
+
+.vendas-count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  min-height: 36px;
+  font-size: 15px;
+}
+
+.vendas-count strong {
+  font-size: 17px;
+}
+
+.vendas-table {
+  min-width: 1240px;
+}
+
+.vendas-table td {
+  font-variant-numeric: tabular-nums;
+}
+
+.vendas-customer {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.vendas-customer:hover {
+  color: var(--link);
+}
+
+.vendas-campaign {
+  display: inline-block;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  color: var(--link);
+  font-weight: 600;
+}
+
+.vendas-items-row td {
+  padding-top: 0;
+  background: var(--accent-soft);
+}
+
+.vendas-items {
+  margin: 0;
+  padding: 10px 0 0 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  max-width: 560px;
+  font-size: 14px;
+}
+
+.vendas-items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.vendas-discount {
+  color: var(--danger);
+}
+
+.vendas-surcharge {
+  color: var(--ok-title);
+}
+
+.vendas-page {
+  align-self: center;
+  margin-right: 4px;
+}
+
+/* Gráficos: por vendedor e por pagamento */
+.vendas-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.vendas-chart {
+  min-width: 0;
+}
+
+.vendas-bars {
+  display: grid;
+  gap: 14px;
+}
+
+.vendas-bar-row {
+  display: grid;
+  gap: 4px;
+}
+
+.vendas-bar-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.vendas-bar-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vendas-bar {
+  height: 10px;
+  background: var(--divider);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.vendas-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.vendas-bar-row small {
+  font-size: 12px;
+  color: var(--text-muted);
+}
