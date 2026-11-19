@@ -137,6 +137,16 @@ type Action =
   | { kind: 'transfer'; user: number }
   | { kind: 'close'; reason: string }
 
+/** Admin: encerra várias de uma vez com o mesmo motivo (as já encerradas ficam como estão). */
+export function useCloseMany() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { ids: number[]; reason: string }) =>
+      api<{ closed: number }>('/conversations/close-many/', { method: 'POST', body }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['conversations'] }),
+  })
+}
+
 /** Assumir, devolver, transferir e encerrar: só mudam o CRM, nada vai para a Meta. */
 export function useConversationAction(id: number) {
   const queryClient = useQueryClient()

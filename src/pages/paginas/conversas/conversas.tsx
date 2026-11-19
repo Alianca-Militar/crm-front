@@ -10,6 +10,7 @@ import {
   type Message,
   type MsgStatus,
   type Tab,
+  useCloseMany,
   useConversation,
   useConversationAction,
   useConversationNumbers,
@@ -80,7 +81,11 @@ export default function Conversas() {
   const q = useDebounced(query)
   const [selId, setSelId] = useState<number | null>(null)
   const [showChat, setShowChat] = useState(false) // celular: lista ou conversa
-  const [modal, setModal] = useState<'transfer' | 'close' | null>(null)
+  const [modal, setModal] = useState<'transfer' | 'close' | 'closeMany' | null>(null)
+  // Admin: seleção para encerrar várias de uma vez.
+  const [picking, setPicking] = useState(false)
+  const [picked, setPicked] = useState<number[]>([])
+  const [bulkMsg, setBulkMsg] = useState('')
   const [modalKey, setModalKey] = useState(0)
   // Link de notificação (?aba=waiting&id=12): abre a aba e a conversa, depois limpa a URL.
   const [params, setParams] = useSearchParams()
@@ -117,10 +122,22 @@ export default function Conversas() {
   const current = detail.data && detail.data.id === currentId ? detail.data : null
   const action = useConversationAction(currentId ?? 0)
   const targets = useTransferTargets(modal === 'transfer' ? currentId : null)
+  const closeMany = useCloseMany()
 
   // Atendimento pelo CRM desligado (Configurações): a tela só mostra, ninguém mexe.
   const canAct = page?.crm_send === true && me?.role !== 'analista'
   const canSupervise = page?.can_supervise === true
+  const canCloseMany = me?.role === 'admin' && tab !== 'closed'
+  const allPicked = list.length > 0 && list.every((c) => picked.includes(c.id))
+
+  function stopPicking() {
+    setPicking(false)
+    setPicked([])
+  }
+
+  function togglePick(id: number) {
+    setPicked((ids) => (ids.includes(id) ? ids.filter((i) => i !== id) : [...ids, id]))
+  }
 
   function open(id: number) {
     setSelId(id)
@@ -151,6 +168,18 @@ export default function Conversas() {
         <div className="conversas-list-head">
           <div className="conversas-title-row">
             <h1 className="conversas-title">Conversas</h1>
+            {canCloseMany && !picking && (
+              <button
+                type="button"
+                className="btn sm"
+                onClick={() => {
+                  setPicking(true)
+                  setBulkMsg('')
+                }}
+              >
+                Selecionar
+              </button>
+            )}
             {/* Minhas/Todas só faz sentido em Abertas (Aguardando não tem responsável). */}
             {tab === 'open' && canSupervise && (
               <div className="conversas-toggle" role="group" aria-label="Responsável">
@@ -193,6 +222,7 @@ export default function Conversas() {
                   onClick={() => {
                     setTab(t.value)
                     setSelId(null)
+                    stopPicking()
                   }}
                 >
                   {t.label}
@@ -252,14 +282,47 @@ export default function Conversas() {
           </div>
         </div>
 
+        {picking && canCloseMany && (
+          <div className="conversas-bulk" role="toolbar" aria-label="Encerrar várias">
+            <span>
+              {picked.length} {picked.length === 1 ? 'selecionada' : 'selecionadas'}
+            </span>
+            <button
+              type="button"
+              className="btn sm"
+              disabled={list.length === 0}
+              onClick={() => setPicked(allPicked ? [] : list.map((c) => c.id))}
+            >
+              {allPicked ? 'Limpar' : 'Selecionar todas'}
+            </button>
+            <button
+              type="button"
+              className="btn sm dark"
+              disabled={picked.length === 0 || closeMany.isPending}
+              onClick={() => openModal('closeMany')}
+            >
+              Encerrar
+            </button>
+            <button type="button" className="btn sm" onClick={stopPicking}>
+              Cancelar
+            </button>
+          </div>
+        )}
+        {(bulkMsg || closeMany.isError) && (
+          <p className="conversas-bulk-msg" role="status">
+            {closeMany.isError ? closeMany.error.message : bulkMsg}
+          </p>
+        )}
+
         <div className="conversas-items" aria-busy={listQuery.isFetching}>
           {list.map((c) => (
             <ConversationItem
               key={c.id}
               c={c}
               now={now}
-              selected={c.id === currentId}
-              onClick={() => open(c.id)}
+              selected={picking && canCloseMany ? picked.includes(c.id) : c.id === currentId}
+              picking={picking && canCloseMany}
+              onClick={() => (picking && canCloseMany ? togglePick(c.id) : open(c.id))}
             />
           ))}
           {listQuery.isError && (
@@ -335,6 +398,28 @@ export default function Conversas() {
           action.mutate({ kind: 'close', reason }, { onSettled: () => setModal(null) })
         }
       />
+      <CloseModal
+        key={`m${modalKey}`}
+        open={modal === 'closeMany' && picked.length > 0}
+        count={picked.length}
+        busy={closeMany.isPending}
+        onClose={() => setModal(null)}
+        onConfirm={(reason) =>
+          closeMany.mutate(
+            { ids: picked, reason },
+            {
+              onSuccess: ({ closed }) => {
+                setBulkMsg(
+                  `${closed} ${closed === 1 ? 'conversa encerrada' : 'conversas encerradas'}.`,
+                )
+                stopPicking()
+                setSelId(null)
+              },
+              onSettled: () => setModal(null),
+            },
+          )
+        }
+      />
     </div>
   )
 }
@@ -343,11 +428,14 @@ function ConversationItem({
   c,
   now,
   selected,
+  picking = false,
   onClick,
 }: {
   c: ConversationRow
   now: number
   selected: boolean
+  /** Modo seleção (admin): o item marca/desmarca em vez de abrir. */
+  picking?: boolean
   onClick: () => void
 }) {
   const waiting =
@@ -359,9 +447,16 @@ function ConversationItem({
     <button
       type="button"
       className={selected ? 'conversas-item selected' : 'conversas-item'}
-      aria-current={selected ? 'true' : undefined}
+      aria-current={!picking && selected ? 'true' : undefined}
+      role={picking ? 'checkbox' : undefined}
+      aria-checked={picking ? selected : undefined}
       onClick={onClick}
     >
+      {picking && (
+        <span className={selected ? 'conversas-pick checked' : 'conversas-pick'} aria-hidden>
+          {selected && <IconCheck size={14} />}
+        </span>
+      )}
       <span className="avatar">{c.customer_id ? initials(name) : '?'}</span>
       <span className="conversas-item-body">
         <span className="conversas-item-top">

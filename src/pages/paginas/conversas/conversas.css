@@ -162,6 +162,53 @@
   color: var(--text-muted);
 }
 
+/* Admin: encerrar várias. */
+.conversas-title-row > .btn {
+  margin-left: auto;
+}
+
+.conversas-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--divider);
+  background: var(--accent-soft);
+  font-size: 14px;
+}
+
+.conversas-bulk > span {
+  margin-right: auto;
+  font-weight: 600;
+}
+
+.conversas-bulk-msg {
+  margin: 0;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--divider);
+  font-size: 14px;
+  color: var(--text-subtle);
+}
+
+.conversas-pick {
+  flex: none;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--text-muted);
+  border-radius: 4px;
+  color: var(--bg);
+}
+
+.conversas-pick.checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
 .conversas-item {
   width: 100%;
   display: flex;

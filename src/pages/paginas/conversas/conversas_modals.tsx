@@ -71,12 +71,14 @@ export function TransferModal({ open, users, busy, onClose, onConfirm }: Transfe
 
 type CloseProps = {
   open: boolean
+  /** Encerrar várias (admin): quantas estão selecionadas. */
+  count?: number
   busy: boolean
   onClose: () => void
   onConfirm: (reason: string) => void
 }
 
-export function CloseModal({ open, busy, onClose, onConfirm }: CloseProps) {
+export function CloseModal({ open, count, busy, onClose, onConfirm }: CloseProps) {
   const [reason, setReason] = useState('')
   const [other, setOther] = useState('')
   const final = reason === 'Outro' ? other.trim() && `Outro: ${other.trim()}` : reason
@@ -84,7 +86,9 @@ export function CloseModal({ open, busy, onClose, onConfirm }: CloseProps) {
   return (
     <Modal
       open={open}
-      titulo="Encerrar conversa"
+      titulo={
+        count ? `Encerrar ${count} ${count === 1 ? 'conversa' : 'conversas'}` : 'Encerrar conversa'
+      }
       onClose={onClose}
       footer={
         <>
@@ -129,7 +133,8 @@ export function CloseModal({ open, busy, onClose, onConfirm }: CloseProps) {
         </div>
       )}
       <p className="muted conv-modal-hint">
-        Se o cliente escrever de novo, abre uma conversa nova em Aguardando.
+        {count ? 'Todas recebem o mesmo motivo. ' : ''}Se o cliente escrever de novo, abre uma
+        conversa nova em Aguardando.
       </p>
     </Modal>
   )

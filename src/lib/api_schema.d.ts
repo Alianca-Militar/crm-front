@@ -666,6 +666,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/conversations/close-many/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** @description Admin: encerra várias conversas abertas de uma vez, com o mesmo motivo. */
+    post: operations['conversations_close_many_create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/conversations/media/{message_id}/': {
     parameters: {
       query?: never
@@ -2512,6 +2529,13 @@ export interface components {
       readonly id: number
       state: number
       city: string
+    }
+    CloseManyRequest: {
+      reason: string
+      ids: number[]
+    }
+    CloseManyResult: {
+      closed: number
     }
     CloseRequest: {
       reason: string
@@ -5391,6 +5415,31 @@ export interface operations {
           'application/json': {
             [key: string]: unknown
           }
+        }
+      }
+    }
+  }
+  conversations_close_many_create: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CloseManyRequest']
+        'application/x-www-form-urlencoded': components['schemas']['CloseManyRequest']
+        'multipart/form-data': components['schemas']['CloseManyRequest']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['CloseManyResult']
         }
       }
     }
