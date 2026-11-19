@@ -47,7 +47,13 @@ export type Conversa = {
   history?: Atendimento[]
 }
 
-export const CLOSE_REASONS = ['Vendeu', 'Dúvida respondida', 'Sem retorno do cliente', 'Outro']
+export const CLOSE_REASONS = [
+  'Vendeu',
+  'Dúvida respondida',
+  'Sem retorno do cliente',
+  'Pediu para sair das promoções',
+  'Outro',
+]
 
 export const TEMPLATES = [
   {
