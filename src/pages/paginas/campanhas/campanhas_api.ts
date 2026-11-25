@@ -48,6 +48,8 @@ export type AudienceFilters = {
   /** grupo e categoria do cadastro de produtos (valem para o mesmo produto comprado) */
   product_groups?: string[]
   product_categories?: string[]
+  /** leu a mensagem de alguma destas campanhas */
+  read_campaigns?: number[]
   purchased_within_days?: number
   not_purchased_days?: number
   orders_min?: number
@@ -169,6 +171,7 @@ export type FilterOptions = {
   cities: { value: number; label: string }[]
   stores: { value: number; label: string }[]
   products: { group: string; categories: string[] }[]
+  read_campaigns: { value: number; label: string; reads: number }[]
   exclusions: Record<ExclusionReason, string>
 }
 

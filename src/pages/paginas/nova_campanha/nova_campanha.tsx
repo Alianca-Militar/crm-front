@@ -146,7 +146,11 @@ function useDebounced<T>(value: T, ms: number): T {
 const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
 
 /** Resumo dos filtros em texto, para a etapa Conferir. */
-function describeFilters(f: AudienceFilters, labels: Map<number, string>): string[] {
+function describeFilters(
+  f: AudienceFilters,
+  labels: Map<number, string>,
+  campaigns: Map<number, string>,
+): string[] {
   const out: string[] = []
   if (f.corporacoes?.length) out.push(`Corporação: ${f.corporacoes.join(', ')}`)
   if (f.patentes?.length) out.push(`Patente: ${f.patentes.join(', ')}`)
@@ -168,6 +172,8 @@ function describeFilters(f: AudienceFilters, labels: Map<number, string>): strin
   if (f.product_groups?.length) out.push(`Comprou do grupo: ${f.product_groups.join(', ')}`)
   if (f.product_categories?.length)
     out.push(`Comprou da categoria: ${f.product_categories.join(', ')}`)
+  if (f.read_campaigns?.length)
+    out.push(`Leu a campanha: ${f.read_campaigns.map((c) => campaigns.get(c) ?? c).join(', ')}`)
   return out
 }
 
@@ -396,7 +402,10 @@ export default function NovaCampanha() {
     ...(options.data?.stores ?? []).map((s) => [s.value, s.label] as [number, string]),
     ...(options.data?.cities ?? []).map((c) => [c.value, c.label] as [number, string]),
   ])
-  const filterLines = describeFilters(form.audience_filters, placeLabels)
+  const campaignLabels = new Map(
+    (options.data?.read_campaigns ?? []).map((c) => [c.value, c.label] as [number, string]),
+  )
+  const filterLines = describeFilters(form.audience_filters, placeLabels, campaignLabels)
   const showFrozen = status !== 'draft' && (closed || step === 5)
 
   // ---------- Partes reaproveitadas ----------

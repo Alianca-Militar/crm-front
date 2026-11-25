@@ -226,6 +226,25 @@ export default function AudienceFiltersEditor({
       </fieldset>
 
       <fieldset className="nova-group">
+        <legend>Campanhas anteriores</legend>
+        <Chips
+          label="Leu a mensagem da campanha"
+          options={(options?.read_campaigns ?? []).map((c) => ({
+            value: c.value,
+            label: `${c.label} (${c.reads} ${c.reads === 1 ? 'leitura' : 'leituras'})`,
+          }))}
+          selected={value.read_campaigns}
+          onToggle={(v) => onChange({ ...value, read_campaigns: toggle(value.read_campaigns, v) })}
+          disabled={disabled}
+          empty="Nenhuma campanha com leitura registrada ainda."
+        />
+        <span className="tpl-help muted">
+          Quem leu alguma das campanhas marcadas. Só conta quem deixa a confirmação de leitura
+          ligada no WhatsApp. Diminua o limite de frequência se a campanha marcada for recente.
+        </span>
+      </fieldset>
+
+      <fieldset className="nova-group">
         <legend>Aniversariantes e tags</legend>
         <Chips
           label="Aniversário no mês"
